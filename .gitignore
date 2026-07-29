@@ -78,6 +78,10 @@ steam/data/*.txt
 /tool/unlight-card-tracker/detector/*.sqlite3
 /tool/unlight-card-tracker/detector/26.1.2
 /tool/unlight-card-tracker/detector/self.expected_card_height
+/tool/unlight-card-tracker/detector/templates/card-digits-runtime/
+/tool/unlight-card-tracker/detector/templates/card-icons-runtime/
+/tool/unlight-card-tracker/detector/templates_structure.txt
+/tool/unlight-card-tracker/**/*.jsonl
 
 # Import captures
 /scripts/import/har/*.har
