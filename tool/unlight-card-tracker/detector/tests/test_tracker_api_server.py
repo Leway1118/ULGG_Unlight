@@ -15,6 +15,7 @@ import unittest
 from contextlib import closing
 from contextlib import redirect_stderr
 from pathlib import Path
+from unittest import mock
 
 from fastapi.testclient import TestClient
 
@@ -69,11 +70,11 @@ class TrackerApiServerUnitTests(unittest.TestCase):
         self.assertEqual(args.database, default_database_path())
         self.assertEqual(args.log_level, DEFAULT_LOG_LEVEL)
 
-    def test_parser_accepts_custom_host_port_database(self) -> None:
+    def test_parser_accepts_loopback_host_port_database(self) -> None:
         args = parse_args(
             [
                 "--host",
-                "127.0.0.2",
+                "localhost",
                 "--port",
                 "8876",
                 "--database",
@@ -82,7 +83,7 @@ class TrackerApiServerUnitTests(unittest.TestCase):
                 "debug",
             ]
         )
-        self.assertEqual(args.host, "127.0.0.2")
+        self.assertEqual(args.host, "127.0.0.1")
         self.assertEqual(args.port, 8876)
         self.assertEqual(
             args.database,
@@ -255,6 +256,49 @@ class TrackerApiServerUnitTests(unittest.TestCase):
             self.assertEqual(row["producer_instance"], "screen")
             self.assertEqual(row["tracker_active"], 0)
             self.assertEqual(version, "3")
+
+    def test_parser_allows_and_normalizes_loopback_hosts(self) -> None:
+        cases = {
+            "127.0.0.1": "127.0.0.1",
+            "localhost": "127.0.0.1",
+            "::1": "::1",
+        }
+        for supplied, expected in cases.items():
+            with self.subTest(host=supplied):
+                self.assertEqual(
+                    parse_args(["--host", supplied]).host,
+                    expected,
+                )
+
+    def test_main_rejects_non_loopback_before_server_runner(self) -> None:
+        for host in ("0.0.0.0", "::", "192.168.1.20"):
+            with self.subTest(host=host):
+                error_output = io.StringIO()
+                with mock.patch(
+                    "tracker_api_server.run_server"
+                ) as run_server:
+                    with redirect_stderr(error_output):
+                        with self.assertRaises(SystemExit) as raised:
+                            main(["--host", host])
+
+                self.assertEqual(raised.exception.code, 2)
+                run_server.assert_not_called()
+                self.assertIn(
+                    "Tracker API is local-only",
+                    error_output.getvalue(),
+                )
+
+    def test_launcher_loopback_arguments_remain_accepted(self) -> None:
+        args = parse_args(
+            [
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8765",
+            ]
+        )
+        self.assertEqual(args.host, "127.0.0.1")
+        self.assertEqual(args.port, 8765)
 
     def test_occupied_port_has_explicit_error(self) -> None:
         with socket.socket() as occupied:

@@ -61,6 +61,23 @@ class ForegroundUvicornServer(uvicorn.Server):
                 signal.signal(handled_signal, previous_handler)
 
 
+LOOPBACK_HOSTS = {
+    "127.0.0.1": "127.0.0.1",
+    "localhost": "127.0.0.1",
+    "::1": "::1",
+}
+
+
+def normalize_loopback_host(value: str) -> str:
+    normalized = LOOPBACK_HOSTS.get(value)
+    if normalized is None:
+        raise argparse.ArgumentTypeError(
+            "Tracker API is local-only; --host must be "
+            "127.0.0.1, localhost, or ::1"
+        )
+    return normalized
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
@@ -69,8 +86,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--host",
+        type=normalize_loopback_host,
         default=DEFAULT_HOST,
-        help=f"API bind host (default: {DEFAULT_HOST})",
+        help=(
+            "local-only API bind host: 127.0.0.1, localhost, or ::1 "
+            f"(default: {DEFAULT_HOST})"
+        ),
     )
     parser.add_argument(
         "--port",
@@ -165,11 +186,12 @@ def run_server(args: argparse.Namespace) -> int:
     ensure_port_available(args.host, args.port)
     database_path = Path(args.database).resolve()
     app = build_app(database_path)
+    url_host = f"[{args.host}]" if ":" in args.host else args.host
 
-    print(f"Tracker UI: http://{args.host}:{args.port}/tracker/")
+    print(f"Tracker UI: http://{url_host}:{args.port}/tracker/")
     print(
         "Tracker API: "
-        f"http://{args.host}:{args.port}/api/v1/health"
+        f"http://{url_host}:{args.port}/api/v1/health"
     )
     print(f"SQLite database: {database_path}")
     print("Detector: not running (standalone API mode)")
