@@ -117,7 +117,7 @@ def config(**overrides):
         "api_host": "127.0.0.1",
         "api_port": 8765,
         "cdp_host": "127.0.0.1",
-        "cdp_port": 9333,
+        "cdp_port": 59222,
         "no_browser": True,
         "startup_timeout": 0.5,
         "shutdown_timeout": 0.1,
@@ -153,7 +153,7 @@ class TrackerLauncherTests(unittest.TestCase):
     def test_parser_defaults_and_no_browser(self):
         parsed = tracker_launcher.parse_args([])
         self.assertEqual(parsed.api_port, 8765)
-        self.assertEqual(parsed.cdp_port, 9333)
+        self.assertEqual(parsed.cdp_port, 59222)
         self.assertFalse(parsed.no_browser)
         self.assertTrue(
             tracker_launcher.parse_args(["--no-browser"]).no_browser

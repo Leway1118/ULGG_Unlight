@@ -93,7 +93,7 @@ class TrackerApiServerUnitTests(unittest.TestCase):
 
     def test_parser_rejects_electron_cdp_port(self) -> None:
         with self.assertRaises(SystemExit):
-            parse_args(["--port", "9333"])
+            parse_args(["--port", "59222"])
 
     def test_build_app_initializes_database_and_health(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

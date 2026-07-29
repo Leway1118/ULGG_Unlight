@@ -147,7 +147,7 @@ def main() -> int:
     output_lines: list[str] = []
     output_thread = None
     try:
-        wait_json("http://127.0.0.1:9333/json/version", 10)
+        wait_json("http://127.0.0.1:59222/json/version", 10)
         launcher = subprocess.Popen(
             [
                 str(args.exe.resolve()),

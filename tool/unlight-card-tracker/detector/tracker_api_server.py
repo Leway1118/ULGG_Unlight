@@ -25,7 +25,7 @@ from server import RuntimeStatus, create_app
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 DEFAULT_LOG_LEVEL = "info"
-ELECTRON_CDP_PORT = 9333
+ELECTRON_CDP_PORT = 59222
 LOG_LEVELS = ("critical", "error", "warning", "info", "debug", "trace")
 
 

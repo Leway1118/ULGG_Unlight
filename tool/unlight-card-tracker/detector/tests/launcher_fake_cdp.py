@@ -67,7 +67,7 @@ async def run(http_port: int, websocket_port: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--http-port", type=int, default=9333)
+    parser.add_argument("--http-port", type=int, default=59222)
     parser.add_argument("--websocket-port", type=int, default=9334)
     args = parser.parse_args()
     asyncio.run(run(args.http_port, args.websocket_port))

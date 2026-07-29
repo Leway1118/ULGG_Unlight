@@ -42,7 +42,7 @@ from battle_stream_processor import BattleStreamProcessor
 from tracker_event_client import TrackerEventClient
 
 
-DEBUG_PORT = 9333
+DEBUG_PORT = 59222
 STEAM_GAME_ID = "3247080"
 OUT_DIR = Path("deck")
 
@@ -584,7 +584,7 @@ def short_session_id(session_id):
 def producer_instance_for_port(port):
     if port == 1221:
         return "chrome"
-    if port == 9333:
+    if port == DEBUG_PORT:
         return "electron"
     return f"port-{port}"
 

@@ -1029,7 +1029,7 @@ class SnifferBattleRuntimeTests(unittest.TestCase):
         electron_dir = tempfile.TemporaryDirectory()
         self.addCleanup(electron_dir.cleanup)
         electron = ULSniffer(
-            port=9333,
+            port=59222,
             output_dir=electron_dir.name,
             enable_stdin_markers=False,
             process_battle_state=True,
