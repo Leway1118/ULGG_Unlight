@@ -117,6 +117,48 @@ class BattleStateReducerTests(unittest.TestCase):
         )
         self.assertEqual(diagnostics, [])
 
+    def test_battle_started_preserves_stage_context_in_projection(self):
+        state, diagnostics = reduce_battle_event(
+            initial_battle_state(),
+            domain_event(
+                "battle.started",
+                payload={
+                    "stage_code": "003",
+                    "stage_source": "db_quest_land_now",
+                    "stage_source_sequence": 1637,
+                },
+            ),
+        )
+        self.assertEqual(state["stage_code"], "003")
+        self.assertEqual(state["stage_source"], "db_quest_land_now")
+        self.assertEqual(state["stage_source_sequence"], 1637)
+        self.assertEqual(diagnostics, [])
+
+    def test_battle_started_without_stage_remains_backward_compatible(self):
+        state, diagnostics = reduce_battle_event(
+            initial_battle_state(),
+            domain_event("battle.started"),
+        )
+        self.assertIsNone(state["stage_code"])
+        self.assertEqual(diagnostics, [])
+
+    def test_invalid_stage_context_does_not_start_battle(self):
+        event = domain_event(
+            "battle.started",
+            payload={
+                "stage_code": 3,
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 1637,
+            },
+        )
+        state, diagnostics = reduce_battle_event(
+            initial_battle_state(),
+            event,
+        )
+        self.assertEqual(state["battle_status"], "idle")
+        self.assertEqual(diagnostics[0]["code"], "invalid_payload")
+        self.assertEqual(state["applied_event_ids"], [])
+
     def test_second_battle_started_clears_pending(self):
         state = started_state()
         state["self_pending_selection"] = [2, 3]

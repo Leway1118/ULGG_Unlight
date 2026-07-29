@@ -108,6 +108,37 @@ class EventParserTests(unittest.TestCase):
         self.assertEqual(observation["type"], "battle_started")
         self.assertEqual(observation["visibility"], Visibility.PUBLIC.value)
 
+    def test_game_start_preserves_valid_safe_stage_context(self):
+        observation = parse(
+            "gameStart",
+            [],
+            stage_context={
+                "stage_code": "003",
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 36,
+            },
+        )[0]
+        self.assertEqual(
+            observation["payload"],
+            {
+                "stage_code": "003",
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 36,
+            },
+        )
+
+    def test_game_start_rejects_invalid_stage_context(self):
+        observation = parse(
+            "gameStart",
+            [],
+            stage_context={
+                "stage_code": 3,
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 36,
+            },
+        )[0]
+        self.assertEqual(observation["payload"], {})
+
     def test_draw_phase_parses_multiple_cards(self):
         observation = parse(
             "drawPhase",

@@ -735,6 +735,73 @@ class SnifferBattleRuntimeTests(unittest.TestCase):
             "api-session",
         )
 
+    def test_stage_context_uses_private_room_identity_and_never_persists_it(self):
+        api = RecordingTrackerClient()
+        sniffer = self.make_sniffer(
+            process_battle_state=True,
+            battle_observations=True,
+            producer_session_id="stage-session",
+            tracker_event_client=api,
+        )
+        room_id = "room-identity-private-value-123456789"
+        sniffer.handle_frame(
+            frame(
+                "db_quest_land_now",
+                [{"room_id": room_id, "room_stage": "010"}],
+            ),
+            "received",
+        )
+        sniffer.handle_frame(
+            frame("joinRoom", [room_id, "main", True, None]),
+            "sent",
+        )
+        sniffer.handle_frame(frame("gameStart"), "received")
+
+        self.assertEqual(len(api.events), 1)
+        event = api.events[0]
+        self.assertEqual(
+            event["payload"],
+            {
+                "stage_code": "010",
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 1,
+            },
+        )
+        self.assertNotIn(room_id, json.dumps(event))
+        persisted = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in (
+                Path(self.temp_dir.name) / "events.jsonl",
+                Path(self.temp_dir.name) / "battle-observations.jsonl",
+            )
+        )
+        self.assertNotIn(room_id, persisted)
+
+    def test_redaction_collision_does_not_confirm_different_full_room_identity(self):
+        api = RecordingTrackerClient()
+        sniffer = self.make_sniffer(
+            process_battle_state=True,
+            producer_session_id="stage-mismatch",
+            tracker_event_client=api,
+        )
+        room_one = "same-room-AAAA-private-middle-tail"
+        room_two = "same-room-BBBB-private-middle-tail"
+        sniffer.handle_frame(
+            frame(
+                "db_quest_land_now",
+                [{"room_id": room_one, "room_stage": "010"}],
+            ),
+            "received",
+        )
+        sniffer.handle_frame(
+            frame("joinRoom", [room_two, "main", True, None]),
+            "sent",
+        )
+        sniffer.handle_frame(frame("gameStart"), "received")
+
+        self.assertEqual(len(api.events), 1)
+        self.assertEqual(api.events[0]["payload"], {})
+
     def test_non_required_api_failure_continues_local_processing(self):
         api = RecordingTrackerClient(
             [

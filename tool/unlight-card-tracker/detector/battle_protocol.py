@@ -57,6 +57,9 @@ _PROTOCOL_SIDES = {"A", "B", "unknown"}
 _OUTCOMES = {"win", "lose", "draw"}
 SUPPORTED_EVENT_NAMES = frozenset(
     {
+        "db_quest_land_now",
+        "joinRoom",
+        "gameReady",
         "gameStart",
         "drawPhase",
         "eventCard",
@@ -295,8 +298,42 @@ def _card_list(value: Any) -> list[BattleCard]:
     return cards
 
 
-def _parse_game_start(metadata: Mapping[str, Any], _args: list[Any]):
-    return [_observation("battle_started", "gameStart", **metadata)]
+def _safe_stage_context(value: Any) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        return {}
+    stage_code = value.get("stage_code")
+    stage_source = value.get("stage_source")
+    source_sequence = value.get("stage_source_sequence")
+    if (
+        not isinstance(stage_code, str)
+        or len(stage_code) != 3
+        or not stage_code.isascii()
+        or not stage_code.isdigit()
+        or stage_source != "db_quest_land_now"
+        or not _is_integer(source_sequence)
+        or source_sequence < 0
+    ):
+        return {}
+    return {
+        "stage_code": stage_code,
+        "stage_source": stage_source,
+        "stage_source_sequence": source_sequence,
+    }
+
+
+def _parse_game_start(
+    metadata: Mapping[str, Any],
+    _args: list[Any],
+    stage_context: Any = None,
+):
+    return [
+        _observation(
+            "battle_started",
+            "gameStart",
+            payload=_safe_stage_context(stage_context),
+            **metadata,
+        )
+    ]
 
 
 def _parse_draw_phase(metadata: Mapping[str, Any], args: list[Any]):
@@ -486,6 +523,7 @@ def parse_protocol_event(
     sequence: int | None = None,
     timestamp: str | None = None,
     context: SideResolutionContext | None = None,
+    stage_context: Mapping[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """Parse one decoded protocol event into zero or more observations."""
     if not isinstance(event_name, str):
@@ -499,7 +537,7 @@ def parse_protocol_event(
     }
 
     if event_name == "gameStart":
-        return _parse_game_start(metadata, event_args)
+        return _parse_game_start(metadata, event_args, stage_context)
     if event_name == "drawPhase":
         return _parse_draw_phase(metadata, event_args)
     if event_name == "eventCard":
@@ -538,4 +576,5 @@ def parse_discovery_record(
         sequence=record.get("sequence"),
         timestamp=record.get("timestamp"),
         context=context,
+        stage_context=record.get("stage_context"),
     )

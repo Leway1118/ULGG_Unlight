@@ -1017,6 +1017,7 @@ class ULSniffer:
         websocket_url,
         opcode,
         payload_size,
+        private_args=None,
     ):
         with self._record_lock:
             if self._closed:
@@ -1039,6 +1040,13 @@ class ULSniffer:
                 self._write_jsonl_unlocked(self.events_dir / filename, record)
             self._update_stats_unlocked(record, payload_size)
             if self.battle_observation_stream is not None:
+                observe_context = getattr(
+                    self.battle_observation_stream,
+                    "observe_transport_context",
+                    None,
+                )
+                if callable(observe_context):
+                    observe_context(record, private_args)
                 observations = self.battle_observation_stream.process(record)
                 for observation in observations:
                     result = self._process_battle_observation(observation)
@@ -1273,6 +1281,7 @@ class ULSniffer:
             websocket_url=websocket_url,
             opcode=opcode,
             payload_size=payload_size,
+            private_args=args,
         )
         self._write_packet_log(
             timestamp,

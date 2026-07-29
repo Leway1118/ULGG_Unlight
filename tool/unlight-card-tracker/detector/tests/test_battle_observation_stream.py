@@ -73,6 +73,194 @@ class BattleObservationStreamTests(unittest.TestCase):
         self.assertEqual(len(written), 1)
         self.assertEqual(written[0]["visibility"], "public")
 
+    def observe_context(self, stream, event, args, *, sequence, direction):
+        value = record(
+            event,
+            ["redacted"],
+            sequence=sequence,
+            direction=direction,
+        )
+        stream.observe_transport_context(value, args)
+        self.assertEqual(stream.process(value), [])
+
+    def test_matching_room_context_is_attached_to_game_start(self):
+        stream = self.make_stream()
+        room_id = "room-identity-one"
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": room_id, "room_stage": "010"}],
+            sequence=36,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            [room_id, "main", True, None],
+            sequence=47,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=99))[0]
+        self.assertEqual(
+            started["payload"],
+            {
+                "stage_code": "010",
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 36,
+            },
+        )
+
+    def test_game_ready_can_confirm_room_and_preserves_leading_zero(self):
+        stream = self.make_stream()
+        room_id = "room-identity-two"
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": room_id, "room_stage": "003"}],
+            sequence=1637,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "gameReady",
+            [room_id, True, None],
+            sequence=1695,
+            direction="sent",
+        )
+        started = stream.process(
+            record("gameStart", [], sequence=1700)
+        )[0]
+        self.assertEqual(started["payload"]["stage_code"], "003")
+
+    def test_room_identity_mismatch_fails_closed(self):
+        stream = self.make_stream()
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": "room-one", "room_stage": "010"}],
+            sequence=36,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            ["room-two", "main", True, None],
+            sequence=47,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=99))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_unconfirmed_context_fails_closed(self):
+        stream = self.make_stream()
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": "room-one", "room_stage": "010"}],
+            sequence=36,
+            direction="received",
+        )
+        started = stream.process(record("gameStart", [], sequence=99))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_out_of_order_confirmation_fails_closed(self):
+        stream = self.make_stream()
+        room_id = "room-one"
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": room_id, "room_stage": "010"}],
+            sequence=36,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            [room_id, "main", True, None],
+            sequence=35,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=99))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_game_start_consumes_context_once(self):
+        stream = self.make_stream()
+        room_id = "room-one"
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": room_id, "room_stage": "010"}],
+            sequence=36,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            [room_id, "main", True, None],
+            sequence=47,
+            direction="sent",
+        )
+        first = stream.process(record("gameStart", [], sequence=99))[0]
+        second = stream.process(record("gameStart", [], sequence=100))[0]
+        self.assertEqual(first["payload"]["stage_code"], "010")
+        self.assertEqual(second["payload"], {})
+
+    def test_new_room_context_replaces_previous_context(self):
+        stream = self.make_stream()
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": "room-one", "room_stage": "010"}],
+            sequence=36,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            ["room-one", "main", True, None],
+            sequence=47,
+            direction="sent",
+        )
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": "room-two", "room_stage": "003"}],
+            sequence=1637,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "gameReady",
+            ["room-two", True, None],
+            sequence=1695,
+            direction="sent",
+        )
+        started = stream.process(
+            record("gameStart", [], sequence=1700)
+        )[0]
+        self.assertEqual(started["payload"]["stage_code"], "003")
+
+    def test_result_clears_confirmed_context(self):
+        stream = self.make_stream()
+        room_id = "room-one"
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": room_id, "room_stage": "010"}],
+            sequence=36,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            [room_id, "main", True, None],
+            sequence=47,
+            direction="sent",
+        )
+        stream.process(record("result", ["win"], sequence=98))
+        started = stream.process(record("gameStart", [], sequence=99))[0]
+        self.assertEqual(started["payload"], {})
+
     def test_self_private_observation_is_written(self):
         written = self.make_stream().process(
             record("drawPhase", [[card()], 1])

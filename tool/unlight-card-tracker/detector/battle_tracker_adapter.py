@@ -198,10 +198,35 @@ def _project_result_payload(payload: Mapping[str, Any]) -> dict[str, Any] | None
     return {"outcome": outcome} if outcome in _OUTCOMES else None
 
 
+def _project_battle_started_payload(
+    payload: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    if not payload:
+        return {}
+    stage_code = payload.get("stage_code")
+    stage_source = payload.get("stage_source")
+    source_sequence = payload.get("stage_source_sequence")
+    if (
+        not isinstance(stage_code, str)
+        or len(stage_code) != 3
+        or not stage_code.isascii()
+        or not stage_code.isdigit()
+        or stage_source != "db_quest_land_now"
+        or not _is_int(source_sequence)
+        or source_sequence < 0
+    ):
+        return None
+    return {
+        "stage_code": stage_code,
+        "stage_source": stage_source,
+        "stage_source_sequence": source_sequence,
+    }
+
+
 _PAYLOAD_PROJECTORS: dict[
     str, Callable[[Mapping[str, Any]], dict[str, Any] | None]
 ] = {
-    "battle_started": lambda _payload: {},
+    "battle_started": _project_battle_started_payload,
     "cards_dealt": _project_cards_payload,
     "event_card_received": _project_card_payload,
     "card_drawn": _project_card_payload,

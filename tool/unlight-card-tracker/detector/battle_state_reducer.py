@@ -49,6 +49,9 @@ def initial_battle_state() -> dict[str, Any]:
         "battle_status": "idle",
         "battle_started_at": None,
         "battle_finished_at": None,
+        "stage_code": None,
+        "stage_source": None,
+        "stage_source_sequence": None,
         "outcome": None,
         "turn": 0,
         "phase": None,
@@ -339,7 +342,33 @@ def _start_battle(
     state["diagnostics"] = deepcopy(previous["diagnostics"])
     state["battle_status"] = "active"
     state["battle_started_at"] = event["occurred_at"]
+    stage = _stage_context(event["payload"])
+    if stage is not None:
+        state.update(stage)
     return state
+
+
+def _stage_context(payload: Mapping[str, Any]) -> dict[str, Any] | None:
+    if not payload:
+        return {}
+    stage_code = payload.get("stage_code")
+    stage_source = payload.get("stage_source")
+    source_sequence = payload.get("stage_source_sequence")
+    if (
+        not isinstance(stage_code, str)
+        or len(stage_code) != 3
+        or not stage_code.isascii()
+        or not stage_code.isdigit()
+        or stage_source != "db_quest_land_now"
+        or not _is_int(source_sequence)
+        or source_sequence < 0
+    ):
+        return None
+    return {
+        "stage_code": stage_code,
+        "stage_source": stage_source,
+        "stage_source_sequence": source_sequence,
+    }
 
 
 def reduce_battle_event(
@@ -465,6 +494,14 @@ def reduce_battle_event(
         return state, diagnostics
 
     if event_type == "battle.started":
+        if _stage_context(event["payload"]) is None:
+            _append_diagnostic(
+                state,
+                diagnostics,
+                event,
+                "invalid_payload",
+            )
+            return state, diagnostics
         restarted = state["battle_status"] == "active"
         state = _start_battle(state, event)
         _mark_processed(state, event, event_id)

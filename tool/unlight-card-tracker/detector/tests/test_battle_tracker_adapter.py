@@ -105,6 +105,36 @@ class BattleTrackerAdapterTests(unittest.TestCase):
     def test_maps_battle_started(self):
         self.assert_event_type("battle_started", "battle.started")
 
+    def test_battle_started_preserves_safe_stage_context(self):
+        value = observation(
+            "battle_started",
+            payload={
+                "stage_code": "003",
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 1637,
+            },
+        )
+        event = adapt_battle_observation(value)[0]
+        self.assertEqual(
+            event["payload"],
+            {
+                "stage_code": "003",
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 1637,
+            },
+        )
+
+    def test_battle_started_rejects_malformed_stage_context(self):
+        value = observation(
+            "battle_started",
+            payload={
+                "stage_code": 3,
+                "stage_source": "db_quest_land_now",
+                "stage_source_sequence": 1637,
+            },
+        )
+        self.assertEqual(adapt_battle_observation(value), [])
+
     def test_maps_cards_dealt(self):
         self.assert_event_type("cards_dealt", "hand.cards_dealt")
 

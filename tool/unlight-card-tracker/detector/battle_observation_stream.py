@@ -2,6 +2,7 @@
 
 import json
 import threading
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
@@ -30,6 +31,9 @@ _RESTRICTED_VISIBILITIES = frozenset(
 _DIAGNOSTIC_VISIBILITIES = frozenset({Visibility.DIAGNOSTIC_ONLY.value})
 _MALFORMED_DISCOVERY_EVENTS = frozenset(
     {"__malformed_json__", "__non_object_json__"}
+)
+_STAGE_CONTEXT_EVENTS = frozenset(
+    {"db_quest_land_now", "joinRoom", "gameReady"}
 )
 _FORBIDDEN_PAYLOAD_KEYS = frozenset(
     {
@@ -85,6 +89,21 @@ def _is_valid_empty_protocol_event(record: Mapping[str, Any]) -> bool:
     return False
 
 
+@dataclass(frozen=True)
+class _PendingStageContext:
+    room_id: str
+    stage_code: str
+    source_sequence: int
+    confirmed: bool = False
+
+    def safe_payload(self) -> dict[str, Any]:
+        return {
+            "stage_code": self.stage_code,
+            "stage_source": "db_quest_land_now",
+            "stage_source_sequence": self.source_sequence,
+        }
+
+
 class BattleObservationStream:
     """Append an allowlisted projection of redacted discovery records."""
 
@@ -108,6 +127,7 @@ class BattleObservationStream:
         self.console = console
         self._lock = threading.RLock()
         self._closed = False
+        self._pending_stage_context: _PendingStageContext | None = None
         self._stats = {
             "written": 0,
             "rejected_restricted": 0,
@@ -124,6 +144,104 @@ class BattleObservationStream:
                 encoding="utf-8",
                 buffering=1,
             )
+
+    @staticmethod
+    def _room_identity(args: Any) -> str | None:
+        if not isinstance(args, list) or not args:
+            return None
+        room_id = args[0]
+        return room_id if isinstance(room_id, str) and room_id else None
+
+    @staticmethod
+    def _new_stage_context(
+        record: Mapping[str, Any],
+        args: Any,
+    ) -> _PendingStageContext | None:
+        if record.get("direction") != "received":
+            return None
+        sequence = record.get("sequence")
+        if (
+            not isinstance(sequence, int)
+            or isinstance(sequence, bool)
+            or sequence < 0
+            or not isinstance(args, list)
+            or not args
+            or not isinstance(args[0], Mapping)
+        ):
+            return None
+        room_id = args[0].get("room_id")
+        stage_code = args[0].get("room_stage")
+        if (
+            not isinstance(room_id, str)
+            or not room_id
+            or not isinstance(stage_code, str)
+            or len(stage_code) != 3
+            or not stage_code.isascii()
+            or not stage_code.isdigit()
+        ):
+            return None
+        return _PendingStageContext(
+            room_id=room_id,
+            stage_code=stage_code,
+            source_sequence=sequence,
+        )
+
+    def observe_transport_context(
+        self,
+        record: Any,
+        private_args: Any,
+    ) -> None:
+        """Observe exact room identity without persisting transport payloads."""
+        with self._lock:
+            if self._closed or not isinstance(record, Mapping):
+                return
+            event_name = record.get("event")
+            if event_name == "db_quest_land_now":
+                self._pending_stage_context = self._new_stage_context(
+                    record,
+                    private_args,
+                )
+                return
+            if event_name not in {"joinRoom", "gameReady"}:
+                return
+            if record.get("direction") != "sent":
+                return
+            sequence = record.get("sequence")
+            room_id = self._room_identity(private_args)
+            pending = self._pending_stage_context
+            if (
+                pending is None
+                or room_id is None
+                or room_id != pending.room_id
+                or not isinstance(sequence, int)
+                or isinstance(sequence, bool)
+                or sequence <= pending.source_sequence
+            ):
+                self._pending_stage_context = None
+                return
+            self._pending_stage_context = replace(
+                pending,
+                confirmed=True,
+            )
+
+    def _parser_record(
+        self,
+        record: Mapping[str, Any],
+    ) -> Mapping[str, Any]:
+        pending = self._pending_stage_context
+        if (
+            record.get("event") != "gameStart"
+            or pending is None
+            or not pending.confirmed
+            or not isinstance(record.get("sequence"), int)
+            or isinstance(record.get("sequence"), bool)
+            or record["sequence"] <= pending.source_sequence
+        ):
+            return record
+        return {
+            **record,
+            "stage_context": pending.safe_payload(),
+        }
 
     def _safe_error(self, record: Any, reason: str) -> None:
         event_name = None
@@ -194,18 +312,26 @@ class BattleObservationStream:
             if event_name not in SUPPORTED_EVENT_NAMES:
                 self._stats["unknown_events"] += 1
                 return []
+            if event_name in _STAGE_CONTEXT_EVENTS:
+                return []
             if not isinstance(record.get("args_summary"), list):
                 self._record_parse_error(record, "invalid_args_schema")
                 return []
 
             try:
-                observations = self.parser(record, context=self.context)
+                observations = self.parser(
+                    self._parser_record(record),
+                    context=self.context,
+                )
             except Exception as exc:
                 self._record_parse_error(
                     record,
                     f"parser_exception:{type(exc).__name__}",
                 )
                 return []
+            finally:
+                if event_name in {"gameStart", "result"}:
+                    self._pending_stage_context = None
 
             if not isinstance(observations, list):
                 self._record_parse_error(record, "invalid_parser_result")
@@ -265,6 +391,7 @@ class BattleObservationStream:
     def close(self) -> dict[str, int]:
         with self._lock:
             if not self._closed:
+                self._pending_stage_context = None
                 if self._file is not None:
                     self._file.flush()
                     self._file.close()
