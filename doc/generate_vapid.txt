@@ -1,0 +1,7 @@
+VAPID_PUBLIC_KEY=BG45DmDklsQfCTqOqxTv3yST175fYZJPtxVXBMP4yW6HtVq5zdzcI2dYvbmr_775safTKbU5Scp8SMJxWVp7ILg
+VAPID_PRIVATE_KEY=vyJhIP-Xhdnpk-ETKvNEx-8yW8dugFAbM24fwkfU1TY
+
+FILE="/doc/generate_vapid.txt"
+
+grep -nEi "publicKey|privateKey|subject|mailto|https" "$FILE" \
+  | sed -E 's/(:|=>|=).*/\1 ***隱藏***/'

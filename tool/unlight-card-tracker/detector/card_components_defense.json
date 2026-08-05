@@ -1,0 +1,1534 @@
+{
+  "phase": "defense",
+  "state": {
+    "arr1Left": 7,
+    "distance": 2,
+    "swdSum": 0,
+    "gunSum": 0,
+    "shiSum": 0,
+    "movSum": 0,
+    "speSum": 0,
+    "sendDelay": false
+  },
+  "cards": [
+    {
+      "index": 2,
+      "card": {
+        "cardIndex": 2,
+        "componentCount": 5,
+        "components": [
+          {
+            "componentIndex": 0,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 203,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": false,
+            "textureKey": "acframe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ],
+              "pointerdown": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1),e.socket.emit(\"card\",e.room,e.id,t),i[0].disableInteractive()}"
+                }
+              ],
+              "pointerover": [
+                {
+                  "name": "",
+                  "source": "()=>{e.info_text_timeout=e.time.addEvent({delay:500,callback:()=>{e.info_text.setText(n[lang][0]).setResolution(2).setVisible(!0),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!0),e.info_text_flag=!0}}),l.setVisible(!0)}"
+                }
+              ],
+              "pointerout": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 1,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 203,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acmov",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 2,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 203,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "adbc8ec5-90fb-4644-a917-587ab61e3b3c",
+            "frameName": "__BASE",
+            "text": "2",
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 3,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 203,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acspe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 4,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 203,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "d02fb424-5f6e-461a-8b68-f59e669a23bc",
+            "frameName": "__BASE",
+            "text": "3",
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rotateButton": {
+        "cardIndex": 2,
+        "x": 203,
+        "y": 510,
+        "visible": false,
+        "inputEnabled": false,
+        "events": {
+          "addedtoscene": [
+            {
+              "name": "addedToScene",
+              "source": "function(){this.scene.sys.updateList.add(this)}"
+            }
+          ],
+          "removedfromscene": [
+            {
+              "name": "removedFromScene",
+              "source": "function(){this.scene.sys.updateList.remove(this)}"
+            }
+          ],
+          "pointerover": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",1)}"
+            }
+          ],
+          "pointerout": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!1),l.setTexture(\"cardaction\",0)}"
+            }
+          ],
+          "pointerdown": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",2)}"
+            }
+          ],
+          "pointerup": [
+            {
+              "name": "",
+              "source": "()=>{e.socket.emit(\"rotate\",e.room,e.id,t),l.setVisible(!1),l.setTexture(\"cardaction\",0).disableInteractive()}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 12,
+      "card": {
+        "cardIndex": 12,
+        "componentCount": 5,
+        "components": [
+          {
+            "componentIndex": 0,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 263,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": false,
+            "textureKey": "acframe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ],
+              "pointerdown": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1),e.socket.emit(\"card\",e.room,e.id,t),i[0].disableInteractive()}"
+                }
+              ],
+              "pointerover": [
+                {
+                  "name": "",
+                  "source": "()=>{e.info_text_timeout=e.time.addEvent({delay:500,callback:()=>{e.info_text.setText(n[lang][0]).setResolution(2).setVisible(!0),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!0),e.info_text_flag=!0}}),l.setVisible(!0)}"
+                }
+              ],
+              "pointerout": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 1,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 263,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acbow",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 2,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 263,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "f1bde508-4dc5-45fa-9b68-36f97e3d8e59",
+            "frameName": "__BASE",
+            "text": "2",
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 3,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 263,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acspe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 4,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 263,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "341151fb-34e7-49d1-97ed-bb8a985ef7b8",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rotateButton": {
+        "cardIndex": 12,
+        "x": 263,
+        "y": 510,
+        "visible": false,
+        "inputEnabled": false,
+        "events": {
+          "addedtoscene": [
+            {
+              "name": "addedToScene",
+              "source": "function(){this.scene.sys.updateList.add(this)}"
+            }
+          ],
+          "removedfromscene": [
+            {
+              "name": "removedFromScene",
+              "source": "function(){this.scene.sys.updateList.remove(this)}"
+            }
+          ],
+          "pointerover": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",1)}"
+            }
+          ],
+          "pointerout": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!1),l.setTexture(\"cardaction\",0)}"
+            }
+          ],
+          "pointerdown": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",2)}"
+            }
+          ],
+          "pointerup": [
+            {
+              "name": "",
+              "source": "()=>{e.socket.emit(\"rotate\",e.room,e.id,t),l.setVisible(!1),l.setTexture(\"cardaction\",0).disableInteractive()}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 15,
+      "card": {
+        "cardIndex": 15,
+        "componentCount": 5,
+        "components": [
+          {
+            "componentIndex": 0,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 323,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": false,
+            "textureKey": "acframe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ],
+              "pointerdown": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1),e.socket.emit(\"card\",e.room,e.id,t),i[0].disableInteractive()}"
+                }
+              ],
+              "pointerover": [
+                {
+                  "name": "",
+                  "source": "()=>{e.info_text_timeout=e.time.addEvent({delay:500,callback:()=>{e.info_text.setText(n[lang][0]).setResolution(2).setVisible(!0),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!0),e.info_text_flag=!0}}),l.setVisible(!0)}"
+                }
+              ],
+              "pointerout": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 1,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 323,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acbow",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 2,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 323,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "94488c05-7f91-4516-82d7-6019c331d7b7",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 3,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 323,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acswd",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 4,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 323,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "f6a9d572-5036-4b35-a357-ae2a3c610b0c",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rotateButton": {
+        "cardIndex": 15,
+        "x": 323,
+        "y": 510,
+        "visible": false,
+        "inputEnabled": false,
+        "events": {
+          "addedtoscene": [
+            {
+              "name": "addedToScene",
+              "source": "function(){this.scene.sys.updateList.add(this)}"
+            }
+          ],
+          "removedfromscene": [
+            {
+              "name": "removedFromScene",
+              "source": "function(){this.scene.sys.updateList.remove(this)}"
+            }
+          ],
+          "pointerover": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",1)}"
+            }
+          ],
+          "pointerout": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!1),l.setTexture(\"cardaction\",0)}"
+            }
+          ],
+          "pointerdown": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",2)}"
+            }
+          ],
+          "pointerup": [
+            {
+              "name": "",
+              "source": "()=>{e.socket.emit(\"rotate\",e.room,e.id,t),l.setVisible(!1),l.setTexture(\"cardaction\",0).disableInteractive()}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 17,
+      "card": {
+        "cardIndex": 17,
+        "componentCount": 5,
+        "components": [
+          {
+            "componentIndex": 0,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 383,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": false,
+            "textureKey": "acframe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ],
+              "pointerdown": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1),e.socket.emit(\"card\",e.room,e.id,t),i[0].disableInteractive()}"
+                }
+              ],
+              "pointerover": [
+                {
+                  "name": "",
+                  "source": "()=>{e.info_text_timeout=e.time.addEvent({delay:500,callback:()=>{e.info_text.setText(n[lang][0]).setResolution(2).setVisible(!0),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!0),e.info_text_flag=!0}}),l.setVisible(!0)}"
+                }
+              ],
+              "pointerout": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 1,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 383,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acbow",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 2,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 383,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "64a15136-a47a-43be-a8f3-194a7cd625c4",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 3,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 383,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acswd",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 4,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 383,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "7a62ccdd-1ca7-4986-93c2-b991115cd657",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rotateButton": {
+        "cardIndex": 17,
+        "x": 383,
+        "y": 510,
+        "visible": false,
+        "inputEnabled": false,
+        "events": {
+          "addedtoscene": [
+            {
+              "name": "addedToScene",
+              "source": "function(){this.scene.sys.updateList.add(this)}"
+            }
+          ],
+          "removedfromscene": [
+            {
+              "name": "removedFromScene",
+              "source": "function(){this.scene.sys.updateList.remove(this)}"
+            }
+          ],
+          "pointerover": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",1)}"
+            }
+          ],
+          "pointerout": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!1),l.setTexture(\"cardaction\",0)}"
+            }
+          ],
+          "pointerdown": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",2)}"
+            }
+          ],
+          "pointerup": [
+            {
+              "name": "",
+              "source": "()=>{e.socket.emit(\"rotate\",e.room,e.id,t),l.setVisible(!1),l.setTexture(\"cardaction\",0).disableInteractive()}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 20,
+      "card": {
+        "cardIndex": 20,
+        "componentCount": 5,
+        "components": [
+          {
+            "componentIndex": 0,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 443,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": false,
+            "textureKey": "acframe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ],
+              "pointerdown": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1),e.socket.emit(\"card\",e.room,e.id,t),i[0].disableInteractive()}"
+                }
+              ],
+              "pointerover": [
+                {
+                  "name": "",
+                  "source": "()=>{e.info_text_timeout=e.time.addEvent({delay:500,callback:()=>{e.info_text.setText(n[lang][0]).setResolution(2).setVisible(!0),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!0),e.info_text_flag=!0}}),l.setVisible(!0)}"
+                }
+              ],
+              "pointerout": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 1,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 443,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acbow",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 2,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 443,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "ecd0ad68-6b5e-4f76-b433-9db9cc6d4819",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 3,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 443,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acmov",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 4,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 443,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "8a3ca65b-f5f1-483c-a779-31819c57c9fe",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rotateButton": {
+        "cardIndex": 20,
+        "x": 443,
+        "y": 510,
+        "visible": false,
+        "inputEnabled": false,
+        "events": {
+          "addedtoscene": [
+            {
+              "name": "addedToScene",
+              "source": "function(){this.scene.sys.updateList.add(this)}"
+            }
+          ],
+          "removedfromscene": [
+            {
+              "name": "removedFromScene",
+              "source": "function(){this.scene.sys.updateList.remove(this)}"
+            }
+          ],
+          "pointerover": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",1)}"
+            }
+          ],
+          "pointerout": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!1),l.setTexture(\"cardaction\",0)}"
+            }
+          ],
+          "pointerdown": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",2)}"
+            }
+          ],
+          "pointerup": [
+            {
+              "name": "",
+              "source": "()=>{e.socket.emit(\"rotate\",e.room,e.id,t),l.setVisible(!1),l.setTexture(\"cardaction\",0).disableInteractive()}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 22,
+      "card": {
+        "cardIndex": 22,
+        "componentCount": 5,
+        "components": [
+          {
+            "componentIndex": 0,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 503,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": false,
+            "textureKey": "acframe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ],
+              "pointerdown": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1),e.socket.emit(\"card\",e.room,e.id,t),i[0].disableInteractive()}"
+                }
+              ],
+              "pointerover": [
+                {
+                  "name": "",
+                  "source": "()=>{e.info_text_timeout=e.time.addEvent({delay:500,callback:()=>{e.info_text.setText(n[lang][0]).setResolution(2).setVisible(!0),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!0),e.info_text_flag=!0}}),l.setVisible(!0)}"
+                }
+              ],
+              "pointerout": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 1,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 503,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acmov",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 2,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 503,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "293ba59a-165c-4523-933c-11fb5557697b",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 3,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 503,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acbow",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 4,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 503,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "2ab6733d-4772-4bd6-99d6-0d3685893b40",
+            "frameName": "__BASE",
+            "text": "1",
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rotateButton": {
+        "cardIndex": 22,
+        "x": 503,
+        "y": 510,
+        "visible": false,
+        "inputEnabled": false,
+        "events": {
+          "addedtoscene": [
+            {
+              "name": "addedToScene",
+              "source": "function(){this.scene.sys.updateList.add(this)}"
+            }
+          ],
+          "removedfromscene": [
+            {
+              "name": "removedFromScene",
+              "source": "function(){this.scene.sys.updateList.remove(this)}"
+            }
+          ],
+          "pointerover": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",1)}"
+            }
+          ],
+          "pointerout": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!1),l.setTexture(\"cardaction\",0)}"
+            }
+          ],
+          "pointerdown": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",2)}"
+            }
+          ],
+          "pointerup": [
+            {
+              "name": "",
+              "source": "()=>{e.socket.emit(\"rotate\",e.room,e.id,t),l.setVisible(!1),l.setTexture(\"cardaction\",0).disableInteractive()}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 24,
+      "card": {
+        "cardIndex": 24,
+        "componentCount": 5,
+        "components": [
+          {
+            "componentIndex": 0,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 563,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": false,
+            "textureKey": "acframe",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ],
+              "pointerdown": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1),e.socket.emit(\"card\",e.room,e.id,t),i[0].disableInteractive()}"
+                }
+              ],
+              "pointerover": [
+                {
+                  "name": "",
+                  "source": "()=>{e.info_text_timeout=e.time.addEvent({delay:500,callback:()=>{e.info_text.setText(n[lang][0]).setResolution(2).setVisible(!0),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!0),e.info_text_flag=!0}}),l.setVisible(!0)}"
+                }
+              ],
+              "pointerout": [
+                {
+                  "name": "",
+                  "source": "()=>{null!==e.info_text_timeout&&(e.info_text_timeout.remove(),e.info_text_timeout=null),e.info_text.setText(\"\").setResolution(0).setVisible(!1),e.info_bg.setSize(e.info_text.width,e.info_text.height).setVisible(!1),e.info_text_flag=!1,l.setVisible(!1)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 1,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 563,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acbow",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 2,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 563,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "a18236db-ec5f-4082-8ec4-59bc7ba1a9b8",
+            "frameName": "__BASE",
+            "text": "4",
+            "rotation": 0,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 3,
+            "constructor": "initialize",
+            "type": "Sprite",
+            "x": 563,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "acbow",
+            "frameName": "__BASE",
+            "text": null,
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){this.scene.sys.updateList.add(this)}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){this.scene.sys.updateList.remove(this)}"
+                }
+              ]
+            }
+          },
+          {
+            "componentIndex": 4,
+            "constructor": "initialize",
+            "type": "Text",
+            "x": 563,
+            "y": 510,
+            "depth": 1,
+            "visible": true,
+            "active": true,
+            "inputEnabled": null,
+            "textureKey": "d53eab4a-8956-4c29-bbc0-a60a084b1987",
+            "frameName": "__BASE",
+            "text": "4",
+            "rotation": -3.141592653589793,
+            "events": {
+              "addedtoscene": [
+                {
+                  "name": "addedToScene",
+                  "source": "function(){}"
+                }
+              ],
+              "removedfromscene": [
+                {
+                  "name": "removedFromScene",
+                  "source": "function(){}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rotateButton": {
+        "cardIndex": 24,
+        "x": 563,
+        "y": 510,
+        "visible": false,
+        "inputEnabled": false,
+        "events": {
+          "addedtoscene": [
+            {
+              "name": "addedToScene",
+              "source": "function(){this.scene.sys.updateList.add(this)}"
+            }
+          ],
+          "removedfromscene": [
+            {
+              "name": "removedFromScene",
+              "source": "function(){this.scene.sys.updateList.remove(this)}"
+            }
+          ],
+          "pointerover": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",1)}"
+            }
+          ],
+          "pointerout": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!1),l.setTexture(\"cardaction\",0)}"
+            }
+          ],
+          "pointerdown": [
+            {
+              "name": "",
+              "source": "()=>{l.setVisible(!0),l.setTexture(\"cardaction\",2)}"
+            }
+          ],
+          "pointerup": [
+            {
+              "name": "",
+              "source": "()=>{e.socket.emit(\"rotate\",e.room,e.id,t),l.setVisible(!1),l.setTexture(\"cardaction\",0).disableInteractive()}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

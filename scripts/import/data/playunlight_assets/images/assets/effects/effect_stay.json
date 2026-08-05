@@ -1,0 +1,419 @@
+{
+	"textures": [
+		{
+			"image": "000.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 128,
+				"h": 277
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "effect_stay-13.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 48,
+						"h": 90
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 48,
+						"h": 90
+					}
+				},
+				{
+					"filename": "effect_stay-10.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 23,
+						"w": 46,
+						"h": 90
+					},
+					"frame": {
+						"x": 48,
+						"y": 0,
+						"w": 46,
+						"h": 90
+					}
+				},
+				{
+					"filename": "effect_stay-7.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 8,
+						"y": 47,
+						"w": 30,
+						"h": 65
+					},
+					"frame": {
+						"x": 94,
+						"y": 0,
+						"w": 30,
+						"h": 65
+					}
+				},
+				{
+					"filename": "effect_stay-18.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 16,
+						"y": 48,
+						"w": 4,
+						"h": 13
+					},
+					"frame": {
+						"x": 124,
+						"y": 0,
+						"w": 4,
+						"h": 13
+					}
+				},
+				{
+					"filename": "effect_stay-6.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 8,
+						"y": 54,
+						"w": 30,
+						"h": 58
+					},
+					"frame": {
+						"x": 94,
+						"y": 65,
+						"w": 30,
+						"h": 58
+					}
+				},
+				{
+					"filename": "effect_stay-12.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 6,
+						"w": 44,
+						"h": 93
+					},
+					"frame": {
+						"x": 0,
+						"y": 90,
+						"w": 44,
+						"h": 93
+					}
+				},
+				{
+					"filename": "effect_stay-11.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 14,
+						"w": 44,
+						"h": 88
+					},
+					"frame": {
+						"x": 44,
+						"y": 90,
+						"w": 44,
+						"h": 88
+					}
+				},
+				{
+					"filename": "effect_stay-8.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 3,
+						"y": 41,
+						"w": 40,
+						"h": 71
+					},
+					"frame": {
+						"x": 88,
+						"y": 123,
+						"w": 40,
+						"h": 71
+					}
+				},
+				{
+					"filename": "effect_stay-9.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 32,
+						"w": 44,
+						"h": 81
+					},
+					"frame": {
+						"x": 44,
+						"y": 178,
+						"w": 44,
+						"h": 81
+					}
+				},
+				{
+					"filename": "effect_stay-14.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 12,
+						"y": 12,
+						"w": 22,
+						"h": 71
+					},
+					"frame": {
+						"x": 88,
+						"y": 194,
+						"w": 22,
+						"h": 71
+					}
+				},
+				{
+					"filename": "effect_stay-15.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 16,
+						"y": 46,
+						"w": 18,
+						"h": 31
+					},
+					"frame": {
+						"x": 110,
+						"y": 194,
+						"w": 18,
+						"h": 31
+					}
+				},
+				{
+					"filename": "effect_stay-16.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 16,
+						"y": 47,
+						"w": 18,
+						"h": 28
+					},
+					"frame": {
+						"x": 110,
+						"y": 225,
+						"w": 18,
+						"h": 28
+					}
+				},
+				{
+					"filename": "effect_stay-2.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 16,
+						"y": 87,
+						"w": 15,
+						"h": 24
+					},
+					"frame": {
+						"x": 110,
+						"y": 253,
+						"w": 15,
+						"h": 24
+					}
+				},
+				{
+					"filename": "effect_stay-5.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 11,
+						"y": 62,
+						"w": 24,
+						"h": 52
+					},
+					"frame": {
+						"x": 0,
+						"y": 183,
+						"w": 24,
+						"h": 52
+					}
+				},
+				{
+					"filename": "effect_stay-3.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 13,
+						"y": 80,
+						"w": 20,
+						"h": 31
+					},
+					"frame": {
+						"x": 24,
+						"y": 183,
+						"w": 20,
+						"h": 31
+					}
+				},
+				{
+					"filename": "effect_stay-17.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 16,
+						"y": 48,
+						"w": 17,
+						"h": 20
+					},
+					"frame": {
+						"x": 24,
+						"y": 214,
+						"w": 17,
+						"h": 20
+					}
+				},
+				{
+					"filename": "effect_stay-1.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 16,
+						"y": 95,
+						"w": 13,
+						"h": 13
+					},
+					"frame": {
+						"x": 24,
+						"y": 234,
+						"w": 13,
+						"h": 13
+					}
+				},
+				{
+					"filename": "effect_stay-4.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 12,
+						"y": 72,
+						"w": 22,
+						"h": 41
+					},
+					"frame": {
+						"x": 0,
+						"y": 235,
+						"w": 22,
+						"h": 41
+					}
+				},
+				{
+					"filename": "effect_stay-0.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 114
+					},
+					"spriteSourceSize": {
+						"x": 17,
+						"y": 103,
+						"w": 12,
+						"h": 10
+					},
+					"frame": {
+						"x": 22,
+						"y": 247,
+						"w": 12,
+						"h": 10
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:33f9b2cb0a4a7fa1acdfbef0191705d3:632055d4aec1e302b7657fbaab3f2ed6:6bd2853da8bf59d34e5e5a5650e064ad$"
+	}
+}

@@ -6,13 +6,57 @@ import sqlite3
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 from uuid import uuid4
 
 from event_schema import ObservationEvent, utc_now_iso
 
 
-SQLITE_SCHEMA_VERSION = 3
+SQLITE_SCHEMA_VERSION = 4
+ROOM_HISTORY_LIMIT = 500
+CDP_HISTORY_LIMIT = 1000
+
+ROOM_HISTORY_FIELDS = frozenset(
+    {
+        "observed_room_state",
+        "game_room_id",
+        "platform",
+        "channel",
+        "room_name",
+        "rule_version_id",
+        "content_hash",
+        "game_host_player_id",
+        "game_opponent_player_id",
+        "host_display_name",
+        "opponent_display_name",
+        "observation_status",
+        "error",
+    }
+)
+CDP_HISTORY_FIELDS = frozenset(
+    {
+        "connection_state",
+        "context_state",
+        "target",
+        "context_id",
+        "injection_state",
+        "ruleset_apply_state",
+        "rule_version_id",
+        "content_hash",
+        "format_valid",
+        "registry_match",
+        "content_hash_match",
+        "enforcement_result",
+        "expected_count",
+        "matched_count",
+        "changed_count",
+        "already_compliant_count",
+        "missing_count",
+        "invalid_count",
+        "verified_count",
+        "error",
+    }
+)
 
 
 class EventStoreError(RuntimeError):
@@ -120,6 +164,7 @@ class EventStore:
             if existing_version not in {
                 1,
                 2,
+                3,
                 SQLITE_SCHEMA_VERSION,
             }:
                 raise EventStoreError(
@@ -182,6 +227,44 @@ class EventStore:
 
                 CREATE INDEX IF NOT EXISTS idx_events_session_sequence
                     ON events(session_id, sequence);
+
+                CREATE TABLE IF NOT EXISTS room_observation_current (
+                    producer_id TEXT PRIMARY KEY,
+                    payload_json TEXT NOT NULL,
+                    server_received_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS room_observation_history (
+                    row_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    producer_id TEXT NOT NULL,
+                    action TEXT NOT NULL
+                        CHECK(action IN ('update', 'reset')),
+                    payload_json TEXT,
+                    server_received_at TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS
+                    idx_room_observation_history_producer_row
+                ON room_observation_history(producer_id, row_id);
+
+                CREATE TABLE IF NOT EXISTS cdp_diagnostic_current (
+                    producer_id TEXT PRIMARY KEY,
+                    payload_json TEXT NOT NULL,
+                    server_received_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS cdp_diagnostic_history (
+                    row_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    producer_id TEXT NOT NULL,
+                    action TEXT NOT NULL
+                        CHECK(action IN ('update', 'restart')),
+                    payload_json TEXT NOT NULL,
+                    server_received_at TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS
+                    idx_cdp_diagnostic_history_producer_row
+                ON cdp_diagnostic_history(producer_id, row_id);
                 """
             )
             columns = {
@@ -238,6 +321,390 @@ class EventStore:
                 """,
                 (str(SQLITE_SCHEMA_VERSION),),
             )
+
+    @staticmethod
+    def _diagnostic_payload(
+        row: sqlite3.Row | None,
+    ) -> dict[str, Any] | None:
+        if row is None:
+            return None
+        payload = json.loads(row["payload_json"])
+        payload["producer_id"] = row["producer_id"]
+        payload["server_received_at"] = row["server_received_at"]
+        return payload
+
+    @staticmethod
+    def _meaningful_changed(
+        previous: dict[str, Any] | None,
+        current: dict[str, Any],
+        fields: frozenset[str],
+    ) -> bool:
+        if previous is None:
+            return True
+        return any(previous.get(field) != current.get(field) for field in fields)
+
+    @staticmethod
+    def _payload_json(payload: dict[str, Any]) -> str:
+        return json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+
+    def get_room_observation(
+        self,
+        producer_id: str = "room-observer",
+    ) -> dict[str, Any] | None:
+        with self._connection() as connection:
+            row = connection.execute(
+                """
+                SELECT producer_id, payload_json, server_received_at
+                FROM room_observation_current
+                WHERE producer_id = ?
+                """,
+                (producer_id,),
+            ).fetchone()
+        return self._diagnostic_payload(row)
+
+    def put_room_observation(
+        self,
+        *,
+        producer_id: str,
+        payload: dict[str, Any],
+        server_received_at: str,
+        history_limit: int = ROOM_HISTORY_LIMIT,
+    ) -> tuple[dict[str, Any], bool]:
+        if history_limit < 1:
+            raise ValueError("history_limit must be positive")
+        stored_payload = dict(payload)
+        stored_payload.pop("producer_id", None)
+        stored_payload.pop("server_received_at", None)
+        payload_json = self._payload_json(stored_payload)
+        with self._connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            previous_row = connection.execute(
+                """
+                SELECT producer_id, payload_json, server_received_at
+                FROM room_observation_current
+                WHERE producer_id = ?
+                """,
+                (producer_id,),
+            ).fetchone()
+            previous = self._diagnostic_payload(previous_row)
+            changed = self._meaningful_changed(
+                previous,
+                stored_payload,
+                ROOM_HISTORY_FIELDS,
+            )
+            connection.execute(
+                """
+                INSERT INTO room_observation_current(
+                    producer_id,
+                    payload_json,
+                    server_received_at
+                )
+                VALUES(?, ?, ?)
+                ON CONFLICT(producer_id) DO UPDATE SET
+                    payload_json = excluded.payload_json,
+                    server_received_at = excluded.server_received_at
+                """,
+                (producer_id, payload_json, server_received_at),
+            )
+            if changed:
+                connection.execute(
+                    """
+                    INSERT INTO room_observation_history(
+                        producer_id,
+                        action,
+                        payload_json,
+                        server_received_at
+                    )
+                    VALUES(?, 'update', ?, ?)
+                    """,
+                    (producer_id, payload_json, server_received_at),
+                )
+                self._trim_history(
+                    connection,
+                    table="room_observation_history",
+                    producer_id=producer_id,
+                    limit=history_limit,
+                )
+        current = self.get_room_observation(producer_id)
+        assert current is not None
+        return current, changed
+
+    def reset_room_observation(
+        self,
+        *,
+        producer_id: str,
+        server_received_at: str,
+        history_limit: int = ROOM_HISTORY_LIMIT,
+    ) -> dict[str, Any] | None:
+        with self._connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            previous_row = connection.execute(
+                """
+                SELECT producer_id, payload_json, server_received_at
+                FROM room_observation_current
+                WHERE producer_id = ?
+                """,
+                (producer_id,),
+            ).fetchone()
+            previous = self._diagnostic_payload(previous_row)
+            connection.execute(
+                """
+                DELETE FROM room_observation_current
+                WHERE producer_id = ?
+                """,
+                (producer_id,),
+            )
+            connection.execute(
+                """
+                INSERT INTO room_observation_history(
+                    producer_id,
+                    action,
+                    payload_json,
+                    server_received_at
+                )
+                VALUES(?, 'reset', ?, ?)
+                """,
+                (
+                    producer_id,
+                    (
+                        self._payload_json(previous)
+                        if previous is not None
+                        else None
+                    ),
+                    server_received_at,
+                ),
+            )
+            self._trim_history(
+                connection,
+                table="room_observation_history",
+                producer_id=producer_id,
+                limit=history_limit,
+            )
+        return previous
+
+    def get_cdp_diagnostic(
+        self,
+        producer_id: str = "cdp-adapter",
+    ) -> dict[str, Any] | None:
+        with self._connection() as connection:
+            row = connection.execute(
+                """
+                SELECT producer_id, payload_json, server_received_at
+                FROM cdp_diagnostic_current
+                WHERE producer_id = ?
+                """,
+                (producer_id,),
+            ).fetchone()
+        return self._diagnostic_payload(row)
+
+    def patch_cdp_diagnostic(
+        self,
+        *,
+        producer_id: str,
+        patch: dict[str, Any],
+        defaults: dict[str, Any],
+        server_received_at: str,
+        validator: Callable[[dict[str, Any]], None],
+        history_limit: int = CDP_HISTORY_LIMIT,
+    ) -> tuple[dict[str, Any], bool]:
+        if history_limit < 1:
+            raise ValueError("history_limit must be positive")
+        with self._connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            previous_row = connection.execute(
+                """
+                SELECT producer_id, payload_json, server_received_at
+                FROM cdp_diagnostic_current
+                WHERE producer_id = ?
+                """,
+                (producer_id,),
+            ).fetchone()
+            previous = self._diagnostic_payload(previous_row)
+            current = dict(defaults)
+            if previous is not None:
+                current.update(
+                    {
+                        key: value
+                        for key, value in previous.items()
+                        if key not in {"producer_id", "server_received_at"}
+                    }
+                )
+            current.update(patch)
+            validator(current)
+            payload_json = self._payload_json(current)
+            changed = self._meaningful_changed(
+                previous,
+                current,
+                CDP_HISTORY_FIELDS,
+            )
+            connection.execute(
+                """
+                INSERT INTO cdp_diagnostic_current(
+                    producer_id,
+                    payload_json,
+                    server_received_at
+                )
+                VALUES(?, ?, ?)
+                ON CONFLICT(producer_id) DO UPDATE SET
+                    payload_json = excluded.payload_json,
+                    server_received_at = excluded.server_received_at
+                """,
+                (producer_id, payload_json, server_received_at),
+            )
+            if changed:
+                connection.execute(
+                    """
+                    INSERT INTO cdp_diagnostic_history(
+                        producer_id,
+                        action,
+                        payload_json,
+                        server_received_at
+                    )
+                    VALUES(?, 'update', ?, ?)
+                    """,
+                    (producer_id, payload_json, server_received_at),
+                )
+                self._trim_history(
+                    connection,
+                    table="cdp_diagnostic_history",
+                    producer_id=producer_id,
+                    limit=history_limit,
+                )
+        current_result = self.get_cdp_diagnostic(producer_id)
+        assert current_result is not None
+        return current_result, changed
+
+    def normalize_cdp_restart(
+        self,
+        *,
+        server_received_at: str,
+        history_limit: int = CDP_HISTORY_LIMIT,
+    ) -> int:
+        normalized_count = 0
+        with self._connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            rows = connection.execute(
+                """
+                SELECT producer_id, payload_json, server_received_at
+                FROM cdp_diagnostic_current
+                """
+            ).fetchall()
+            for row in rows:
+                current = self._diagnostic_payload(row)
+                assert current is not None
+                if current.get("connection_state") == "DISCONNECTED":
+                    continue
+                current.pop("producer_id", None)
+                current.pop("server_received_at", None)
+                current["connection_state"] = "DISCONNECTED"
+                payload_json = self._payload_json(current)
+                connection.execute(
+                    """
+                    UPDATE cdp_diagnostic_current
+                    SET payload_json = ?, server_received_at = ?
+                    WHERE producer_id = ?
+                    """,
+                    (
+                        payload_json,
+                        server_received_at,
+                        row["producer_id"],
+                    ),
+                )
+                connection.execute(
+                    """
+                    INSERT INTO cdp_diagnostic_history(
+                        producer_id,
+                        action,
+                        payload_json,
+                        server_received_at
+                    )
+                    VALUES(?, 'restart', ?, ?)
+                    """,
+                    (
+                        row["producer_id"],
+                        payload_json,
+                        server_received_at,
+                    ),
+                )
+                self._trim_history(
+                    connection,
+                    table="cdp_diagnostic_history",
+                    producer_id=row["producer_id"],
+                    limit=history_limit,
+                )
+                normalized_count += 1
+        return normalized_count
+
+    def diagnostic_history(
+        self,
+        category: str,
+        *,
+        producer_id: str,
+    ) -> list[dict[str, Any]]:
+        table = {
+            "room": "room_observation_history",
+            "cdp": "cdp_diagnostic_history",
+        }.get(category)
+        if table is None:
+            raise ValueError("unsupported diagnostic history category")
+        with self._connection() as connection:
+            rows = connection.execute(
+                f"""
+                SELECT row_id, producer_id, action, payload_json,
+                       server_received_at
+                FROM {table}
+                WHERE producer_id = ?
+                ORDER BY row_id ASC
+                """,
+                (producer_id,),
+            ).fetchall()
+        return [
+            {
+                "row_id": int(row["row_id"]),
+                "producer_id": row["producer_id"],
+                "action": row["action"],
+                "payload": (
+                    json.loads(row["payload_json"])
+                    if row["payload_json"] is not None
+                    else None
+                ),
+                "server_received_at": row["server_received_at"],
+            }
+            for row in rows
+        ]
+
+    @staticmethod
+    def _trim_history(
+        connection: sqlite3.Connection,
+        *,
+        table: str,
+        producer_id: str,
+        limit: int,
+    ) -> None:
+        if table not in {
+            "room_observation_history",
+            "cdp_diagnostic_history",
+        }:
+            raise ValueError("unsupported diagnostic history table")
+        connection.execute(
+            f"""
+            DELETE FROM {table}
+            WHERE producer_id = ?
+              AND row_id NOT IN (
+                  SELECT row_id
+                  FROM {table}
+                  WHERE producer_id = ?
+                  ORDER BY row_id DESC
+                  LIMIT ?
+              )
+            """,
+            (producer_id, producer_id, limit),
+        )
 
     def start_session(
         self,

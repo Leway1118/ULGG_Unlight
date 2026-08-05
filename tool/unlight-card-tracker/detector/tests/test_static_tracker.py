@@ -66,26 +66,95 @@ class StaticTrackerTest(unittest.TestCase):
             response.headers["content-type"],
         )
         self.assertIn("field-decks.js", response.text)
+        self.assertIn(
+            "tracker-stage-sync.js",
+            response.text,
+        )
         self.assertIn("tracker.js", response.text)
+        self.assertIn(
+            "tracker-domain-reducer.js",
+            response.text,
+        )
+        self.assertIn("tracker-db.js", response.text)
         self.assertIn("tracker-api.js", response.text)
+        self.assertIn(
+            "tracker-auto-card-sync.js",
+            response.text,
+        )
         self.assertIn(
             "observation-poller.js",
             response.text,
         )
+        script_order = [
+            "field-decks.js",
+            "tracker-stage-sync.js",
+            "tracker.js",
+            "tracker-domain-reducer.js",
+            "tracker-db.js",
+            "tracker-api.js",
+            "tracker-auto-card-sync.js",
+            "observation-poller.js",
+        ]
+        positions = [
+            response.text.index(script)
+            for script in script_order
+        ]
+        self.assertEqual(positions, sorted(positions))
         self.assertIn(
             'id="observation-status"',
             response.text,
         )
+        self.assertIn(
+            'id="observation-persistence"',
+            response.text,
+        )
+        self.assertIn(
+            'id="observation-checkpoint-cursor"',
+            response.text,
+        )
+        for element_id in (
+            "observation-stage-code",
+            "observation-stage-field",
+            "observation-stage-status",
+            "observation-pending-events",
+            "observation-pending-cards",
+            "observation-stage-error",
+        ):
+            self.assertIn(
+                f'id="{element_id}"',
+                response.text,
+            )
+        for element_id in (
+            "room-observed-state",
+            "room-freshness",
+            "room-observation-status",
+            "room-game-id",
+            "room-ruleset-version",
+            "cdp-connection",
+            "cdp-context-state",
+            "cdp-injection-state",
+            "cdp-ruleset-apply-state",
+            "cdp-verified-count",
+            "diagnostics-read-error",
+        ):
+            self.assertIn(
+                f'id="{element_id}"',
+                response.text,
+            )
 
     def test_tracker_javascript_is_served(self) -> None:
         field_decks = self.client.get(
             "/tracker/field-decks.js"
+        )
+        stage_sync = self.client.get(
+            "/tracker/tracker-stage-sync.js"
         )
         tracker = self.client.get(
             "/tracker/tracker.js"
         )
 
         self.assertEqual(field_decks.status_code, 200)
+        self.assertEqual(stage_sync.status_code, 200)
         self.assertEqual(tracker.status_code, 200)
         self.assertIn(
             "javascript",
@@ -94,6 +163,10 @@ class StaticTrackerTest(unittest.TestCase):
         self.assertIn(
             "javascript",
             tracker.headers["content-type"],
+        )
+        self.assertIn(
+            "javascript",
+            stage_sync.headers["content-type"],
         )
 
     def test_tracker_asset_is_served(self) -> None:
@@ -108,18 +181,38 @@ class StaticTrackerTest(unittest.TestCase):
         )
 
     def test_observation_javascript_is_served(self) -> None:
+        database = self.client.get(
+            "/tracker/tracker-db.js"
+        )
         api_client = self.client.get(
             "/tracker/tracker-api.js"
+        )
+        auto_card_sync = self.client.get(
+            "/tracker/tracker-auto-card-sync.js"
         )
         poller = self.client.get(
             "/tracker/observation-poller.js"
         )
+        reducer = self.client.get(
+            "/tracker/tracker-domain-reducer.js"
+        )
 
+        self.assertEqual(database.status_code, 200)
         self.assertEqual(api_client.status_code, 200)
+        self.assertEqual(auto_card_sync.status_code, 200)
+        self.assertEqual(reducer.status_code, 200)
         self.assertEqual(poller.status_code, 200)
         self.assertIn(
             "javascript",
+            database.headers["content-type"],
+        )
+        self.assertIn(
+            "javascript",
             api_client.headers["content-type"],
+        )
+        self.assertIn(
+            "javascript",
+            auto_card_sync.headers["content-type"],
         )
         self.assertIn(
             "javascript",

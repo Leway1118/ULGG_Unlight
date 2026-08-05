@@ -1,0 +1,68 @@
+{
+  "frames": [
+    {
+      "filename": "map0_1",
+      "frame": { "x": 0, "y": 0, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map0_2",
+      "frame": { "x": 0, "y": 80, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map1_1",
+      "frame": { "x": 80, "y": 0, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map1_2",
+      "frame": { "x": 80, "y": 80, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map2_1",
+      "frame": { "x": 160, "y": 0, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map2_2",
+      "frame": { "x": 160, "y": 80, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map3_1",
+      "frame": { "x": 240, "y": 0, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map3_2",
+      "frame": { "x": 240, "y": 80, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map4_1",
+      "frame": { "x": 320, "y": 0, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map4_2",
+      "frame": { "x": 320, "y": 80, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map5_1",
+      "frame": { "x": 400, "y": 0, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map5_2",
+      "frame": { "x": 400, "y": 80, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map10_1",
+      "frame": { "x": 480, "y": 0, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map10_2",
+      "frame": { "x": 480, "y": 80, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map7_1",
+      "frame": { "x": 560, "y": 0, "w": 80, "h": 80 }
+    },
+    {
+      "filename": "map7_2",
+      "frame": { "x": 560, "y": 80, "w": 80, "h": 80 }
+    }
+  ]
+}

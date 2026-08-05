@@ -1,0 +1,21 @@
+{
+  "name": "@ulr/rule-schema",
+  "version": "0.0.0",
+  "private": true,
+  "description": "WP-01：COST 規則 JSON Schema、Canonical JSON 正規化與 SHA-256 內容雜湊",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema/cost-rule.schema.json": "./schema/cost-rule.schema.json"
+  },
+  "files": [
+    "src",
+    "schema",
+    "test-vectors"
+  ],
+  "dependencies": {
+    "ajv": "^8.17.1"
+  }
+}

@@ -1,0 +1,30 @@
+$unlight-release-guardian
+
+執行過夜發布驗證。
+
+必須遵循 repository root 的 AGENTS.md、GRILLME.md 與本 Skill。
+
+依照 GRILLME.md 的 Overnight autonomous loop，
+持續執行 inspect → test → diagnose → minimally fix → retest。
+
+允許：
+- 在目前 repository 內修改本次任務相關檔案
+- 執行 targeted tests、full suite、py_compile
+- 建置 PyInstaller one-folder EXE
+- 執行 fake-CDP EXE smoke test
+- 查詢測試 SQLite、ports 與 processes
+- 重建明確屬於本次任務的 build/dist 目錄
+
+禁止：
+- git add、commit、push、clean、reset、restore
+- 修改無關 dirty files
+- 修改 repository 外檔案
+- 存取外部帳號、token 或密碼
+- 將 fake CDP 結果宣稱為 real-game validation
+- 部署或發布
+
+遇到需要人工操作、真實遊戲驗證、外部帳號或超出 workspace
+的行為時，不要等待批准，改為記錄 blocker 並繼續其他可完成項目。
+
+完成或停止時，將最終報告寫入：
+reports/overnight-release-review.md

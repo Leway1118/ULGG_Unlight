@@ -40,6 +40,7 @@ _FACE_KINDS = frozenset(
     {"sword", "gun", "shield", "move", "special", "blank"}
 )
 _OUTCOMES = frozenset({"win", "lose", "draw"})
+_STAGE_CONTEXT_SOURCES = frozenset({"db_quest_land_now", "raid_ready"})
 
 
 def initial_battle_state() -> dict[str, Any]:
@@ -359,7 +360,7 @@ def _stage_context(payload: Mapping[str, Any]) -> dict[str, Any] | None:
         or len(stage_code) != 3
         or not stage_code.isascii()
         or not stage_code.isdigit()
-        or stage_source != "db_quest_land_now"
+        or stage_source not in _STAGE_CONTEXT_SOURCES
         or not _is_int(source_sequence)
         or source_sequence < 0
     ):

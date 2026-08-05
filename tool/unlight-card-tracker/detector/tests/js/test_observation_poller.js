@@ -5,11 +5,7 @@ const test = require("node:test");
 const vm = require("node:vm");
 
 
-function loadPoller() {
-    const sandbox = {
-        setTimeout,
-        clearTimeout
-    };
+function loadScript(name, sandbox) {
     vm.runInNewContext(
         fs.readFileSync(
             path.resolve(
@@ -17,42 +13,46 @@ function loadPoller() {
                 "..",
                 "..",
                 "..",
-                "observation-poller.js"
+                name
             ),
             "utf8"
         ),
         sandbox
     );
-    return sandbox.ObservationPoller;
 }
 
 
-function loadingEvent(
-    sequence,
-    isLoading,
-    mode = "change"
-) {
+function loadModules() {
+    const sandbox = {
+        setTimeout,
+        clearTimeout,
+        AbortController
+    };
+    loadScript("tracker-domain-reducer.js", sandbox);
+    loadScript("observation-poller.js", sandbox);
     return {
-        event_id: `event-${sequence}`,
-        session_id: "session-1",
-        sequence,
-        event_type: "loading_observed",
-        payload: {
-            is_loading: isLoading,
-            observation_mode: mode
-        },
-        confidence: 0.9,
-        occurred_at: `time-${sequence}`
+        poller: sandbox.ObservationPoller,
+        reducer: sandbox.TrackerDomainReducer
+    };
+}
+
+
+function view() {
+    return {
+        states: [],
+        render(state) {
+            this.states.push(state);
+        }
     };
 }
 
 
 function page(
-    events,
+    sessionId,
+    events = [],
     {
-        sessionId = "session-1",
         nextSequence = (
-            events.length > 0
+            events.length
                 ? events.at(-1).sequence
                 : 0
         ),
@@ -70,300 +70,789 @@ function page(
 }
 
 
-function view() {
+function durable(
+    sessionId,
+    sequence,
+    eventType = "battle.started",
+    payload = {},
+    overrides = {}
+) {
+    const eventId = `ws:${sequence}:0:${eventType}`;
     return {
-        states: [],
-        render(state) {
-            this.states.push(state);
+        event_id: eventId,
+        session_id: sessionId,
+        sequence,
+        event_type: eventType,
+        payload: {
+            domain_event: {
+                domain_event_schema_version: 1,
+                event_type: eventType,
+                payload,
+                source: "websocket",
+                source_event: "test",
+                source_sequence: sequence,
+                source_observation_index: 0,
+                source_direction: "received",
+                idempotency_key: eventId,
+                occurred_at: `time-${sequence}`,
+                protocol_side: "A",
+                resolved_side: "self",
+                visibility: "public",
+                confirmation: "confirmed",
+                confidence: 1,
+                authority: "authoritative",
+                producer_session_id: sessionId,
+                ...overrides
+            }
         }
     };
 }
 
 
-function storedCheckpoint(
-    sessionId = "session-1",
-    sequence = 0
-) {
+function loadingEvent(sessionId, sequence) {
     return {
-        consumer_id: "observation-poller-v1",
+        event_id: `event-${sequence}`,
         session_id: sessionId,
-        after_sequence: sequence,
-        updated_at: "2026-07-27T00:00:00.000Z",
-        commit_token: `commit-${sequence}`,
-        consumer_schema_version: 1
+        sequence,
+        event_type: "loading_observed",
+        payload: {
+            is_loading: true,
+            observation_mode: "change"
+        },
+        confidence: 0.9,
+        occurred_at: `time-${sequence}`
     };
 }
 
 
-function checkpointStore({
-    initial = null,
-    saveError = null,
-    openError = null,
-    loadError = null,
-    onSave = null
+function memoryStore(reducer, {
+    saveError = null
 } = {}) {
-    let record = initial;
+    const projections = new Map();
+    const checkpoints = new Map();
+    const calls = [];
     return {
-        saveCalls: [],
-        async openTrackerDatabase() {
-            if (openError) {
-                throw openError;
-            }
-            return {};
-        },
-        async loadConsumerCheckpoint() {
-            if (loadError) {
-                throw loadError;
-            }
-            return record;
+        projections,
+        checkpoints,
+        calls,
+        async openTrackerDatabase() {},
+        async loadConsumerCheckpoint(id) {
+            return checkpoints.get(id) || null;
         },
         async saveConsumerCheckpoint(value) {
-            this.saveCalls.push(value);
-            onSave?.(value);
             if (saveError) {
                 throw saveError;
             }
-            record = value;
+            const previous = checkpoints.get(
+                value.consumer_id
+            );
+            if (
+                previous &&
+                previous.session_id === value.session_id &&
+                value.after_sequence <
+                    previous.after_sequence
+            ) {
+                const error = new Error("regression");
+                error.code = "CHECKPOINT_REGRESSION";
+                throw error;
+            }
+            checkpoints.set(value.consumer_id, value);
             return value;
+        },
+        async loadDomainProjection(sessionId) {
+            const value = projections.get(sessionId);
+            return value
+                ? JSON.parse(JSON.stringify(value))
+                : null;
+        },
+        async applyDomainEventBatch(options) {
+            calls.push(options);
+            if (saveError) {
+                throw saveError;
+            }
+            let state = projections.get(
+                options.sessionId
+            ) || reducer.createInitialProjection(
+                options.sessionId
+            );
+            state = JSON.parse(JSON.stringify(state));
+            if (
+                state.last_sequence !==
+                    options.expectedLastSequence
+            ) {
+                const error = new Error("conflict");
+                error.code =
+                    "PROJECTION_CURSOR_CONFLICT";
+                throw error;
+            }
+            const applied = new Set(
+                state.applied_event_ids
+            );
+            let sequence = state.last_sequence;
+            for (const event of options.events) {
+                if (
+                    event.sequence <= sequence &&
+                    applied.has(event.event_id)
+                ) {
+                    continue;
+                }
+                if (event.sequence !== sequence + 1) {
+                    const error = new Error("gap");
+                    error.code = "SEQUENCE_GAP";
+                    throw error;
+                }
+                if (applied.has(event.event_id)) {
+                    const error = new Error("duplicate");
+                    error.code = "DUPLICATE_EVENT_ID";
+                    throw error;
+                }
+                state = options.reduceEvent(
+                    state,
+                    event
+                ).nextState;
+                sequence = event.sequence;
+                applied.add(event.event_id);
+                state.last_sequence = sequence;
+                state.applied_event_ids = [...applied];
+            }
+            state.updated_at = options.updatedAt;
+            state.commit_token = options.commitToken;
+            projections.set(options.sessionId, state);
+            return JSON.parse(JSON.stringify(state));
         }
     };
 }
 
 
-test("starts session, consumes loading event, and advances cursor", async () => {
-    const { createObservationPoller } = loadPoller();
-    const rendered = view();
-    const poller = createObservationPoller({
+function activeSession(
+    sessionId,
+    producerType = "websocket_sniffer"
+) {
+    return {
+        session_id: sessionId,
+        producer_type: producerType
+    };
+}
+
+
+function makePoller({
+    api,
+    store,
+    reducer,
+    targetView = view(),
+    createCommitToken = () => "commit-1",
+    schedule = () => null,
+    cancel = () => {}
+}) {
+    const { poller } = loadModules();
+    return {
+        instance: poller.createObservationPoller({
+            api,
+            view: targetView,
+            checkpointStore: store,
+            domainReducer: reducer,
+            createCommitToken,
+            schedule,
+            cancel
+        }),
+        targetView
+    };
+}
+
+
+test("NO_ACTIVE_SESSION is an idle state with no fallback", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    let eventCalls = 0;
+    const instance = poller.createObservationPoller({
         api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
+            async getActiveSession() {
+                const error = new Error("none");
+                error.code = "NO_ACTIVE_SESSION";
+                throw error;
             },
-            async getEvents(options) {
-                assert.equal(options.afterSequence, 0);
-                return page([
-                    loadingEvent(
-                        1,
-                        true,
-                        "initial_baseline"
-                    )
-                ]);
+            async getEvents() {
+                eventCalls += 1;
             }
         },
-        view: rendered
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
     });
 
-    const state = await poller.pollOnce();
-    assert.equal(state.connection, "connected");
-    assert.equal(state.sessionId, "session-1");
-    assert.equal(state.cursor, 1);
-    assert.equal(state.loading, true);
-    assert.equal(
-        state.observationMode,
-        "initial_baseline"
-    );
-    assert.equal(state.confidence, 0.9);
+    const state = await instance.pollOnce();
+
+    assert.equal(state.connection, "waiting");
+    assert.equal(state.sessionId, null);
+    assert.equal(eventCalls, 0);
 });
 
 
-test("drains has_more pages without re-consuming duplicates", async () => {
-    const { createObservationPoller } = loadPoller();
-    let call = 0;
-    const poller = createObservationPoller({
+test("diagnostics remain visible while no Tracker session is active", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const renders = [];
+    const instance = poller.createObservationPoller({
         api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
+            async getDiagnosticsStatus() {
+                return {
+                    room_observation: {
+                        observed_room_state: "WAITING",
+                        freshness_state: "FRESH"
+                    },
+                    cdp_diagnostic: {
+                        connection_state: "CONNECTED",
+                        injection_state: "INJECTED",
+                        ruleset_apply_state: "WAITING_ASSET"
+                    },
+                    server_time: "2026-07-29T15:00:00Z"
+                };
+            },
+            async getActiveSession() {
+                const error = new Error("none");
+                error.code = "NO_ACTIVE_SESSION";
+                throw error;
+            }
+        },
+        view: {
+            render(state) {
+                renders.push(state);
+            }
+        },
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const state = await instance.pollOnce();
+
+    assert.equal(state.connection, "waiting");
+    assert.equal(
+        state.diagnostics.room_observation.observed_room_state,
+        "WAITING"
+    );
+    assert.equal(
+        state.diagnostics.cdp_diagnostic.injection_state,
+        "INJECTED"
+    );
+    assert.ok(renders.length > 0);
+});
+
+
+test("session close notifies the Auto Sync boundary once", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const cleared = [];
+    let calls = 0;
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                calls += 1;
+                if (calls === 1) {
+                    return activeSession("session-1");
+                }
+                const error = new Error("none");
+                error.code = "NO_ACTIVE_SESSION";
+                throw error;
+            },
+            async getEvents() {
+                return page("session-1", []);
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer,
+        onSessionCleared(sessionId) {
+            cleared.push(sessionId);
+        }
+    });
+
+    await instance.pollOnce();
+    await instance.pollOnce();
+    await instance.pollOnce();
+
+    assert.deepEqual(cleared, ["session-1"]);
+});
+
+
+test("active domain session starts at zero and commits atomically", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const committedBatches = [];
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                return activeSession("session-1");
+            },
+            async getEvents(options) {
+                assert.equal(options.afterSequence, 0);
+                return page(
+                    "session-1",
+                    [durable("session-1", 1)]
+                );
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer,
+        createCommitToken: () => "commit-one",
+        onDomainBatchCommitted(batch) {
+            committedBatches.push(batch);
+        }
+    });
+
+    const state = await instance.pollOnce();
+
+    assert.equal(state.connection, "connected");
+    assert.equal(state.cursor, 1);
+    assert.equal(
+        state.projection.battle_status,
+        "active"
+    );
+    assert.equal(
+        store.projections.get("session-1")
+            .commit_token,
+        "commit-one"
+    );
+    assert.equal(committedBatches.length, 1);
+    assert.equal(
+        committedBatches[0].sessionId,
+        "session-1"
+    );
+    assert.equal(
+        committedBatches[0].events[0].event_id,
+        "ws:1:0:battle.started"
+    );
+    assert.equal(
+        committedBatches[0]
+            .projection.commit_token,
+        "commit-one"
+    );
+});
+
+
+test("refresh restores the session-scoped projection cursor", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const projection = reducer.createInitialProjection(
+        "session-1"
+    );
+    projection.last_sequence = 7;
+    projection.commit_token = "saved";
+    store.projections.set("session-1", projection);
+    let afterSequence = null;
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                return activeSession("session-1");
+            },
+            async getEvents(options) {
+                afterSequence = options.afterSequence;
+                return page(
+                    "session-1",
+                    [],
+                    { nextSequence: 7 }
+                );
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const state = await instance.pollOnce();
+
+    assert.equal(afterSequence, 7);
+    assert.equal(state.cursor, 7);
+    assert.equal(state.checkpointCommitToken, "saved");
+});
+
+
+test("active session switch preserves both projections", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    let active = "session-1";
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                return activeSession(active);
+            },
+            async getEvents({ sessionId, afterSequence }) {
+                if (afterSequence > 0) {
+                    return page(
+                        sessionId,
+                        [],
+                        { nextSequence: afterSequence }
+                    );
+                }
+                return page(
+                    sessionId,
+                    [durable(sessionId, 1)]
+                );
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    await instance.pollOnce();
+    active = "session-2";
+    await instance.pollOnce();
+    active = "session-1";
+    const state = await instance.pollOnce();
+
+    assert.equal(state.sessionId, "session-1");
+    assert.equal(state.cursor, 1);
+    assert.equal(store.projections.size, 2);
+});
+
+
+test("sequence gap rolls back projection and cursor", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                return activeSession("session-1");
+            },
+            async getEvents() {
+                return page(
+                    "session-1",
+                    [durable("session-1", 2)]
+                );
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const state = await instance.pollOnce();
+
+    assert.equal(state.cursor, 0);
+    assert.equal(state.connection, "warning");
+    assert.equal(store.projections.size, 0);
+});
+
+
+test("wrong session and unsupported schema do not advance cursor", async () => {
+    const { poller, reducer } = loadModules();
+    for (const mutate of [
+        event => {
+            event.session_id = "other";
+        },
+        event => {
+            event.payload.domain_event
+                .domain_event_schema_version = 2;
+        }
+    ]) {
+        const store = memoryStore(reducer);
+        const event = durable("session-1", 1);
+        mutate(event);
+        const instance = poller.createObservationPoller({
+            api: {
+                async getActiveSession() {
+                    return activeSession("session-1");
+                },
+                async getEvents() {
+                    return page("session-1", [event]);
+                }
+            },
+            view: view(),
+            checkpointStore: store,
+            domainReducer: reducer
+        });
+
+        const state = await instance.pollOnce();
+        assert.equal(state.cursor, 0);
+        assert.equal(store.projections.size, 0);
+    }
+});
+
+
+test("unknown event type is consumed with a diagnostic", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                return activeSession("session-1");
+            },
+            async getEvents() {
+                return page(
+                    "session-1",
+                    [durable(
+                        "session-1",
+                        1,
+                        "future.event"
+                    )]
+                );
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const state = await instance.pollOnce();
+
+    assert.equal(state.cursor, 1);
+    assert.equal(
+        state.projection.diagnostics[0].code,
+        "unsupported_event_type"
+    );
+});
+
+
+test("IndexedDB failure does not report a committed cursor", async () => {
+    const { poller, reducer } = loadModules();
+    const error = new Error("write failed");
+    error.code = "INDEXEDDB_ERROR";
+    const committedBatches = [];
+    const store = memoryStore(reducer, {
+        saveError: error
+    });
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                return activeSession("session-1");
+            },
+            async getEvents() {
+                return page(
+                    "session-1",
+                    [durable("session-1", 1)]
+                );
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer,
+        onDomainBatchCommitted(batch) {
+            committedBatches.push(batch);
+        }
+    });
+
+    const state = await instance.pollOnce();
+
+    assert.equal(state.cursor, 0);
+    assert.equal(state.persistence, "error");
+    assert.equal(store.projections.size, 0);
+    assert.equal(committedBatches.length, 0);
+});
+
+
+test("legacy detector uses active authority and scoped checkpoint", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                return activeSession(
+                    "detector-1",
+                    "detector"
+                );
+            },
+            async getEvents() {
+                return page(
+                    "detector-1",
+                    [loadingEvent("detector-1", 1)]
+                );
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const state = await instance.pollOnce();
+
+    assert.equal(state.loading, true);
+    assert.equal(state.cursor, 1);
+    assert.ok(
+        store.checkpoints.has(
+            "observation-poller-v1:detector-1"
+        )
+    );
+    assert.equal(store.projections.size, 0);
+});
+
+
+test("pollOnce never overlaps an in-flight request", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    let release;
+    let calls = 0;
+    const gate = new Promise(resolve => {
+        release = resolve;
+    });
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                calls += 1;
+                await gate;
+                return activeSession("session-1");
+            },
+            async getEvents() {
+                return page("session-1");
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const first = instance.pollOnce();
+    await new Promise(resolve => setImmediate(resolve));
+    await instance.pollOnce();
+    assert.equal(calls, 1);
+    release();
+    await first;
+});
+
+
+test("stop aborts the active request and renders stopped", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    let signal = null;
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession(options) {
+                signal = options.signal;
+                return new Promise((_resolve, reject) => {
+                    signal.addEventListener("abort", () => {
+                        const error = new Error("aborted");
+                        error.name = "AbortError";
+                        reject(error);
+                    });
+                });
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const pending = instance.pollOnce();
+    await new Promise(resolve => setImmediate(resolve));
+    instance.stop();
+    await pending;
+
+    assert.equal(signal.aborted, true);
+    assert.equal(
+        instance.getState().connection,
+        "stopped"
+    );
+});
+
+
+test("network failures use bounded exponential backoff", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                const error = new Error("offline");
+                error.code = "NETWORK_ERROR";
+                throw error;
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const delays = [];
+    for (let index = 0; index < 5; index += 1) {
+        delays.push(
+            (await instance.pollOnce()).retryDelayMs
+        );
+    }
+    assert.deepEqual(delays, [1000, 2000, 4000, 5000, 5000]);
+});
+
+
+test("has_more drains immediately and duplicate replay is idempotent", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const scheduled = [];
+    const afterSequences = [];
+    let eventCall = 0;
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                return activeSession("session-1");
             },
             async getEvents({ afterSequence }) {
-                call += 1;
-                if (call === 1) {
-                    assert.equal(afterSequence, 0);
+                afterSequences.push(afterSequence);
+                eventCall += 1;
+                if (eventCall === 1) {
                     return page(
-                        [loadingEvent(1, true)],
+                        "session-1",
+                        [durable("session-1", 1)],
                         { hasMore: true }
                     );
                 }
-                assert.equal(afterSequence, 1);
                 return page(
+                    "session-1",
                     [
-                        loadingEvent(1, false),
-                        loadingEvent(2, false)
+                        durable("session-1", 1),
+                        durable(
+                            "session-1",
+                            2,
+                            "turn.started"
+                        )
                     ],
                     { nextSequence: 2 }
                 );
             }
         },
-        view: view()
-    });
-
-    const first = await poller.pollOnce();
-    assert.equal(first.cursor, 1);
-    assert.equal(first.hasMore, true);
-
-    const second = await poller.pollOnce();
-    assert.equal(second.cursor, 2);
-    assert.equal(second.loading, false);
-    assert.equal(second.lastEventTime, "time-2");
-});
-
-
-test("session change resets cursor before reading new session", async () => {
-    const { createObservationPoller } = loadPoller();
-    let sessionId = "session-1";
-    const seenQueries = [];
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: sessionId };
-            },
-            async getEvents(options) {
-                seenQueries.push(options);
-                return page(
-                    options.sessionId === "session-1"
-                        ? [loadingEvent(1, true)]
-                        : [],
-                    {
-                        sessionId: options.sessionId,
-                        nextSequence: 0
-                    }
-                );
-            }
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer,
+        schedule(callback, delay) {
+            scheduled.push({ callback, delay });
+            return scheduled.length;
         },
-        view: view()
+        cancel() {}
     });
 
-    await poller.pollOnce();
-    sessionId = "session-2";
-    const changed = await poller.pollOnce();
+    instance.start();
+    const initialTick = scheduled.shift();
+    assert.equal(initialTick.delay, 0);
+    await initialTick.callback();
+    const drainTick = scheduled.shift();
+    assert.equal(drainTick.delay, 0);
+    await drainTick.callback();
+    const idleTick = scheduled.shift();
 
-    assert.equal(changed.sessionId, "session-2");
-    assert.equal(changed.cursor, 0);
-    assert.equal(changed.sessionChanged, true);
+    assert.deepEqual(afterSequences, [0, 1]);
+    assert.equal(idleTick.delay, 500);
+    assert.equal(instance.getState().cursor, 2);
     assert.equal(
-        seenQueries.at(-1).afterSequence,
-        0
+        instance.getState().projection
+            .applied_event_ids.length,
+        2
     );
+    instance.stop();
 });
 
 
-test("cursor expired moves only in-memory cursor to retention boundary", async () => {
-    const { createObservationPoller } = loadPoller();
-    const error = new Error("expired");
-    error.code = "CURSOR_EXPIRED";
-    error.details = {
-        retention_start_sequence: 5
-    };
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents() {
-                throw error;
-            }
-        },
-        view: view()
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(state.connection, "warning");
-    assert.equal(state.cursor, 4);
-    assert.match(state.error, /CURSOR_EXPIRED/);
-});
-
-
-test("sequence gap pauses event consumption for current session", async () => {
-    const { createObservationPoller } = loadPoller();
-    let eventCalls = 0;
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents() {
-                eventCalls += 1;
-                return page(
-                    [loadingEvent(2, true)],
-                    { nextSequence: 2 }
-                );
-            }
-        },
-        view: view()
-    });
-
-    const failed = await poller.pollOnce();
-    assert.equal(failed.connection, "paused");
-    assert.equal(failed.cursor, 0);
-    assert.match(failed.error, /SEQUENCE_GAP/);
-
-    await poller.pollOnce();
-    assert.equal(eventCalls, 1);
-});
-
-
-test("network failures back off from one to five seconds", async () => {
-    const { createObservationPoller } = loadPoller();
-    const error = new Error("offline");
-    error.code = "NETWORK_ERROR";
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                throw error;
-            }
-        },
-        view: view()
-    });
-
-    assert.equal(
-        (await poller.pollOnce()).retryDelayMs,
-        1000
-    );
-    assert.equal(
-        (await poller.pollOnce()).retryDelayMs,
-        2000
-    );
-    await poller.pollOnce();
-    assert.equal(
-        (await poller.pollOnce()).retryDelayMs,
-        5000
-    );
-});
-
-
-test("no active session is a nonfatal waiting state", async () => {
-    const { createObservationPoller } = loadPoller();
-    const error = new Error("no current session");
-    error.code = "NO_CURRENT_SESSION";
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                throw error;
-            },
-            async getEvents() {
-                throw new Error("events must not be requested");
-            }
-        },
-        view: view()
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(state.connection, "waiting");
-    assert.equal(state.cursor, 0);
-});
-
-
-test("hidden pages use the low-frequency polling interval", async () => {
-    const { createObservationPoller } = loadPoller();
+test("hidden pages use the idle polling interval", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
     const scheduled = [];
-    const poller = createObservationPoller({
+    const instance = poller.createObservationPoller({
         api: {
-            async getCurrentSession() {
-                return { session_id: "session-hidden" };
+            async getActiveSession() {
+                return activeSession("session-1");
             },
             async getEvents() {
-                return page();
+                return page("session-1");
             }
         },
         view: view(),
+        checkpointStore: store,
+        domainReducer: reducer,
         isHidden: () => true,
         schedule(callback, delay) {
             scheduled.push({ callback, delay });
@@ -372,469 +861,95 @@ test("hidden pages use the low-frequency polling interval", async () => {
         cancel() {}
     });
 
-    poller.start();
-    assert.equal(scheduled[0].delay, 0);
-    await scheduled[0].callback();
-    assert.equal(scheduled[1].delay, 1000);
-    poller.stop();
+    instance.start();
+    await scheduled.shift().callback();
+    assert.equal(scheduled.shift().delay, 1000);
+    instance.stop();
 });
 
 
-test("malformed event response pauses the current session", async () => {
-    const { createObservationPoller } = loadPoller();
-    let eventCalls = 0;
-    const poller = createObservationPoller({
+test("empty domain page cannot advance the cursor", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const instance = poller.createObservationPoller({
         api: {
-            async getCurrentSession() {
-                return { session_id: "session-malformed" };
-            },
-            async getEvents() {
-                eventCalls += 1;
-                return {
-                    events: [],
-                    next_sequence: 2,
-                    has_more: false,
-                    retention_start_sequence: 1
-                };
-            }
-        },
-        view: view()
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(state.connection, "paused");
-    assert.match(state.error, /next_sequence/i);
-    await poller.pollOnce();
-    assert.equal(eventCalls, 1);
-});
-
-
-test("restores cursor when checkpoint session matches", async () => {
-    const { createObservationPoller } = loadPoller();
-    const seen = [];
-    const store = checkpointStore({
-        initial: storedCheckpoint("session-1", 7)
-    });
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents(query) {
-                seen.push(query);
-                return page([], {
-                    nextSequence: 7
-                });
-            }
-        },
-        view: view(),
-        checkpointStore: store
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(seen[0].afterSequence, 7);
-    assert.equal(state.cursor, 7);
-    assert.equal(state.persistence, "ready");
-    assert.equal(
-        state.checkpointCommitToken,
-        "commit-7"
-    );
-    assert.equal(store.saveCalls.length, 0);
-});
-
-
-test("new session resets and persists cursor zero", async () => {
-    const { createObservationPoller } = loadPoller();
-    const seen = [];
-    const store = checkpointStore({
-        initial: storedCheckpoint("old-session", 9)
-    });
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "new-session" };
-            },
-            async getEvents(query) {
-                seen.push(query);
-                return page([], {
-                    sessionId: "new-session"
-                });
-            }
-        },
-        view: view(),
-        checkpointStore: store
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(seen[0].afterSequence, 0);
-    assert.equal(state.cursor, 0);
-    assert.equal(store.saveCalls.length, 1);
-    assert.equal(
-        store.saveCalls[0].session_id,
-        "new-session"
-    );
-    assert.equal(
-        store.saveCalls[0].after_sequence,
-        0
-    );
-});
-
-
-test("consumes observations before persisting cursor", async () => {
-    const { createObservationPoller } = loadPoller();
-    const order = [];
-    const event = loadingEvent(1, true);
-    let loadingValue = event.payload.is_loading;
-    Object.defineProperty(
-        event.payload,
-        "is_loading",
-        {
-            get() {
-                order.push("consume");
-                return loadingValue;
-            },
-            set(value) {
-                loadingValue = value;
-            }
-        }
-    );
-    const store = checkpointStore({
-        initial: storedCheckpoint("session-1", 0),
-        onSave() {
-            order.push("persist");
-        }
-    });
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents() {
-                return page([event], {
-                    nextSequence: 1
-                });
-            }
-        },
-        view: view(),
-        checkpointStore: store
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(state.cursor, 1);
-    assert.equal(order.at(-1), "persist");
-    assert.equal(
-        order
-            .slice(0, -1)
-            .every(item => item === "consume"),
-        true
-    );
-});
-
-
-test("persist failure does not advance memory cursor", async () => {
-    const { createObservationPoller } = loadPoller();
-    const error = new Error("quota exceeded");
-    error.code = "INDEXEDDB_ERROR";
-    const store = checkpointStore({
-        initial: storedCheckpoint("session-1", 0),
-        saveError: error
-    });
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
+            async getActiveSession() {
+                return activeSession("session-1");
             },
             async getEvents() {
                 return page(
-                    [loadingEvent(1, true)],
+                    "session-1",
+                    [],
                     { nextSequence: 1 }
                 );
-            }
-        },
-        view: view(),
-        checkpointStore: store
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(state.cursor, 0);
-    assert.equal(state.connection, "warning");
-    assert.equal(
-        state.checkpointCommitToken,
-        "commit-0"
-    );
-    assert.equal(state.persistence, "error");
-    assert.match(
-        state.persistenceError,
-        /quota exceeded/
-    );
-});
-
-
-test("load failure is visible and starts from the initial cursor", async () => {
-    const { createObservationPoller } = loadPoller();
-    const error = new Error("read failed");
-    error.code = "INDEXEDDB_ERROR";
-    const seen = [];
-    const store = checkpointStore({
-        loadError: error
-    });
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents(query) {
-                seen.push(query);
-                return page([]);
-            }
-        },
-        view: view(),
-        checkpointStore: store
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(seen[0].afterSequence, 0);
-    assert.equal(state.cursor, 0);
-    assert.equal(state.persistence, "error");
-    assert.match(state.persistenceError, /read failed/);
-});
-
-
-test("successful checkpoint writes update the commit token", async () => {
-    const { createObservationPoller } = loadPoller();
-    const tokens = ["initial-token", "event-token"];
-    const store = checkpointStore();
-    const seenCursors = [];
-    let call = 0;
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents({ afterSequence }) {
-                seenCursors.push(afterSequence);
-                call += 1;
-                return call === 1
-                    ? page([])
-                    : page(
-                        [loadingEvent(1, true)],
-                        { nextSequence: 1 }
-                    );
             }
         },
         view: view(),
         checkpointStore: store,
-        createCommitToken: () => tokens.shift()
+        domainReducer: reducer
     });
 
-    const initial = await poller.pollOnce();
-    assert.equal(
-        initial.checkpointCommitToken,
-        "initial-token"
-    );
-    const advanced = await poller.pollOnce();
-    assert.equal(
-        advanced.checkpointCommitToken,
-        "event-token"
-    );
-    assert.deepEqual(
-        store.saveCalls.map(
-            item => item.commit_token
-        ),
-        ["initial-token", "event-token"]
-    );
-    assert.deepEqual(seenCursors, [0, 0]);
+    const state = await instance.pollOnce();
+
+    assert.equal(state.cursor, 0);
+    assert.equal(state.connection, "warning");
+    assert.equal(store.projections.size, 0);
 });
 
 
-test("diagnostics render the persisted checkpoint", () => {
-    const { createDomView } = loadPoller();
-    const elements = new Map();
-    const ids = [
-        "observation-status",
-        "observation-connection",
-        "observation-session",
-        "observation-cursor",
-        "observation-loading",
-        "observation-mode",
-        "observation-confidence",
-        "observation-last-event",
-        "observation-error",
-        "observation-persistence",
-        "observation-checkpoint-session",
-        "observation-checkpoint-cursor",
-        "observation-checkpoint-token",
-        "observation-persistence-error"
-    ];
-    for (const id of ids) {
-        elements.set(id, {
-            dataset: {},
-            textContent: ""
-        });
-    }
-    const domView = createDomView({
-        getElementById(id) {
-            return elements.get(id);
-        }
-    });
-
-    domView.render({
-        connection: "connected",
-        sessionId: "session-current",
-        cursor: 8,
-        loading: false,
-        observationMode: "change",
-        confidence: 0.9,
-        lastEventTime: "time-8",
-        error: null,
-        persistence: "ready",
-        checkpointSessionId: "session-checkpoint",
-        checkpointCursor: 8,
-        checkpointCommitToken: "commit-visible",
-        persistenceError: null
-    });
-
-    assert.equal(
-        elements.get(
-            "observation-checkpoint-cursor"
-        ).textContent,
-        "8"
-    );
-    assert.equal(
-        elements.get(
-            "observation-checkpoint-token"
-        ).textContent,
-        "commit-visible"
-    );
-    assert.equal(
-        elements.get(
-            "observation-persistence"
-        ).textContent,
-        "ready"
-    );
-});
-
-
-test("cursor expired persists the retention boundary", async () => {
-    const { createObservationPoller } = loadPoller();
-    const error = new Error("expired");
-    error.code = "CURSOR_EXPIRED";
-    error.details = {
-        retention_start_sequence: 5
-    };
-    const store = checkpointStore({
-        initial: storedCheckpoint("session-1", 2)
-    });
-    const poller = createObservationPoller({
+test("legacy empty page does not create a checkpoint", async () => {
+    const { poller, reducer } = loadModules();
+    const store = memoryStore(reducer);
+    const instance = poller.createObservationPoller({
         api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
+            async getActiveSession() {
+                return activeSession(
+                    "detector-1",
+                    "detector"
+                );
             },
             async getEvents() {
+                return page("detector-1");
+            }
+        },
+        view: view(),
+        checkpointStore: store,
+        domainReducer: reducer
+    });
+
+    const state = await instance.pollOnce();
+
+    assert.equal(state.cursor, 0);
+    assert.equal(state.connection, "connected");
+    assert.equal(store.checkpoints.size, 0);
+});
+
+
+test("unavailable persistence fails closed before API polling", async () => {
+    const { poller, reducer } = loadModules();
+    let apiCalls = 0;
+    const error = new Error("blocked");
+    error.code = "INDEXEDDB_UNAVAILABLE";
+    const instance = poller.createObservationPoller({
+        api: {
+            async getActiveSession() {
+                apiCalls += 1;
+                return activeSession("session-1");
+            }
+        },
+        view: view(),
+        checkpointStore: {
+            async openTrackerDatabase() {
                 throw error;
             }
         },
-        view: view(),
-        checkpointStore: store
+        domainReducer: reducer
     });
 
-    const state = await poller.pollOnce();
-    assert.equal(state.cursor, 4);
-    assert.equal(
-        store.saveCalls.at(-1).after_sequence,
-        4
-    );
-});
+    const state = await instance.pollOnce();
 
-
-test("sequence gap does not persist a checkpoint", async () => {
-    const { createObservationPoller } = loadPoller();
-    const store = checkpointStore({
-        initial: storedCheckpoint("session-1", 0)
-    });
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents() {
-                return page(
-                    [loadingEvent(2, true)],
-                    { nextSequence: 2 }
-                );
-            }
-        },
-        view: view(),
-        checkpointStore: store
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(state.connection, "paused");
+    assert.equal(apiCalls, 0);
     assert.equal(state.cursor, 0);
-    assert.equal(store.saveCalls.length, 0);
-});
-
-
-test("unavailable IndexedDB falls back once to memory cursor", async () => {
-    const { createObservationPoller } = loadPoller();
-    const error = new Error("blocked");
-    error.code = "INDEXEDDB_UNAVAILABLE";
-    let openCalls = 0;
-    const store = checkpointStore({
-        openError: error
-    });
-    const originalOpen =
-        store.openTrackerDatabase;
-    store.openTrackerDatabase = async () => {
-        openCalls += 1;
-        return originalOpen();
-    };
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents() {
-                return page(
-                    [loadingEvent(1, true)],
-                    { nextSequence: 1 }
-                );
-            }
-        },
-        view: view(),
-        checkpointStore: store
-    });
-
-    const first = await poller.pollOnce();
-    const second = await poller.pollOnce();
-    assert.equal(first.cursor, 1);
-    assert.equal(second.cursor, 1);
-    assert.equal(first.persistence, "unavailable");
-    assert.equal(openCalls, 1);
-});
-
-
-test("empty page at current cursor does not write checkpoint", async () => {
-    const { createObservationPoller } = loadPoller();
-    const store = checkpointStore({
-        initial: storedCheckpoint("session-1", 3)
-    });
-    const poller = createObservationPoller({
-        api: {
-            async getCurrentSession() {
-                return { session_id: "session-1" };
-            },
-            async getEvents() {
-                return page([], {
-                    nextSequence: 3
-                });
-            }
-        },
-        view: view(),
-        checkpointStore: store
-    });
-
-    const state = await poller.pollOnce();
-    assert.equal(state.cursor, 3);
-    assert.equal(store.saveCalls.length, 0);
+    assert.equal(state.persistence, "unavailable");
+    assert.equal(state.connection, "warning");
 });

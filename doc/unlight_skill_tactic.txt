@@ -1,0 +1,6 @@
+unlight_skill_tactic（或 view / derived tag）
+你這個案例可以抽象成這種戰術標籤
+tactic:prefer_second
+tactic:counter_play
+tactic:resource_snowball
+tactic:post_defense_power

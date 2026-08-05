@@ -1,0 +1,14 @@
+htop
+iostat -xm 1 5
+mysql -e "SHOW FULL PROCESSLIST;"
+mysql -e "SHOW VARIABLES LIKE 'slow_query_log';"
+tail -n 50 /var/lib/mysql/*.log
+systemctl status php-fpm
+sudo systemctl restart php-fpm
+systemctl status nginx
+systemctl status httpd
+ps aux | grep unlight
+journalctl -u unlight_watcher -n 50 --no-pager
+sudo systemctl restart unlight_watcher
+dig yourdomain.com
+curl -6 https://ulgg.online/

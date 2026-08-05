@@ -1,0 +1,12 @@
+{
+  "frames": [
+    {
+      "filename": "no_scroll",
+      "frame": { "x": 0, "y": 0, "w": 460, "h": 144}
+    },
+    {
+      "filename": "scroll",
+      "frame": { "x": 0, "y": 144, "w": 448, "h": 144}
+    }
+  ]
+}

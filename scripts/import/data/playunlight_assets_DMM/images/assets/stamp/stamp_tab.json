@@ -1,0 +1,16 @@
+{
+  "frames": [
+    { "filename": "all_out", "frame": { "x": 0, "y": 0, "w": 62, "h": 16 } },
+    { "filename": "all_over", "frame": { "x": 0, "y": 16, "w": 62, "h": 16 } },
+    { "filename": "all_up", "frame": { "x": 0, "y": 32, "w": 62, "h": 16 } },
+    { "filename": "recent_out", "frame": { "x": 62, "y": 0, "w": 62, "h": 16 } },
+    { "filename": "recent_over", "frame": { "x": 62, "y": 16, "w": 62, "h": 16 } },
+    { "filename": "recent_up", "frame": { "x": 62, "y": 32, "w": 62, "h": 16 } },
+    { "filename": "image_out", "frame": { "x": 124, "y": 0, "w": 62, "h": 16 } },
+    { "filename": "image_over", "frame": { "x": 124, "y": 16, "w": 62, "h": 16 } },
+    { "filename": "image_up", "frame": { "x": 124, "y": 32, "w": 62, "h": 16 } },
+    { "filename": "str_out", "frame": { "x": 186, "y": 0, "w": 62, "h": 16 } },
+    { "filename": "str_over", "frame": { "x": 186, "y": 16, "w": 62, "h": 16 } },
+    { "filename": "str_up", "frame": { "x": 186, "y": 32, "w": 62, "h": 16 } }
+  ]
+}

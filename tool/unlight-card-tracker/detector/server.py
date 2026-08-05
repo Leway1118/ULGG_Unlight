@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from threading import Lock
-from typing import Any, Literal
+from typing import Any, Callable, Literal
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Header, Query, Request
 from pydantic import BaseModel
 from fastapi.responses import (
     FileResponse,
@@ -29,6 +30,23 @@ from event_store import (
     SessionIdentityConflictError,
     SessionNotFoundError,
     SessionNotRunningError,
+)
+from diagnostics_models import (
+    CDP_DEFAULTS,
+    CDP_EXPIRE_AFTER_SECONDS,
+    CDP_STALE_AFTER_SECONDS,
+    ROOM_EXPIRE_AFTER_SECONDS,
+    ROOM_STALE_AFTER_SECONDS,
+    CdpDiagnosticPatch,
+    RoomObservationSubmission,
+    derive_freshness,
+    utc_iso,
+    utc_now,
+    validate_cdp_current,
+)
+from runtime_credentials import (
+    ProducerCredential,
+    ProducerCredentials,
 )
 
 
@@ -113,11 +131,120 @@ def create_app(
     event_store: EventStore,
     client_profile: ClientProfileStatus,
     runtime_status: RuntimeStatus,
+    producer_credentials: ProducerCredentials | None = None,
+    now_provider: Callable[[], datetime] = utc_now,
+    room_stale_after_seconds: float = ROOM_STALE_AFTER_SECONDS,
+    room_expire_after_seconds: float = ROOM_EXPIRE_AFTER_SECONDS,
+    cdp_stale_after_seconds: float = CDP_STALE_AFTER_SECONDS,
+    cdp_expire_after_seconds: float = CDP_EXPIRE_AFTER_SECONDS,
 ) -> FastAPI:
+    credentials = producer_credentials or ProducerCredentials.generate()
+    event_store.normalize_cdp_restart(
+        server_received_at=utc_iso(now_provider())
+    )
     app = FastAPI(
         title="UL.GG Card Tracker API",
         version="1.0.0",
     )
+
+    def authorize_producer(
+        request: Request,
+        authorization: str | None,
+        *,
+        action: str,
+    ) -> ProducerCredential | JSONResponse:
+        peer_host = request.client.host if request.client else None
+        if peer_host not in {"127.0.0.1", "::1"}:
+            return error_response(
+                status_code=403,
+                code="NON_LOOPBACK_REQUEST",
+                message="Diagnostic mutations are local-only.",
+            )
+        prefix = "Bearer "
+        if not authorization or not authorization.startswith(prefix):
+            return error_response(
+                status_code=401,
+                code="UNAUTHORIZED_PRODUCER",
+                message="A producer credential is required.",
+            )
+        token = authorization[len(prefix):]
+        credential = credentials.authenticate(token)
+        if credential is None:
+            return error_response(
+                status_code=401,
+                code="UNAUTHORIZED_PRODUCER",
+                message="The producer credential is invalid.",
+            )
+        if action not in credential.allowed_actions:
+            return error_response(
+                status_code=403,
+                code="PRODUCER_PERMISSION_DENIED",
+                message="The producer cannot mutate this diagnostic.",
+            )
+        return credential
+
+    def room_diagnostic() -> dict[str, Any]:
+        current = event_store.get_room_observation()
+        if current is None:
+            return {
+                "producer_id": "room-observer",
+                "observed_room_state": "UNKNOWN",
+                "freshness_state": "EXPIRED",
+                "observation_status": None,
+                "raw_state": None,
+                "game_room_id": None,
+                "platform": None,
+                "channel": None,
+                "room_name": None,
+                "game_host_player_id": None,
+                "game_opponent_player_id": None,
+                "host_display_name": None,
+                "opponent_display_name": None,
+                "rule_version_id": None,
+                "content_hash": None,
+                "tracker_session_id": None,
+                "client_observed_at": None,
+                "server_received_at": None,
+                "age_seconds": None,
+                "error": None,
+                "ulgg_room_id": None,
+                "ulgg_creator_user_id": None,
+                "ulgg_opponent_user_id": None,
+                "ulgg_match_id": None,
+            }
+        freshness, age = derive_freshness(
+            current["server_received_at"],
+            stale_after_seconds=room_stale_after_seconds,
+            expire_after_seconds=room_expire_after_seconds,
+            now_provider=now_provider,
+        )
+        return {
+            **current,
+            "freshness_state": freshness,
+            "age_seconds": age,
+        }
+
+    def cdp_diagnostic() -> dict[str, Any]:
+        current = event_store.get_cdp_diagnostic()
+        if current is None:
+            return {
+                "producer_id": "cdp-adapter",
+                **CDP_DEFAULTS,
+                "freshness_state": "EXPIRED",
+                "server_received_at": None,
+                "age_seconds": None,
+            }
+        freshness, age = derive_freshness(
+            current["server_received_at"],
+            stale_after_seconds=cdp_stale_after_seconds,
+            expire_after_seconds=cdp_expire_after_seconds,
+            now_provider=now_provider,
+        )
+        return {
+            **current,
+            "freshness_state": freshness,
+            "age_seconds": age,
+        }
 
     @app.get("/api/v1/health")
     def health() -> dict[str, Any]:
@@ -144,6 +271,133 @@ def create_app(
             "critical_threshold_bytes": CRITICAL_THRESHOLD_BYTES,
             "storage_status": storage_level,
             "storage_warning": storage_level != "normal",
+        }
+
+    @app.get("/api/v1/room/observation")
+    def get_room_observation() -> dict[str, Any]:
+        return {
+            "api_version": API_VERSION,
+            "room_observation": room_diagnostic(),
+        }
+
+    @app.put("/api/v1/room/observation")
+    def put_room_observation(
+        submission: RoomObservationSubmission,
+        request: Request,
+        authorization: str | None = Header(default=None),
+    ) -> Any:
+        authorized = authorize_producer(
+            request,
+            authorization,
+            action="room.write",
+        )
+        if isinstance(authorized, JSONResponse):
+            return authorized
+        received_at = utc_iso(now_provider())
+        payload = submission.model_dump(mode="json")
+        payload.update(
+            {
+                "ulgg_room_id": None,
+                "ulgg_creator_user_id": None,
+                "ulgg_opponent_user_id": None,
+                "ulgg_match_id": None,
+            }
+        )
+        current, history_appended = event_store.put_room_observation(
+            producer_id=authorized.producer_id,
+            payload=payload,
+            server_received_at=received_at,
+        )
+        return {
+            "api_version": API_VERSION,
+            "status": "accepted",
+            "history_appended": history_appended,
+            "room_observation": {
+                **current,
+                "freshness_state": "FRESH",
+                "age_seconds": 0.0,
+            },
+        }
+
+    @app.delete("/api/v1/room/observation")
+    def delete_room_observation(
+        request: Request,
+        authorization: str | None = Header(default=None),
+    ) -> Any:
+        authorized = authorize_producer(
+            request,
+            authorization,
+            action="room.delete",
+        )
+        if isinstance(authorized, JSONResponse):
+            return authorized
+        previous = event_store.reset_room_observation(
+            producer_id=authorized.producer_id,
+            server_received_at=utc_iso(now_provider()),
+        )
+        return {
+            "api_version": API_VERSION,
+            "status": "cleared" if previous is not None else "no_current",
+            "room_observation": room_diagnostic(),
+        }
+
+    @app.get("/api/v1/cdp/status")
+    def get_cdp_status() -> dict[str, Any]:
+        return {
+            "api_version": API_VERSION,
+            "cdp_diagnostic": cdp_diagnostic(),
+        }
+
+    @app.patch("/api/v1/cdp/status")
+    def patch_cdp_status(
+        patch: CdpDiagnosticPatch,
+        request: Request,
+        authorization: str | None = Header(default=None),
+    ) -> Any:
+        authorized = authorize_producer(
+            request,
+            authorization,
+            action="cdp.write",
+        )
+        if isinstance(authorized, JSONResponse):
+            return authorized
+        try:
+            current, history_appended = (
+                event_store.patch_cdp_diagnostic(
+                    producer_id=authorized.producer_id,
+                    patch=patch.model_dump(
+                        mode="json",
+                        exclude_unset=True,
+                    ),
+                    defaults=CDP_DEFAULTS,
+                    server_received_at=utc_iso(now_provider()),
+                    validator=validate_cdp_current,
+                )
+            )
+        except ValueError as error:
+            return error_response(
+                status_code=422,
+                code="INVALID_CDP_DIAGNOSTIC",
+                message=str(error),
+            )
+        return {
+            "api_version": API_VERSION,
+            "status": "accepted",
+            "history_appended": history_appended,
+            "cdp_diagnostic": {
+                **current,
+                "freshness_state": "FRESH",
+                "age_seconds": 0.0,
+            },
+        }
+
+    @app.get("/api/v1/diagnostics/status")
+    def diagnostics_status() -> dict[str, Any]:
+        return {
+            "api_version": API_VERSION,
+            "room_observation": room_diagnostic(),
+            "cdp_diagnostic": cdp_diagnostic(),
+            "server_time": utc_iso(now_provider()),
         }
 
     @app.get("/api/v1/sessions/current")
@@ -428,6 +682,16 @@ def create_app(
         )
 
     @app.get(
+        "/tracker/tracker-stage-sync.js",
+        include_in_schema=False,
+    )
+    def tracker_stage_sync_script() -> FileResponse:
+        return FileResponse(
+            TRACKER_ROOT / "tracker-stage-sync.js",
+            media_type="text/javascript",
+        )
+
+    @app.get(
         "/tracker/tracker.js",
         include_in_schema=False,
     )
@@ -464,6 +728,16 @@ def create_app(
     def tracker_api_script() -> FileResponse:
         return FileResponse(
             TRACKER_ROOT / "tracker-api.js",
+            media_type="text/javascript",
+        )
+
+    @app.get(
+        "/tracker/tracker-auto-card-sync.js",
+        include_in_schema=False,
+    )
+    def tracker_auto_card_sync_script() -> FileResponse:
+        return FileResponse(
+            TRACKER_ROOT / "tracker-auto-card-sync.js",
             media_type="text/javascript",
         )
 

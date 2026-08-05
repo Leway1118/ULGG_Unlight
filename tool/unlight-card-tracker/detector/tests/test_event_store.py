@@ -460,7 +460,7 @@ class EventStoreTest(unittest.TestCase):
                 WHERE key = 'sqlite_schema_version'
                 """
             ).fetchone()[0]
-        self.assertEqual(version, "3")
+        self.assertEqual(version, "4")
 
     def test_migrates_v2_sessions_to_inactive(self) -> None:
         legacy_path = (

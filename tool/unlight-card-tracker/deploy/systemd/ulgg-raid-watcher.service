@@ -1,0 +1,20 @@
+[Unit]
+Description=ULGG Raid WebSocket Watcher
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ulgg
+Group=ulgg
+WorkingDirectory=/opt/ulgg-raid-bot
+EnvironmentFile=/opt/ulgg-raid-bot/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/ulgg-raid-bot/.venv/bin/python detector/run_raid_bot.py
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

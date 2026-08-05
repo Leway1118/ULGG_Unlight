@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Created using Glyph Designer - http://www.71squared.com/glyphdesigner-->
+<font>
+    <info face="statenum_1" size="10" bold="0" italic="0" chasrset="" unicode="0" stretchH="100" smooth="1" aa="1" padding="0,0,0,0" spacing="2,2"/>
+    <common lineHeight="7" base="7" scaleW="8" scaleH="7" pages="1" packed="0"/>
+    <pages>
+        <page id="0" file="statenum_3.png"/>
+    </pages>
+    <chars count="10">
+        <char id="48" x="0" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="0"/>
+        <char id="49" x="8" y="0" width="6" height="9"  xoffset="0" yoffset="0" xadvance="5" yadvance="0" page="0" chnl="0" letter="1"/>
+        <char id="50" x="14" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="2"/>
+        <char id="51" x="22" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="3"/>
+        <char id="52" x="30" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="4"/>
+        <char id="53" x="38" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="5"/>
+        <char id="54" x="46" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="6"/>
+        <char id="55" x="54" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="7"/>
+        <char id="56" x="62" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="8"/>
+        <char id="57" x="70" y="0" width="8" height="9" xoffset="0" yoffset="0" xadvance="7" yadvance="0" page="0" chnl="0" letter="9"/>
+        <char id="43" x="78" y="0" width="7" height="7" xoffset="0" yoffset="0" xadvance="4" yadvance="0" page="0" chnl="0" letter="+"/>
+        <char id="45" x="85" y="0" width="5" height="7" xoffset="0" yoffset="0" xadvance="4" yadvance="0" page="0" chnl="0" letter="-"/>
+    </chars>
+</font>

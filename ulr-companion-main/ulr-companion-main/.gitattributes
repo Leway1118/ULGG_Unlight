@@ -1,0 +1,14 @@
+# 全平台工作目錄一律 LF。
+#
+# Windows 的 core.autocrlf 預設會把 checkout 出來的檔案轉成 CRLF，但
+# .prettierrc.json 設 endOfLine: "lf"、.editorconfig 也是 lf ——
+# 沒有這個檔案的話，Windows contributor 一 clone 下來 npm run verify 就會紅。
+* text=auto eol=lf
+
+# 測試向量是跨語言的共同真相，行尾絕對不能被轉換：
+# 換行改變 → 檔案 bytes 改變 → 別人 diff 出一堆假變更。
+packages/rule-schema/test-vectors/** -text
+
+*.png binary
+*.jpg binary
+*.ico binary

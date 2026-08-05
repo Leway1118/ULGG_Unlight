@@ -24,6 +24,7 @@ class FakeResponse:
 class FakeHttp:
     def __init__(self):
         self.api_ready = False
+        self.diagnostics_ready = True
         self.cdp_ready = False
         self.active_session_id = None
         self.activate_status = 200
@@ -41,6 +42,16 @@ class FakeHttp:
                     }
                 )
             raise tracker_launcher.requests.ConnectionError()
+        if url.endswith("/api/v1/diagnostics/status"):
+            if self.api_ready and self.diagnostics_ready:
+                return FakeResponse(
+                    body={
+                        "api_version": "v1",
+                        "room_observation": {},
+                        "cdp_diagnostic": {},
+                    }
+                )
+            return FakeResponse(status_code=404)
         if url.endswith("/json/version"):
             if self.cdp_ready:
                 return FakeResponse(
@@ -121,6 +132,9 @@ def config(**overrides):
         "no_browser": True,
         "startup_timeout": 0.5,
         "shutdown_timeout": 0.1,
+        "ws_debug": False,
+        "ws_debug_filter": None,
+        "ws_debug_full": False,
     }
     values.update(overrides)
     return tracker_launcher.LauncherConfig(**values)
@@ -155,11 +169,14 @@ class TrackerLauncherTests(unittest.TestCase):
         self.assertEqual(parsed.api_port, 8765)
         self.assertEqual(parsed.cdp_port, 59222)
         self.assertFalse(parsed.no_browser)
+        self.assertFalse(parsed.ws_debug)
         self.assertTrue(
             tracker_launcher.parse_args(["--no-browser"]).no_browser
         )
         with self.assertRaises(SystemExit):
             tracker_launcher.parse_args(["--api-host", "0.0.0.0"])
+        with self.assertRaises(SystemExit):
+            tracker_launcher.parse_args(["--ws-debug-full"])
 
     def test_source_path_resolution(self):
         paths = tracker_launcher.resolve_runtime_paths(
@@ -216,6 +233,18 @@ class TrackerLauncherTests(unittest.TestCase):
         self.assertFalse(launcher.api_owned)
         self.assertIsNone(launcher.api_process)
 
+    def test_old_v1_api_without_diagnostics_is_not_reused(self):
+        http = FakeHttp()
+        http.api_ready = True
+        http.diagnostics_ready = False
+        launcher = self.launcher(http=http)
+        launcher._port_open = lambda *_args: True
+
+        with self.assertRaises(tracker_launcher.LauncherError):
+            launcher.ensure_api()
+
+        self.assertFalse(launcher.api_owned)
+
     def test_launcher_starts_api_when_unavailable(self):
         http = FakeHttp()
         process = FakeProcess()
@@ -229,6 +258,30 @@ class TrackerLauncherTests(unittest.TestCase):
         launcher.ensure_api()
         self.assertTrue(launcher.api_owned)
         self.assertIs(launcher.api_process, process)
+
+    def test_native_children_receive_runtime_directory_not_token(self):
+        captured = {}
+        process = FakeProcess()
+
+        def popen(*_args, **kwargs):
+            captured.update(kwargs["env"])
+            return process
+
+        runtime = Path(self.directory.name) / "private-runtime"
+        launcher = self.launcher(popen=popen)
+        with patch.object(
+            tracker_launcher,
+            "default_runtime_directory",
+            return_value=runtime,
+        ):
+            launcher._spawn(["python", "component.py"], "Test")
+
+        self.assertEqual(
+            captured["ULGG_TRACKER_RUNTIME_DIR"],
+            str(runtime.resolve()),
+        )
+        self.assertNotIn("ROOM_OBSERVER_TOKEN", captured)
+        self.assertNotIn("CDP_ADAPTER_TOKEN", captured)
 
     def test_non_tracker_port_occupant_is_rejected(self):
         launcher = self.launcher()
@@ -388,6 +441,35 @@ class TrackerLauncherTests(unittest.TestCase):
         ):
             self.assertIn(value, captured)
 
+    def test_launcher_passes_ws_debug_options_to_sniffer(self):
+        session_id = str(uuid4())
+        captured = []
+        process = FakeProcess(
+            [f"TRACKER_SESSION_ID={session_id}"]
+        )
+
+        def popen(command, **_kwargs):
+            captured.extend(command)
+            return process
+
+        launcher = tracker_launcher.TrackerLauncher(
+            config(
+                ws_debug=True,
+                ws_debug_filter="stage,card",
+                ws_debug_full=True,
+            ),
+            paths=self.paths,
+            http=FakeHttp(),
+            popen=popen,
+            sleep=lambda _delay: None,
+            output=lambda _message: None,
+        )
+        launcher.start_sniffer()
+        self.assertIn("--ws-debug", captured)
+        self.assertIn("--ws-debug-filter", captured)
+        self.assertIn("stage,card", captured)
+        self.assertIn("--ws-debug-full", captured)
+
     def test_build_spec_is_one_folder_console_and_excludes_runtime_data(self):
         detector = Path(__file__).resolve().parent.parent
         spec = (detector / "UnlightTrackerLauncher.spec").read_text(
@@ -396,6 +478,10 @@ class TrackerLauncherTests(unittest.TestCase):
         self.assertIn('name="UnlightTrackerLauncher"', spec)
         self.assertIn("console=True", spec)
         self.assertIn("COLLECT(", spec)
+        self.assertIn(
+            '"tracker-stage-sync.js"',
+            spec,
+        )
         for forbidden in (
             "debug_frames",
             "events.sqlite3",

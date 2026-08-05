@@ -84,6 +84,7 @@ class UvicornSmokeTest(unittest.TestCase):
                 for path in (
                     "/tracker/",
                     "/tracker/tracker.js",
+                    "/tracker/tracker-db.js",
                     "/tracker/tracker-api.js",
                     "/tracker/observation-poller.js",
                 ):

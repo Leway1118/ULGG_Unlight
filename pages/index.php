@@ -2019,7 +2019,7 @@ $strongDeckSnapshots = ulggCacheRemember('index_strong_deck_snapshots_meta_v1_' 
             </div>
 
             <div class="strong-deck-meta-line">
-              角色淨C <?= htmlspecialchars(
+              牌組C <?= htmlspecialchars(
                       (string)(number_format($team['cost_sum'] ?? $team['avg_cost'] ,0)?? '-'),
                       ENT_QUOTES
                     ) ?>

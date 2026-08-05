@@ -38,7 +38,11 @@ class FakeTransaction {
                     request.result = operation();
                     request.onsuccess?.();
                     queueMicrotask(
-                        () => this.oncomplete?.()
+                        () => {
+                            if (!this.aborted) {
+                                this.oncomplete?.();
+                            }
+                        }
                     );
                 } catch (error) {
                     request.error = error;
@@ -199,6 +203,12 @@ test("upgrade creates checkpoint store without deleting unknown stores", async (
     );
     assert.equal(
         database.objectStoreNames.contains(
+            "domain_projections"
+        ),
+        true
+    );
+    assert.equal(
+        database.objectStoreNames.contains(
             "future_store"
         ),
         true
@@ -328,5 +338,200 @@ test("reports unavailable IndexedDB explicitly", async () => {
         error => (
             error.code === "INDEXEDDB_UNAVAILABLE"
         )
+    );
+});
+
+
+function initialProjection(sessionId) {
+    return {
+        projection_schema_version: 1,
+        session_id: sessionId,
+        battle_status: "idle",
+        applied_event_ids: [],
+        last_sequence: 0,
+        diagnostics: []
+    };
+}
+
+
+function identityReducer(state) {
+    return {
+        nextState: {
+            ...state,
+            battle_status: "active"
+        },
+        diagnostics: []
+    };
+}
+
+
+function durableEvent(sequence, eventId = `event-${sequence}`) {
+    return {
+        session_id: "session-1",
+        sequence,
+        event_id: eventId
+    };
+}
+
+
+test("domain batch atomically saves projection, cursor, identity, and token", async () => {
+    const trackerDb = loadTrackerDb(
+        new FakeIndexedDB()
+    );
+
+    const saved = await trackerDb.applyDomainEventBatch({
+        sessionId: "session-1",
+        events: [durableEvent(1)],
+        expectedLastSequence: 0,
+        createInitialProjection: initialProjection,
+        reduceEvent: identityReducer,
+        updatedAt: "2026-07-28T00:00:00.000Z",
+        commitToken: "commit-domain-1"
+    });
+    const loaded = await trackerDb.loadDomainProjection(
+        "session-1"
+    );
+
+    assert.equal(saved.last_sequence, 1);
+    assert.deepEqual(
+        Array.from(saved.applied_event_ids),
+        ["event-1"]
+    );
+    assert.equal(saved.commit_token, "commit-domain-1");
+    assert.equal(loaded.last_sequence, 1);
+});
+
+
+test("domain cursor is monotonic and rejects gaps", async () => {
+    const trackerDb = loadTrackerDb(
+        new FakeIndexedDB()
+    );
+    await trackerDb.applyDomainEventBatch({
+        sessionId: "session-1",
+        events: [durableEvent(1)],
+        expectedLastSequence: 0,
+        createInitialProjection: initialProjection,
+        reduceEvent: identityReducer,
+        updatedAt: "2026-07-28T00:00:00.000Z",
+        commitToken: "commit-1"
+    });
+
+    await assert.rejects(
+        trackerDb.applyDomainEventBatch({
+            sessionId: "session-1",
+            events: [durableEvent(3)],
+            expectedLastSequence: 1,
+            createInitialProjection: initialProjection,
+            reduceEvent: identityReducer,
+            updatedAt: "2026-07-28T00:00:01.000Z",
+            commitToken: "commit-3"
+        }),
+        error => error.code === "SEQUENCE_GAP"
+    );
+    await assert.rejects(
+        trackerDb.applyDomainEventBatch({
+            sessionId: "session-1",
+            events: [],
+            expectedLastSequence: 0,
+            createInitialProjection: initialProjection,
+            reduceEvent: identityReducer,
+            updatedAt: "2026-07-28T00:00:01.000Z",
+            commitToken: "regression"
+        }),
+        error => (
+            error.code ===
+            "PROJECTION_CURSOR_CONFLICT"
+        )
+    );
+
+    const loaded = await trackerDb.loadDomainProjection(
+        "session-1"
+    );
+    assert.equal(loaded.last_sequence, 1);
+});
+
+
+test("domain batch rejects duplicate event identity at a new sequence", async () => {
+    const trackerDb = loadTrackerDb(
+        new FakeIndexedDB()
+    );
+    await trackerDb.applyDomainEventBatch({
+        sessionId: "session-1",
+        events: [durableEvent(1, "same-event")],
+        expectedLastSequence: 0,
+        createInitialProjection: initialProjection,
+        reduceEvent: identityReducer,
+        updatedAt: "2026-07-28T00:00:00.000Z",
+        commitToken: "commit-1"
+    });
+
+    await assert.rejects(
+        trackerDb.applyDomainEventBatch({
+            sessionId: "session-1",
+            events: [durableEvent(2, "same-event")],
+            expectedLastSequence: 1,
+            createInitialProjection: initialProjection,
+            reduceEvent: identityReducer,
+            updatedAt: "2026-07-28T00:00:01.000Z",
+            commitToken: "commit-2"
+        }),
+        error => error.code === "DUPLICATE_EVENT_ID"
+    );
+});
+
+
+test("same event at the committed sequence is idempotent", async () => {
+    const trackerDb = loadTrackerDb(
+        new FakeIndexedDB()
+    );
+    const argumentsBase = {
+        sessionId: "session-1",
+        createInitialProjection: initialProjection,
+        reduceEvent: identityReducer,
+        updatedAt: "2026-07-28T00:00:00.000Z"
+    };
+    await trackerDb.applyDomainEventBatch({
+        ...argumentsBase,
+        events: [durableEvent(1)],
+        expectedLastSequence: 0,
+        commitToken: "first"
+    });
+    const repeated =
+        await trackerDb.applyDomainEventBatch({
+            ...argumentsBase,
+            events: [durableEvent(1)],
+            expectedLastSequence: 1,
+            commitToken: "repeated"
+        });
+
+    assert.equal(repeated.last_sequence, 1);
+    assert.equal(repeated.applied_event_ids.length, 1);
+});
+
+
+test("reducer failure rolls back cursor and projection", async () => {
+    const trackerDb = loadTrackerDb(
+        new FakeIndexedDB()
+    );
+    const reducerError = new Error("bad payload");
+    reducerError.code = "INVALID_DOMAIN_PAYLOAD";
+
+    await assert.rejects(
+        trackerDb.applyDomainEventBatch({
+            sessionId: "session-1",
+            events: [durableEvent(1)],
+            expectedLastSequence: 0,
+            createInitialProjection: initialProjection,
+            reduceEvent() {
+                throw reducerError;
+            },
+            updatedAt: "2026-07-28T00:00:00.000Z",
+            commitToken: "failed"
+        }),
+        error => error.code === "INVALID_DOMAIN_PAYLOAD"
+    );
+    assert.equal(
+        await trackerDb.loadDomainProjection("session-1"),
+        null
     );
 });

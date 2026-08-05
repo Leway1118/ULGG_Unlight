@@ -1,0 +1,15 @@
+{
+  "name": "@ulr/companion",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ULR Companion 桌面應用。WP-08 之前只是個佔位。",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@ulr/api-contract": "*",
+    "@ulr/cdp-adapter": "*",
+    "@ulr/cost-engine": "*",
+    "@ulr/rule-schema": "*"
+  }
+}

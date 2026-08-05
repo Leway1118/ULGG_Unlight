@@ -1,0 +1,12 @@
+{
+  "name": "@ulr/api-contract",
+  "version": "0.0.0",
+  "private": true,
+  "description": "規格書 §8 的 ULGG API 契約型別。純型別，沒有實作。",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

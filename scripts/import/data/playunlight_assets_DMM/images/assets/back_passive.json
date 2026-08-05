@@ -1,0 +1,14 @@
+{
+  "frames": [
+    { "filename": "passive_null_out", "frame": { "x": 0, "y": 0, "w": 158, "h": 28 } },
+    { "filename": "passive_null_over", "frame": { "x": 0, "y": 28, "w": 158, "h": 28 } },
+    { "filename": "passive_draw_out", "frame": { "x": 0, "y": 56, "w": 158, "h": 28 } },
+    { "filename": "passive_draw_over", "frame": { "x": 0, "y": 84, "w": 158, "h": 28 } },
+    { "filename": "passive_move_out", "frame": { "x": 0, "y": 112, "w": 158, "h": 28 } },
+    { "filename": "passive_move_over", "frame": { "x": 0, "y": 140, "w": 158, "h": 28 } },
+    { "filename": "passive_attack_out", "frame": { "x": 0, "y": 168, "w": 158, "h": 28 } },
+    { "filename": "passive_attack_over", "frame": { "x": 0, "y": 196, "w": 158, "h": 28 } },
+    { "filename": "passive_defense_out", "frame": { "x": 0, "y": 224, "w": 158, "h": 28 } },
+    { "filename": "passive_defense_over", "frame": { "x": 0, "y": 252, "w": 158, "h": 28 } }
+  ]
+}

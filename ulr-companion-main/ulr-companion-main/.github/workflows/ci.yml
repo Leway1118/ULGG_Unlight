@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # 刻意跑最低支援版本，這樣「在我機器上可以」的問題會在 CI 就爆出來。
+          # 20.19 是 eslint 依賴要求的下限。
+          node-version: "20.19"
+          cache: npm
+
+      - run: npm ci
+
+      - name: 排版
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: 型別檢查
+        run: npm run typecheck
+
+      - name: 測試
+        run: npm test
+
+      # 測試向量是跨語言的共同真相，變動代表所有已發布規則的 Hash 全失效。
+      # 這一步確保它只會因為「刻意重新產生並送審」而改變，不會因為誰改了
+      # canonical.ts 就悄悄漂移。
+      - name: 確認測試向量沒有意外漂移
+        run: |
+          npm run vectors:generate
+          if ! git diff --quiet -- packages/rule-schema/test-vectors/; then
+            echo "::error::測試向量與目前實作不一致。"
+            echo "若是刻意的破壞性變更，請執行 npm run vectors:generate 並把 diff 一起提交，"
+            echo "同時在 PR 說明已發布規則要如何遷移。"
+            git diff -- packages/rule-schema/test-vectors/
+            exit 1
+          fi

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unlight Release Guardian"
+  short_description: "Strict final acceptance for Unlight Tracker releases"
+  default_prompt: "Use $unlight-release-guardian to perform the final adversarial acceptance gate for this Unlight Tracker change."

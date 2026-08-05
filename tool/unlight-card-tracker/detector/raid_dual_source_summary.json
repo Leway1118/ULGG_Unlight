@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "finished_at": "2026-08-03T19:36:24.241+08:00",
+  "duration_seconds": 180,
+  "output_path": "D:\\Leway\\OneDrive - 合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\tool\\unlight-card-tracker\\detector\\raid_dual_source_log.jsonl",
+  "stats": {
+    "sample_count": 48,
+    "db_raid_event_count": 5,
+    "scene_available_count": 48,
+    "scene_active_count": 41,
+    "exact_match_count": 19,
+    "same_ids_but_content_diff_count": 17,
+    "id_mismatch_count": 0,
+    "evaluate_error_count": 0,
+    "parse_error_count": 0
+  },
+  "interpretation_notes": [
+    "exact_match_count 代表兩來源完整 JSON 相同的採樣次數",
+    "same_ids_but_content_diff_count 代表 Raid ID 相同但 HP/state/points 等內容不同",
+    "id_mismatch_count 代表兩來源的 Raid 清單成員不同",
+    "完整判讀仍需依 JSONL 中事件時序與玩家操作對照"
+  ]
+}

@@ -55,9 +55,11 @@ _FACE_LABELS_ZH = {
 _SUPPORTED_MODES = {"pve", "pvp", "unknown"}
 _PROTOCOL_SIDES = {"A", "B", "unknown"}
 _OUTCOMES = {"win", "lose", "draw"}
+_STAGE_CONTEXT_SOURCES = {"db_quest_land_now", "raid_ready"}
 SUPPORTED_EVENT_NAMES = frozenset(
     {
         "db_quest_land_now",
+        "raid_ready",
         "joinRoom",
         "gameReady",
         "gameStart",
@@ -309,7 +311,7 @@ def _safe_stage_context(value: Any) -> dict[str, Any]:
         or len(stage_code) != 3
         or not stage_code.isascii()
         or not stage_code.isdigit()
-        or stage_source != "db_quest_land_now"
+        or stage_source not in _STAGE_CONTEXT_SOURCES
         or not _is_integer(source_sequence)
         or source_sequence < 0
     ):

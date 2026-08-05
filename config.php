@@ -183,6 +183,28 @@ define('DISCORD_WEBHOOK_UL_VERIFY', $discordWebhook ?? '');
 define('ULGG_VAPID_PUBLIC_KEY', $vapidPublicKey ?? '');
 define('ULGG_VAPID_PRIVATE_KEY', $vapidPrivateKey ?? '');
 define('ULGG_VAPID_SUBJECT', $vapidSubject ?? '');
+define(
+    'ULGG_WATCHER_API_TOKEN',
+    trim((string)($_ENV['ULGG_WATCHER_API_TOKEN'] ?? getenv('ULGG_WATCHER_API_TOKEN') ?: ''))
+);
+define(
+    'ULGG_ACTIVE_RULE_VERSION_ID',
+    trim((string)(
+        $_ENV['ULGG_ACTIVE_RULE_VERSION_ID']
+        ?? getenv('ULGG_ACTIVE_RULE_VERSION_ID')
+        ?: 'ulgg-glasses-99-demo@0.1.0'
+    ))
+);
+
+define(
+    'ULGG_ACTIVE_RULESET_TOML',
+    __DIR__ . '/pages/ruleset/data/test/cc_asset_cost_demo_v1.toml'
+);
+define('ULGG_RULESET_TOML_BY_VERSION', [
+    'ulgg-glasses-99-demo@0.1.0'
+    => __DIR__
+        . '/pages/ruleset/data/test/cc_asset_cost_demo_v1.toml',
+]);
 
 function appDiscordWebhookConfigured(): bool
 {

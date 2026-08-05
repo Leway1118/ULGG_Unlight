@@ -1,0 +1,154 @@
+{
+  "ok": true,
+  "at": "2026-08-03T05:23:20.930Z",
+  "active": true,
+  "player_name": "咕嚕．挖2朵",
+  "raid_count": 1,
+  "raids": [
+    {
+      "index": 0,
+      "profound_id": "2079-cc5yyD3gpsaRHA4z4m9Wv9b28U1iyTsr",
+      "profound_date": 1785731172012,
+      "founder": "令辭",
+      "founder_id": "u95llycANi8bEl1iFRcNmsGll9UanusG0000",
+      "monster_code": "mc1003_02",
+      "monster_id": 40108,
+      "name": "黑死獸",
+      "description": "吞食死亡的多眼巨獸。朋友以外的參戰人數上限：30人",
+      "rarity": 1,
+      "level": 1,
+      "hp": 2718,
+      "hp_max": 3500,
+      "hp_ratio": 0.7765714285714286,
+      "ap_spend": 1,
+      "expires_at": 1785752772012,
+      "map": 4,
+      "stage": 4,
+      "member_limit": 100,
+      "participant_count": 15,
+      "pass": "jtSk6ZN5XZnZ",
+      "only_friend": false,
+      "treasure_level": 2079,
+      "is_active": 1,
+      "pos_index": 3,
+      "status": [
+        {
+          "type": "huin",
+          "turn": 1785731660499
+        }
+      ],
+      "already_joined": true,
+      "my_point": 0,
+      "my_damage": 0,
+      "participants": [
+        {
+          "name": "小鼠呆呆",
+          "point": 125540,
+          "damage": 256,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "SCPAnAn",
+          "point": 50000,
+          "damage": 215,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "Hin",
+          "point": 31206,
+          "damage": 72,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "令辭",
+          "point": 22403,
+          "damage": 14,
+          "level": 59,
+          "lang": "tcn"
+        },
+        {
+          "name": "喜坂雛",
+          "point": 17095,
+          "damage": 66,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "폴랑",
+          "point": 13866,
+          "damage": 19,
+          "level": null,
+          "lang": "kr"
+        },
+        {
+          "name": "dreamscape",
+          "point": 11294,
+          "damage": 58,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "XIUME",
+          "point": 9159,
+          "damage": 37,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "大霹靂飛踢",
+          "point": 8590,
+          "damage": 11,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "xup6",
+          "point": 5199,
+          "damage": 27,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "flygrass72",
+          "point": 5097,
+          "damage": 1,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "치르노",
+          "point": 3296,
+          "damage": 3,
+          "level": null,
+          "lang": "kr"
+        },
+        {
+          "name": "瀨浦拿騰",
+          "point": 2295,
+          "damage": 3,
+          "level": null,
+          "lang": "tcn"
+        },
+        {
+          "name": "리벳",
+          "point": 1302,
+          "damage": 8,
+          "level": null,
+          "lang": "kr"
+        },
+        {
+          "name": "咕嚕．挖2朵",
+          "point": 0,
+          "damage": 0,
+          "level": null,
+          "lang": "tcn"
+        }
+      ],
+      "defeat": [],
+      "defeat_name": ""
+    }
+  ]
+}

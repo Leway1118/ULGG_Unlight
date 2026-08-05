@@ -1,0 +1,12 @@
+pip install "python-socketio[asyncio_client]"
+pip install mysql-connector-python
+pip install python-dotenv
+pip install PyMySQL
+py -m pip install websockets
+python -m pip install python-dotenv
+
+C:\Windows\System32\cmd.exe
+/c "D:\Leway\OneDrive - 合航企業有限公司\Leway\公司檔案\7.Code\unlight\steam\data\run_import.bat"
+/c "D:\OneDrive - 合航企業有限公司\Leway\公司檔案\7.Code\unlight\steam\data\run_import.bat"
+
+D:\Leway\OneDrive - 合航企業有限公司\Leway\公司檔案\7.Code\unlight\steam\data

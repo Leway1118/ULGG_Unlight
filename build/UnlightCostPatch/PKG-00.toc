@@ -1,0 +1,64 @@
+('D:\\Leway\\OneDrive - '
+ '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\build\\UnlightCostPatch\\UnlightCostPatch.pkg',
+ {'BINARY': True,
+  'DATA': True,
+  'EXECUTABLE': True,
+  'EXTENSION': True,
+  'PYMODULE': True,
+  'PYSOURCE': True,
+  'PYZ': False,
+  'SPLASH': True,
+  'SYMLINK': False},
+ [('pyi-contents-directory _internal', '', 'OPTION'),
+  ('PYZ-00.pyz',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\build\\UnlightCostPatch\\PYZ-00.pyz',
+   'PYZ'),
+  ('struct',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\build\\UnlightCostPatch\\localpycs\\struct.pyc',
+   'PYMODULE'),
+  ('pyimod01_archive',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\build\\UnlightCostPatch\\localpycs\\pyimod01_archive.pyc',
+   'PYMODULE'),
+  ('pyimod02_importers',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\build\\UnlightCostPatch\\localpycs\\pyimod02_importers.pyc',
+   'PYMODULE'),
+  ('pyimod03_ctypes',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\build\\UnlightCostPatch\\localpycs\\pyimod03_ctypes.pyc',
+   'PYMODULE'),
+  ('pyimod04_pywin32',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\build\\UnlightCostPatch\\localpycs\\pyimod04_pywin32.pyc',
+   'PYMODULE'),
+  ('pyiboot01_bootstrap',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\.venv-cdp\\Lib\\site-packages\\PyInstaller\\loader\\pyiboot01_bootstrap.py',
+   'PYSOURCE'),
+  ('pyi_rth_inspect',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\.venv-cdp\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
+   'PYSOURCE'),
+  ('pyi_rth_pkgutil',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\.venv-cdp\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py',
+   'PYSOURCE'),
+  ('pyi_rth_multiprocessing',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\.venv-cdp\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_multiprocessing.py',
+   'PYSOURCE'),
+  ('app',
+   'D:\\Leway\\OneDrive - '
+   '合航企業有限公司\\Leway\\公司檔案\\7.Code\\unlight\\src\\script\\cdp\\app.py',
+   'PYSOURCE')],
+ 'python311.dll',
+ True,
+ False,
+ False,
+ [],
+ None,
+ None,
+ None)

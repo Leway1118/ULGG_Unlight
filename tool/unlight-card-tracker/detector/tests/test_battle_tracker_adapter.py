@@ -124,6 +124,25 @@ class BattleTrackerAdapterTests(unittest.TestCase):
             },
         )
 
+    def test_battle_started_preserves_safe_raid_stage_context(self):
+        value = observation(
+            "battle_started",
+            payload={
+                "stage_code": "005",
+                "stage_source": "raid_ready",
+                "stage_source_sequence": 791,
+            },
+        )
+        event = adapt_battle_observation(value)[0]
+        self.assertEqual(
+            event["payload"],
+            {
+                "stage_code": "005",
+                "stage_source": "raid_ready",
+                "stage_source_sequence": 791,
+            },
+        )
+
     def test_battle_started_rejects_malformed_stage_context(self):
         value = observation(
             "battle_started",

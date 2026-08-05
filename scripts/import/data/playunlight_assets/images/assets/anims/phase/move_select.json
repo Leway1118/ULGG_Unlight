@@ -1,0 +1,20 @@
+{
+  "frames": [
+    { "filename": "back_out", "frame": { "x": 0, "y": 0, "w": 48, "h": 54 } },
+    { "filename": "back_over", "frame": { "x": 0, "y": 54, "w": 48, "h": 54 } },
+    { "filename": "back_down", "frame": { "x": 0, "y": 108, "w": 48, "h": 54 } },
+    { "filename": "back_forbidden", "frame": { "x": 0, "y": 162, "w": 48, "h": 54 } },
+    { "filename": "front_out", "frame": { "x": 48, "y": 0, "w": 48, "h": 54 } },
+    { "filename": "front_over", "frame": { "x": 48, "y": 54, "w": 48, "h": 54 } },
+    { "filename": "front_down", "frame": { "x": 48, "y": 108, "w": 48, "h": 54 } },
+    { "filename": "front_forbidden", "frame": { "x": 48, "y": 162, "w": 48, "h": 54 } },
+    { "filename": "stay_out", "frame": { "x": 96, "y": 0, "w": 48, "h": 54 } },
+    { "filename": "stay_over", "frame": { "x": 96, "y": 54, "w": 48, "h": 54 } },
+    { "filename": "stay_down", "frame": { "x": 96, "y": 108, "w": 48, "h": 54 } },
+    { "filename": "stay_forbidden", "frame": { "x": 96, "y": 162, "w": 48, "h": 54 } },
+    { "filename": "change_out", "frame": { "x": 144, "y": 0, "w": 48, "h": 54 } },
+    { "filename": "change_over", "frame": { "x": 144, "y": 54, "w": 48, "h": 54 } },
+    { "filename": "change_down", "frame": { "x": 144, "y": 108, "w": 48, "h": 54 } },
+    { "filename": "change_forbidden", "frame": { "x": 144, "y": 162, "w": 48, "h": 54 } }
+  ]
+}

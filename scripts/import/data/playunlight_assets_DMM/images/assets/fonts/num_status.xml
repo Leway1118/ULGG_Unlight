@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Created using Glyph Designer - http://www.71squared.com/glyphdesigner-->
+<font>
+    <info face="Num_btl_p" size="6" bold="0" italic="0" chasrset="" unicode="0" stretchH="100" smooth="1" aa="1" padding="0,0,0,0" spacing="2,2"/>
+    <common lineHeight="6" base="7" scaleW="420" scaleH="45" pages="1" packed="0"/>
+    <pages>
+        <page id="0" file="num_status.png"/>
+    </pages>
+    <chars count="10">
+        <char id="48" x="0" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="0"/>
+        <char id="49" x="30" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="1"/>
+        <char id="50" x="60" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="2"/>
+        <char id="51" x="90" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="3"/>
+        <char id="52" x="120" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="4"/>
+        <char id="53" x="150" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="5"/>
+        <char id="54" x="180" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="6"/>
+        <char id="55" x="210" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="7"/>
+        <char id="56" x="240" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="8"/>
+        <char id="57" x="270" y="0" width="30" height="35" xoffset="0" yoffset="8" xadvance="33" page="0" chnl="0" letter="9"/>
+        <char id="46" x="300" y="0" width="20" height="35" xoffset="0" yoffset="8" xadvance="23" page="0" chnl="0" letter="."/>
+    </chars>
+</font>

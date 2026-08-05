@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "ULR Boot",
+  "version": "1.0.5111",
+  "description": "免 Steam 開啟 UNLIGHT:Revive 網頁版（由 ulr-companion 產生）",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.playunlight.online/*"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "js": [
+        "boot.js"
+      ]
+    }
+  ]
+}

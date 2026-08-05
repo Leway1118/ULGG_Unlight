@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <title>ULR Boot Storage</title>
+  <style>
+    body {
+      font-family: Consolas, monospace;
+      padding: 20px;
+      white-space: pre-wrap;
+    }
+
+    button {
+      margin-right: 8px;
+      margin-bottom: 12px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      box-sizing: border-box;
+      font-family: Consolas, monospace;
+    }
+
+    #output {
+      background: #f3f3f3;
+      padding: 12px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h2>ULR Boot Storage</h2>
+
+  <button id="refreshBtn">重新讀取</button>
+  <button id="exportBtn">匯出</button>
+  <button id="importBtn">匯入</button>
+  <button id="clearBtn">清除</button>
+
+  <textarea
+    id="transfer"
+    placeholder="普通 P4 按匯出後複製這裡內容，再到 CDP Profile 貼上並按匯入"
+  ></textarea>
+
+  <pre id="output">讀取中……</pre>
+
+  <script src="debug.js"></script>
+</body>
+</html>

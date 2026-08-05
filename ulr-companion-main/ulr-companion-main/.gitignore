@@ -1,0 +1,39 @@
+node_modules/
+dist/
+build/
+release/
+out/
+*.tsbuildinfo
+coverage/
+.vitest/
+
+# ---------------------------------------------------------------------------
+# 機密：絕對不能進版控
+# ---------------------------------------------------------------------------
+# 遊戲的 WebSocket 封包裡帶 Steam session token（36 碼）與含 steamid/token 的
+# 遊戲網址。規格書 §12 明訂不得記錄或上傳這些東西。
+# 要提交 fixture 給測試用，一律先跑 `npm run fixture:scrub` 去識別化。
+*.log
+packets.log
+/fixtures/raw/
+**/battle/
+**/deck/
+**/bonus/
+
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
+
+# 本機規則包（可能是還沒發布的私人約測規則）
+*.ulrcost.json
+!packages/rule-schema/test-vectors/**/*.ulrcost.json
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

@@ -223,7 +223,20 @@ def parse_session_line(line: str) -> str | None:
 
 
 def console_output(message: str) -> None:
-    print(message, flush=True)
+    text = str(message)
+
+    try:
+        print(text, flush=True)
+    except UnicodeEncodeError:
+        encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+        safe_text = text.encode(
+            encoding,
+            errors="replace",
+        ).decode(
+            encoding,
+            errors="replace",
+        )
+        print(safe_text, flush=True)
 
 
 class TrackerLauncher:

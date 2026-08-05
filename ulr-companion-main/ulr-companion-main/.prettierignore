@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+
+# 由 npm run vectors:generate 產生。排版交給產生器，prettier 不要插手，
+# 否則 CI 的漂移檢查會一直有 diff。
+packages/rule-schema/test-vectors/canonical.json

@@ -48,28 +48,77 @@
         fetchImpl = global.fetch
             ? global.fetch.bind(global)
             : null,
-        apiBase = "/api/v1"
+        apiBase = "/api/v1",
+        requestTimeoutMs = 5000,
+        createAbortController = () =>
+            new global.AbortController(),
+        scheduleTimeout = (callback, delay) =>
+            global.setTimeout(callback, delay),
+        cancelTimeout = timer =>
+            global.clearTimeout(timer)
     } = {}) {
         if (typeof fetchImpl !== "function") {
             throw new TypeError("fetchImpl is required");
         }
+        if (
+            !Number.isFinite(requestTimeoutMs) ||
+            requestTimeoutMs <= 0
+        ) {
+            throw new TypeError(
+                "requestTimeoutMs must be positive"
+            );
+        }
 
-        async function request(path) {
+        async function request(path, { signal = null } = {}) {
+            const controller = createAbortController();
+            let timedOut = false;
+            const abortFromCaller = () =>
+                controller.abort();
+            if (signal?.aborted) {
+                abortFromCaller();
+            } else {
+                signal?.addEventListener(
+                    "abort",
+                    abortFromCaller,
+                    { once: true }
+                );
+            }
+            const timeout = scheduleTimeout(() => {
+                timedOut = true;
+                controller.abort();
+            }, requestTimeoutMs);
             let response;
             try {
                 response = await fetchImpl(
                     `${apiBase}${path}`,
                     {
+                        signal: controller.signal,
                         headers: {
                             "Accept": "application/json"
                         }
                     }
                 );
             } catch (error) {
+                if (error?.name === "AbortError") {
+                    if (timedOut) {
+                        throw new TrackerApiError(
+                            "REQUEST_TIMEOUT",
+                            "Tracker API request timed out",
+                            { cause: error }
+                        );
+                    }
+                    throw error;
+                }
                 throw new TrackerApiError(
                     "NETWORK_ERROR",
                     "Unable to reach Tracker API",
                     { cause: error }
+                );
+            } finally {
+                cancelTimeout(timeout);
+                signal?.removeEventListener(
+                    "abort",
+                    abortFromCaller
                 );
             }
 
@@ -113,6 +162,27 @@
             return requireObject(body, "response");
         }
 
+        async function getActiveSession({ signal = null } = {}) {
+            const body = await request(
+                "/sessions/active",
+                { signal }
+            );
+            const session = requireObject(
+                body.session,
+                "session"
+            );
+            if (
+                typeof session.session_id !== "string" ||
+                session.session_id.length === 0
+            ) {
+                throw new TrackerApiError(
+                    "MALFORMED_RESPONSE",
+                    "session.session_id is required"
+                );
+            }
+            return session;
+        }
+
         async function getCurrentSession() {
             const body = await request(
                 "/sessions/current"
@@ -133,10 +203,35 @@
             return session;
         }
 
+        async function getDiagnosticsStatus({
+            signal = null
+        } = {}) {
+            const body = await request(
+                "/diagnostics/status",
+                { signal }
+            );
+            requireObject(
+                body.room_observation,
+                "room_observation"
+            );
+            requireObject(
+                body.cdp_diagnostic,
+                "cdp_diagnostic"
+            );
+            if (typeof body.server_time !== "string") {
+                throw new TrackerApiError(
+                    "MALFORMED_RESPONSE",
+                    "server_time is required"
+                );
+            }
+            return body;
+        }
+
         async function getEvents({
             sessionId,
             afterSequence = 0,
-            limit = 100
+            limit = 100,
+            signal = null
         }) {
             if (
                 typeof sessionId !== "string" ||
@@ -163,7 +258,8 @@
                 limit: String(limit)
             });
             const body = await request(
-                `/events?${query.toString()}`
+                `/events?${query.toString()}`,
+                { signal }
             );
 
             if (body.session_id !== sessionId) {
@@ -197,7 +293,9 @@
         }
 
         return Object.freeze({
+            getActiveSession,
             getCurrentSession,
+            getDiagnosticsStatus,
             getEvents
         });
     }

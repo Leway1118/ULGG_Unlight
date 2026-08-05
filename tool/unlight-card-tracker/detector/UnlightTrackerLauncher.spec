@@ -8,10 +8,12 @@ tracker_root = detector_root.parent
 tracker_files = [
     "control.html",
     "field-decks.js",
+    "tracker-stage-sync.js",
     "tracker.js",
     "tracker-db.js",
     "tracker-api.js",
     "tracker-domain-reducer.js",
+    "tracker-auto-card-sync.js",
     "observation-poller.js",
 ]
 datas = [

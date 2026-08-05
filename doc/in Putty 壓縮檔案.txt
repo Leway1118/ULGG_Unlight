@@ -1,0 +1,7 @@
+in Putty 壓縮檔案:
+gzip -c /var/www/html/unlight/watcher/channel2_room_backup/channel2_room_backup_20260708_000305.json > /var/www/html/unlight/watcher/channel2_room_backup/channel2_room_backup_20260708_000305.json.gz
+chmod 644 /var/www/html/unlight/watcher/channel2_room_backup/channel2_room_backup_20260708_000305.json.gz
+ls -lh /var/www/html/unlight/watcher/channel2_room_backup/channel2_room_backup_20260708_000305.json.gz
+
+in CMD 下載
+curl -L -C - -o "%USERPROFILE%\Desktop\channel2_room_backup_20260708_000305.json.gz" "https://ulgg.online/watcher/channel2_room_backup/channel2_room_backup_20260708_000305.json.gz"

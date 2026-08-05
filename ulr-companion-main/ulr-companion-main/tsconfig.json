@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+
+    "declaration": true,
+    "sourceMap": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+
+    // 直接指到原始碼，contributor clone 下來不用先 build 就能跨 package import
+    "baseUrl": ".",
+    "paths": {
+      "@ulr/rule-schema": ["packages/rule-schema/src/index.ts"],
+      "@ulr/api-contract": ["packages/api-contract/src/index.ts"],
+      "@ulr/cost-engine": ["packages/cost-engine/src/index.ts"],
+      "@ulr/cdp-adapter": ["packages/cdp-adapter/src/index.ts"]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*",
+    "packages/*/test/**/*",
+    "packages/*/scripts/**/*",
+    "apps/*/src/**/*",
+    "*.ts"
+  ],
+  "exclude": ["node_modules", "**/dist"]
+}

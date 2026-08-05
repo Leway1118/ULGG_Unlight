@@ -255,7 +255,7 @@ class TrackerApiServerUnitTests(unittest.TestCase):
             self.assertEqual(row["producer_type"], "detector")
             self.assertEqual(row["producer_instance"], "screen")
             self.assertEqual(row["tracker_active"], 0)
-            self.assertEqual(version, "3")
+            self.assertEqual(version, "4")
 
     def test_parser_allows_and_normalizes_loopback_hosts(self) -> None:
         cases = {

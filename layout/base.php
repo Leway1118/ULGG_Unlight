@@ -5827,7 +5827,7 @@ if (
               class="sidebar-link <?= $activeMenu === 'ruleset' ? 'is-active' : '' ?>">
               <span class="sidebar-icon">📜</span>
               <span class="sidebar-text">
-                社群規則 <small>Ruleset</small>
+                自訂規則對戰 <small>Ruleset</small>
               </span>
             </a>
           </div>

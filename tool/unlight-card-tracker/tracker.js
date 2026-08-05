@@ -2468,7 +2468,7 @@ function renderMyHand() {
     if (!names.length) {
         elements.myHand.innerHTML = `
             <div class="zone-empty">
-                尚未加入我方手牌
+                
             </div>
         `;
 
@@ -2545,7 +2545,7 @@ function renderEnemyCandidates() {
     if (!names.length) {
         elements.enemyCandidates.innerHTML = `
             <div class="zone-empty">
-                尚未建立敵方手牌候選，請按洗牌
+                
             </div>
         `;
 

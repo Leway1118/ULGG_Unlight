@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Unlight 公牌庫追蹤器</title>
+  <style>
+    :root {
+      --bg: #0f131a;
+      --panel: #1a202b;
+      --panel2: #232b39;
+      --line: #344055;
+      --text: #f4f6f8;
+      --muted: #9ba7b8;
+      --blue: #3b82f6;
+      --red: #b84a4a
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(#0b0f15, #141a24);
+      color: var(--text);
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif
+    }
+
+    button,
+    input,
+    select {
+      font: inherit
+    }
+
+    .app {
+      max-width: 1600px;
+      margin: auto;
+      padding: 10px
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 1.2fr .7fr .8fr auto;
+      gap: 10px;
+      align-items: end
+    }
+
+    .box,
+    .panel,
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 10px 28px #0005
+    }
+
+    .box {
+      padding: 5px 10px
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px
+    }
+
+    select,
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 9px;
+      border: 1px solid var(--line);
+      background: #0f141d;
+      color: white
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      background: #2f394b;
+      color: #fff;
+      cursor: pointer
+    }
+
+    button:hover {
+      filter: brightness(1.12)
+    }
+
+    button.danger {
+      background: var(--red)
+    }
+
+    button:disabled {
+      opacity: .4
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin: 12px 0
+    }
+
+    .stat {
+      padding: 5px 23px
+    }
+
+    .stat small {
+      color: var(--muted)
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 26px;
+      margin-top: 3px
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 12px
+    }
+
+    .panel {
+      padding: 5px 10px
+    }
+
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 0
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px
+    }
+
+    .card {
+      text-align: left;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      min-height: 76px
+    }
+
+    .card .n {
+      font-weight: 700
+    }
+
+    .card .c {
+      font-size: 23px;
+      font-weight: 800;
+      margin-top: 5px
+    }
+
+    .card .m {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .card.low {
+      background: #2a2417;
+      border-color: #8a6b2a
+    }
+
+    .card.zero {
+      opacity: .45;
+      text-decoration: line-through;
+      background: #171b22
+    }
+
+    .type {
+      display: grid;
+      grid-template-columns: 35px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin: 9px 0
+    }
+
+    .bar {
+      height: 8px;
+      background: #0d1219;
+      border-radius: 99px;
+      overflow: hidden
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: var(--blue)
+    }
+
+    .history {
+      max-height: 540px;
+      overflow: auto;
+      display: grid;
+      gap: 7px
+    }
+
+    .hist {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 8px;
+      display: flex;
+      justify-content: space-between
+    }
+
+    .hist small,
+    .empty,
+    .note {
+      color: var(--muted)
+    }
+
+    .note {
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 10px
+    }
+
+    .game-card-button {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 132px;
+      padding: 10px;
+    }
+
+    .game-card-preview {
+      flex: 0 0 58px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .game-card-button {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 112px;
+      padding: 10px;
+    }
+
+    .game-card-preview {
+      flex: 0 0 56px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .game-card {
+      position: relative;
+      width: 54px;
+      height: 84px;
+      overflow: hidden;
+      background: #050505;
+      border: 1px solid #000;
+      box-shadow:
+        0 0 0 1px #777,
+        0 4px 10px rgba(0, 0, 0, 0.55);
+      image-rendering: pixelated;
+    }
+
+    /* 上下兩面各佔一半 */
+    .game-card-half {
+      position: absolute;
+      left: 0;
+      width: 54px;
+      height: 42px;
+      overflow: hidden;
+    }
+
+    .game-card-top {
+      top: 0;
+    }
+
+    .game-card-bottom {
+      bottom: 0;
+      transform: rotate(180deg);
+    }
+
+    /*
+ * 圖片維持原始完整卡面 54×84，
+ * 由父層裁切出上半部。
+ */
+    .game-card-half img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 54px;
+      height: 84px;
+      max-width: none;
+      object-fit: fill;
+      image-rendering: pixelated;
+    }
+
+    /* 中間分界線 */
+    .game-card-divider {
+      position: absolute;
+      top: 41px;
+      left: 1px;
+      right: 1px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.65);
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+      z-index: 10;
+    }
+
+    /* 卡片數值 */
+    .game-card-value {
+      position: absolute;
+      top: 11px;
+      left: 7px;
+      z-index: 6;
+      color: #fff;
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: 18px;
+      line-height: 1;
+      text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 2px 1px #000;
+    }
+
+    /* 圖片本身已有 ATTACK／MOVE 等文字，可隱藏額外標籤 */
+    .game-card-label {
+      display: none;
+    }
+
+    .game-card-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .game-card-info .n {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .game-card-info .c {
+      font-size: 23px;
+      font-weight: 800;
+    }
+
+    .game-card-info .m {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .game-card-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 84px;
+      background: #222;
+      border: 1px solid #777;
+      font-size: 11px;
+    }
+
+    @media(max-width:950px) {
+      .top {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .summary {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .layout {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .card {
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="box"><label>場地</label><select id="field"></select></div>
+      <div class="box"><label>公牌庫目前張數</label><input id="deckLeftInput" type="number" min="0"></div>
+      <div class="box"><label>搜尋卡片</label><input id="search" placeholder="例如：移1、劍2防2"></div>
+      <div class="actions"><button id="undo">復原</button><button id="reset" class="danger">重設本局</button></div>
+    </div>
+    <div class="summary">
+      <div class="stat"><small>初始牌庫</small><strong id="initial">0</strong></div>
+      <div class="stat"><small>公牌庫剩餘</small><strong id="deckLeft">0</strong></div>
+      <div class="stat"><small>已公開／已扣除</small><strong id="seen">0</strong></div>
+      <div class="stat"><small>未公開區域</small><strong id="unknown">0</strong></div>
+      <div class="stat"><small>牌庫進度</small><strong id="progress">0%</strong></div>
+    </div>
+    <div class="layout">
+      <section class="panel">
+        <div class="head">
+          <h2>公牌清單</h2><!-- <span class="note">「剩餘」代表尚未被確認公開的數量；對手未知手牌可能包含其中的牌。</span> -->
+          <span class="hint">
+            點一下扣 1；手機長按加回 1，電腦右鍵或 Shift＋左鍵
+          </span>
+        </div>
+        <div id="cards" class="grid"></div>
+        <div class="note">「剩餘」代表尚未被賽評確認公開的數量；對手未知手牌可能包含其中的牌。</div>
+      </section>
+      <aside>
+        <section class="panel" style="margin-bottom:12px">
+          <div class="head">
+            <h2>屬性未公開量</h2>
+          </div>
+          <div id="types"></div>
+        </section>
+        <section class="panel">
+          <div class="head">
+            <h2>最近操作</h2><button id="clear">清除紀錄</button>
+          </div>
+          <div id="history" class="history"></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+  <script src="./field-decks.js"></script>
+  <script src="./tracker.js"></script>
+</body>
+
+</html>

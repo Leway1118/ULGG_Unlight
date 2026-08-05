@@ -777,6 +777,56 @@ class SnifferBattleRuntimeTests(unittest.TestCase):
         )
         self.assertNotIn(room_id, persisted)
 
+    def test_raid_stage_context_uses_private_room_identity_and_never_persists_it(self):
+        api = RecordingTrackerClient()
+        sniffer = self.make_sniffer(
+            process_battle_state=True,
+            battle_observations=True,
+            producer_session_id="raid-stage-session",
+            tracker_event_client=api,
+        )
+        room_id = "raid-room-identity-private-value-123456789"
+        sniffer.handle_frame(
+            frame(
+                "raid_ready",
+                [{
+                    "room_id": room_id,
+                    "room_stage": "005",
+                    "rule": "raid",
+                }],
+            ),
+            "received",
+        )
+        sniffer.handle_frame(
+            frame("joinRoom", [room_id, "main", True]),
+            "sent",
+        )
+        sniffer.handle_frame(
+            frame("gameReady", [room_id, True]),
+            "sent",
+        )
+        sniffer.handle_frame(frame("gameStart"), "received")
+
+        self.assertEqual(len(api.events), 1)
+        event = api.events[0]
+        self.assertEqual(
+            event["payload"],
+            {
+                "stage_code": "005",
+                "stage_source": "raid_ready",
+                "stage_source_sequence": 1,
+            },
+        )
+        self.assertNotIn(room_id, json.dumps(event))
+        persisted = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in (
+                Path(self.temp_dir.name) / "events.jsonl",
+                Path(self.temp_dir.name) / "battle-observations.jsonl",
+            )
+        )
+        self.assertNotIn(room_id, persisted)
+
     def test_redaction_collision_does_not_confirm_different_full_room_identity(self):
         api = RecordingTrackerClient()
         sniffer = self.make_sniffer(

@@ -132,6 +132,24 @@ class BattleStateReducerTests(unittest.TestCase):
         self.assertEqual(state["stage_code"], "003")
         self.assertEqual(state["stage_source"], "db_quest_land_now")
         self.assertEqual(state["stage_source_sequence"], 1637)
+
+    def test_battle_started_preserves_raid_stage_context_in_projection(self):
+        event = domain_event(
+            "battle.started",
+            payload={
+                "stage_code": "005",
+                "stage_source": "raid_ready",
+                "stage_source_sequence": 791,
+            },
+        )
+        state, diagnostics = reduce_battle_event(
+            initial_battle_state(),
+            event,
+        )
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(state["stage_code"], "005")
+        self.assertEqual(state["stage_source"], "raid_ready")
+        self.assertEqual(state["stage_source_sequence"], 791)
         self.assertEqual(diagnostics, [])
 
     def test_battle_started_without_stage_remains_backward_compatible(self):

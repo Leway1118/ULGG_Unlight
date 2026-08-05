@@ -127,6 +127,25 @@ class EventParserTests(unittest.TestCase):
             },
         )
 
+    def test_game_start_preserves_valid_raid_stage_context(self):
+        observation = parse_protocol_event(
+            "gameStart",
+            [],
+            stage_context={
+                "stage_code": "005",
+                "stage_source": "raid_ready",
+                "stage_source_sequence": 791,
+            },
+        )[0]
+        self.assertEqual(
+            observation["payload"],
+            {
+                "stage_code": "005",
+                "stage_source": "raid_ready",
+                "stage_source_sequence": 791,
+            },
+        )
+
     def test_game_start_rejects_invalid_stage_context(self):
         observation = parse(
             "gameStart",

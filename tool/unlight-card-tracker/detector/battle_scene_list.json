@@ -1,0 +1,422 @@
+[
+  {
+    "key": "Unlight_Init",
+    "active": false,
+    "visible": false,
+    "constructor": "c"
+  },
+  {
+    "key": "Init",
+    "active": false,
+    "visible": true,
+    "constructor": "p"
+  },
+  {
+    "key": "Prestory",
+    "active": false,
+    "visible": true,
+    "constructor": "m"
+  },
+  {
+    "key": "Regist",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "Regist_Name",
+    "active": false,
+    "visible": true,
+    "constructor": "r"
+  },
+  {
+    "key": "Regist_Avatar",
+    "active": false,
+    "visible": true,
+    "constructor": "h"
+  },
+  {
+    "key": "Regist_Card",
+    "active": false,
+    "visible": true,
+    "constructor": "l"
+  },
+  {
+    "key": "Lobby",
+    "active": false,
+    "visible": false,
+    "constructor": "u"
+  },
+  {
+    "key": "Quest",
+    "active": false,
+    "visible": true,
+    "constructor": "u"
+  },
+  {
+    "key": "PreBoot",
+    "active": false,
+    "visible": false,
+    "constructor": "n"
+  },
+  {
+    "key": "Boot",
+    "active": false,
+    "visible": false,
+    "constructor": "r"
+  },
+  {
+    "key": "Match",
+    "active": false,
+    "visible": false,
+    "constructor": "u"
+  },
+  {
+    "key": "Quest_MatchBoot",
+    "active": false,
+    "visible": true,
+    "constructor": "b"
+  },
+  {
+    "key": "Lot",
+    "active": false,
+    "visible": false,
+    "constructor": "_"
+  },
+  {
+    "key": "MatchBoot",
+    "active": true,
+    "visible": true,
+    "constructor": "g"
+  },
+  {
+    "key": "Edit",
+    "active": false,
+    "visible": false,
+    "constructor": "u"
+  },
+  {
+    "key": "Story_Edit",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "Compo",
+    "active": false,
+    "visible": false,
+    "constructor": "_"
+  },
+  {
+    "key": "Item",
+    "active": false,
+    "visible": false,
+    "constructor": "m"
+  },
+  {
+    "key": "Library",
+    "active": false,
+    "visible": true,
+    "constructor": "c"
+  },
+  {
+    "key": "Option",
+    "active": false,
+    "visible": true,
+    "constructor": "r"
+  },
+  {
+    "key": "Shop",
+    "active": false,
+    "visible": false,
+    "constructor": "b"
+  },
+  {
+    "key": "BackA",
+    "active": true,
+    "visible": true,
+    "constructor": "h"
+  },
+  {
+    "key": "Log",
+    "active": true,
+    "visible": true,
+    "constructor": "i"
+  },
+  {
+    "key": "DrawPhaseA",
+    "active": false,
+    "visible": false,
+    "constructor": "h"
+  },
+  {
+    "key": "MovePhaseA",
+    "active": false,
+    "visible": false,
+    "constructor": "n"
+  },
+  {
+    "key": "AttackPhaseA",
+    "active": false,
+    "visible": false,
+    "constructor": "n"
+  },
+  {
+    "key": "DefensePhaseA",
+    "active": true,
+    "visible": true,
+    "constructor": "n"
+  },
+  {
+    "key": "Change_A",
+    "active": false,
+    "visible": false,
+    "constructor": "a"
+  },
+  {
+    "key": "MainA",
+    "active": true,
+    "visible": true,
+    "constructor": "k"
+  },
+  {
+    "key": "MainCPU",
+    "active": false,
+    "visible": true,
+    "constructor": "a"
+  },
+  {
+    "key": "AtkDicerollA",
+    "active": false,
+    "visible": false,
+    "constructor": "r"
+  },
+  {
+    "key": "DefDicerollA",
+    "active": false,
+    "visible": false,
+    "constructor": "r"
+  },
+  {
+    "key": "AtkResultA",
+    "active": false,
+    "visible": false,
+    "constructor": "s"
+  },
+  {
+    "key": "DefResultA",
+    "active": false,
+    "visible": false,
+    "constructor": "s"
+  },
+  {
+    "key": "Result",
+    "active": false,
+    "visible": false,
+    "constructor": "h"
+  },
+  {
+    "key": "Bonus",
+    "active": false,
+    "visible": false,
+    "constructor": "h"
+  },
+  {
+    "key": "BonusDice",
+    "active": false,
+    "visible": false,
+    "constructor": "r"
+  },
+  {
+    "key": "BonusRoll",
+    "active": false,
+    "visible": false,
+    "constructor": "i"
+  },
+  {
+    "key": "Initialize",
+    "active": false,
+    "visible": false,
+    "constructor": "u"
+  },
+  {
+    "key": "Lot_Boot",
+    "active": false,
+    "visible": false,
+    "constructor": "l"
+  },
+  {
+    "key": "QuestStory",
+    "active": false,
+    "visible": true,
+    "constructor": "r"
+  },
+  {
+    "key": "Library_Boot",
+    "active": false,
+    "visible": true,
+    "constructor": "l"
+  },
+  {
+    "key": "Story_Library",
+    "active": false,
+    "visible": true,
+    "constructor": "r"
+  },
+  {
+    "key": "Lot_Special",
+    "active": false,
+    "visible": true,
+    "constructor": "h"
+  },
+  {
+    "key": "Unlight",
+    "active": false,
+    "visible": false,
+    "constructor": "d"
+  },
+  {
+    "key": "ConnectionCheck",
+    "active": true,
+    "visible": true,
+    "constructor": "g"
+  },
+  {
+    "key": "Title_Maintain",
+    "active": false,
+    "visible": true,
+    "constructor": "f"
+  },
+  {
+    "key": "Raid",
+    "active": false,
+    "visible": false,
+    "constructor": "p"
+  },
+  {
+    "key": "Raid_Title",
+    "active": false,
+    "visible": false,
+    "constructor": "b"
+  },
+  {
+    "key": "Raid_MatchBoot",
+    "active": false,
+    "visible": false,
+    "constructor": "g"
+  },
+  {
+    "key": "Library_SkillEffect",
+    "active": false,
+    "visible": true,
+    "constructor": "d"
+  },
+  {
+    "key": "Friend",
+    "active": true,
+    "visible": true,
+    "constructor": "d"
+  },
+  {
+    "key": "TutorialNew",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "TutorialNewMenu",
+    "active": false,
+    "visible": true,
+    "constructor": "l"
+  },
+  {
+    "key": "TutorialNewLobby",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "TutorialNewQuest",
+    "active": false,
+    "visible": true,
+    "constructor": "l"
+  },
+  {
+    "key": "TutorialNewMain",
+    "active": false,
+    "visible": true,
+    "constructor": "h"
+  },
+  {
+    "key": "TutorialNewEdit",
+    "active": false,
+    "visible": true,
+    "constructor": "l"
+  },
+  {
+    "key": "TutorialNewCompo",
+    "active": false,
+    "visible": true,
+    "constructor": "r"
+  },
+  {
+    "key": "TutorialNewResult",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "TutorialNewBonus",
+    "active": false,
+    "visible": true,
+    "constructor": "h"
+  },
+  {
+    "key": "TutorialNewMatch",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "TutorialNewItem",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "TutorialNewShop",
+    "active": false,
+    "visible": true,
+    "constructor": "r"
+  },
+  {
+    "key": "TutorialNewChange",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "Loader",
+    "active": true,
+    "visible": true,
+    "constructor": "n"
+  },
+  {
+    "key": "MainAAssets",
+    "active": true,
+    "visible": true,
+    "constructor": "r"
+  },
+  {
+    "key": "Bug",
+    "active": true,
+    "visible": true,
+    "constructor": "o"
+  },
+  {
+    "key": "dev",
+    "active": false,
+    "visible": true,
+    "constructor": "o"
+  }
+]

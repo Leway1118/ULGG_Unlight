@@ -1,0 +1,56 @@
+python -m py_compile live_screen_monitor.py
+python live_screen_monitor.py `
+  --interval 0.8 `
+  --debug
+
+python -m py_compile site_detector.py
+python -m py_compile  card_detection_api
+python -m py_compile `
+  .\hand_detector.py `
+  .\live_screen_monitor.py
+
+python live_screen_monitor.py `
+  --left 66 `
+  --top 246 `
+  --width 856 `
+  --height 766 `
+  --interval 0.8 `
+  --debug
+
+筆電螢幕
+& ".\.venv\Scripts\python.exe" ".\live_screen_monitor.py" `
+  --left 66 `
+  --top 246 `
+  --width 856 `
+  --height 766 `
+  --port 8765 `
+  --debug
+
+桌上螢幕
+& ".\.venv\Scripts\python.exe" ".\live_screen_monitor.py" `
+  --left 123 `
+  --top 205 `
+  --width 714 `
+  --height 638 `
+  --port 8765 `
+  --debug
+
+筆電螢幕-雙螢幕
+& ".\.venv\Scripts\python.exe" ".\live_screen_monitor.py" `
+  --left 1923 `
+  --top 52 `
+  --width 1141 `
+  --height 1021 `
+  --port 8765 `
+  --debug
+
+
+
+& ".\.venv\Scripts\python.exe" `
+  ".\unlight_websocket_sniffer.py" `
+  --port 9333 `
+  --battle-observations `
+  --process-battle-state `
+  --local-side A `
+  --battle-start-mode strict `
+  --battle-console-level important

@@ -28,6 +28,7 @@ _FACE_KINDS = frozenset(
     {"sword", "gun", "shield", "move", "special", "blank"}
 )
 _OUTCOMES = frozenset({"win", "lose", "draw"})
+_STAGE_CONTEXT_SOURCES = frozenset({"db_quest_land_now", "raid_ready"})
 
 _FORBIDDEN_KEYS = frozenset(
     {
@@ -211,7 +212,7 @@ def _project_battle_started_payload(
         or len(stage_code) != 3
         or not stage_code.isascii()
         or not stage_code.isdigit()
-        or stage_source != "db_quest_land_now"
+        or stage_source not in _STAGE_CONTEXT_SOURCES
         or not _is_int(source_sequence)
         or source_sequence < 0
     ):

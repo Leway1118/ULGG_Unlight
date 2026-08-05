@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "ruleSetId": "lampking/arcadia-balance",
+  "version": "1.2.0",
+  "name": "亞城平衡表",
+  "description": "社群試行的自訂 COST 表。僅供雙方同意的自訂房使用，不改變官方環境。",
+  "publisher": { "id": "lampking", "name": "燈皇" },
+  "gameVersion": "2026.07",
+  "appliesTo": "duel",
+  "teamCostLimit": 62,
+  "characters": {
+    "WOLAND_L4": 21,
+    "LEON_L4": 16,
+    "RAGNAROK_L3": 18.5,
+    "GOAT_L2": 12.35
+  },
+  "equipment": {
+    "SWORD_4": 0.5,
+    "GUN_3": 0.25
+  },
+  "compressionRule": {
+    "type": "gap-band-v1",
+    "bands": [
+      { "minGap": 6, "maxGap": 6, "extraCost": 1 },
+      { "minGap": 7, "maxGap": 13, "extraCost": 5 }
+    ]
+  },
+  "restrictions": [
+    {
+      "target": "EX_DOMINION",
+      "condition": "range != near",
+      "enforcement": "agreement-only",
+      "note": "自我約束條款，插件只顯示不強制"
+    }
+  ],
+  "changelog": "調整沃蘭德 L4 與劍 4 COST；追加差距 6C 的 +1C 區間"
+}

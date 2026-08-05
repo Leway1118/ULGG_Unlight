@@ -1,0 +1,80 @@
+{
+  "ok": true,
+  "at": "2026-08-03T05:40:40.199Z",
+  "player_name": "咕嚕．挖2朵",
+  "raid_count": 2,
+  "raids": [
+    {
+      "index": 0,
+      "profound_id": "2079-cc5yyD3gpsaRHA4z4m9Wv9b28U1iyTsr",
+      "founder": "令辭",
+      "monster_code": "mc1003_02",
+      "monster_id": 40108,
+      "name": "黑死獸",
+      "description": "吞食死亡的多眼巨獸。朋友以外的參戰人數上限：30人",
+      "rarity": 1,
+      "level": 1,
+      "map": 4,
+      "stage": 4,
+      "hp": 2358,
+      "hp_max": 3500,
+      "ap_spend": 1,
+      "expires_at": 1785752772012,
+      "participant_count": 18,
+      "member_limit": 100,
+      "pass": "jtSk6ZN5XZnZ",
+      "state": [],
+      "already_joined": true,
+      "my_damage": 25,
+      "my_point": 15483,
+      "map_name": "人魂墓地",
+      "hp_ratio": 0.6737142857142857,
+      "fragment_prediction": {
+        "fragment": "待確認渦型",
+        "confidence": "unknown",
+        "reason": "地圖可判斷為人魂墓地，但尚未能由欄位可靠分辨1星／6星／魚Boss",
+        "normal_candidate": "生命碎片（紅）",
+        "six_star_candidate": "死亡碎片（紫）"
+      }
+    },
+    {
+      "index": 1,
+      "profound_id": "2080-sJa79rSu06aco27ASZ76oYCS62y02VIs",
+      "founder": "咕嚕．挖2朵",
+      "monster_code": "mc1003_02",
+      "monster_id": 40108,
+      "name": "黑死獸",
+      "description": "吞食死亡的多眼巨獸。朋友以外的參戰人數上限：30人",
+      "rarity": 1,
+      "level": 1,
+      "map": 5,
+      "stage": 5,
+      "hp": 3500,
+      "hp_max": 3500,
+      "ap_spend": 1,
+      "expires_at": 1785756460994,
+      "participant_count": 1,
+      "member_limit": 100,
+      "pass": "koVZpnoGwd2U",
+      "state": [],
+      "already_joined": true,
+      "my_damage": 0,
+      "my_point": 10500,
+      "map_name": "盡頭之村",
+      "hp_ratio": 1.0,
+      "fragment_prediction": {
+        "fragment": "待確認渦型",
+        "confidence": "unknown",
+        "reason": "地圖可判斷為盡頭之村，但尚未能由欄位可靠分辨1星／6星／魚Boss",
+        "normal_candidate": "死亡碎片（紫）",
+        "six_star_candidate": "記憶碎片（黃）"
+      }
+    }
+  ],
+  "rules_version": "raid-fragment-v0.1",
+  "known_limits": [
+    "尚未能可靠分辨1星與6星渦",
+    "尚未建立渦4魚Boss monster_code清單",
+    "碎片數量尚未判定"
+  ]
+}

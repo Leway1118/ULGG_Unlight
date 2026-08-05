@@ -33,8 +33,9 @@ _MALFORMED_DISCOVERY_EVENTS = frozenset(
     {"__malformed_json__", "__non_object_json__"}
 )
 _STAGE_CONTEXT_EVENTS = frozenset(
-    {"db_quest_land_now", "joinRoom", "gameReady"}
+    {"db_quest_land_now", "raid_ready", "joinRoom", "gameReady"}
 )
+_STAGE_CONTEXT_SOURCES = frozenset({"db_quest_land_now", "raid_ready"})
 _FORBIDDEN_PAYLOAD_KEYS = frozenset(
     {
         "args",
@@ -93,13 +94,15 @@ def _is_valid_empty_protocol_event(record: Mapping[str, Any]) -> bool:
 class _PendingStageContext:
     room_id: str
     stage_code: str
+    source_event: str
     source_sequence: int
     confirmed: bool = False
+    confirmed_sequence: int | None = None
 
     def safe_payload(self) -> dict[str, Any]:
         return {
             "stage_code": self.stage_code,
-            "stage_source": "db_quest_land_now",
+            "stage_source": self.source_event,
             "stage_source_sequence": self.source_sequence,
         }
 
@@ -159,9 +162,11 @@ class BattleObservationStream:
     ) -> _PendingStageContext | None:
         if record.get("direction") != "received":
             return None
+        source_event = record.get("event")
         sequence = record.get("sequence")
         if (
-            not isinstance(sequence, int)
+            source_event not in _STAGE_CONTEXT_SOURCES
+            or not isinstance(sequence, int)
             or isinstance(sequence, bool)
             or sequence < 0
             or not isinstance(args, list)
@@ -183,6 +188,7 @@ class BattleObservationStream:
         return _PendingStageContext(
             room_id=room_id,
             stage_code=stage_code,
+            source_event=source_event,
             source_sequence=sequence,
         )
 
@@ -196,7 +202,7 @@ class BattleObservationStream:
             if self._closed or not isinstance(record, Mapping):
                 return
             event_name = record.get("event")
-            if event_name == "db_quest_land_now":
+            if event_name in _STAGE_CONTEXT_SOURCES:
                 self._pending_stage_context = self._new_stage_context(
                     record,
                     private_args,
@@ -222,6 +228,7 @@ class BattleObservationStream:
             self._pending_stage_context = replace(
                 pending,
                 confirmed=True,
+                confirmed_sequence=sequence,
             )
 
     def _parser_record(
@@ -233,9 +240,11 @@ class BattleObservationStream:
             record.get("event") != "gameStart"
             or pending is None
             or not pending.confirmed
+            or not isinstance(pending.confirmed_sequence, int)
             or not isinstance(record.get("sequence"), int)
             or isinstance(record.get("sequence"), bool)
             or record["sequence"] <= pending.source_sequence
+            or record["sequence"] <= pending.confirmed_sequence
         ):
             return record
         return {

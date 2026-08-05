@@ -1,0 +1,44 @@
+name: 回報問題
+description: 插件行為不對、規則算錯、遊戲更新後壞掉
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠ **請不要貼原始封包、CDP 網址或任何含 `token=` / `steamid=` 的內容。**
+        遊戲封包的 `args[0]` 常常就是你的 session token。貼之前先把它塗掉。
+
+  - type: textarea
+    id: what
+    attributes:
+      label: 發生什麼事
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 預期應該怎樣
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 怎麼重現
+      placeholder: |
+        1. …
+        2. …
+
+  - type: input
+    id: version
+    attributes:
+      label: 插件版本
+    validations:
+      required: true
+
+  - type: input
+    id: rule
+    attributes:
+      label: 用的規則與 Hash 短碼
+      placeholder: lampking/arcadia-balance@1.2.0 (7c91a23f)

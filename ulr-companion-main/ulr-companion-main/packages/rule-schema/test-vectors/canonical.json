@@ -1,0 +1,162 @@
+{
+  "$comment": "由 npm run vectors:generate 產生，請勿手改。任何語言的 Canonical JSON 實作都應通過這些案例：對 input 做正規化後，字串必須完全等於 canonical，其 UTF-8 bytes 的 SHA-256 必須等於 hash。",
+  "spec": "RFC 8785 (JSON Canonicalization Scheme)",
+  "schemaVersion": 1,
+  "generatedBy": "@ulr/rule-schema",
+  "cases": [
+    {
+      "name": "integral-float",
+      "why": "PHP json_encode(21.0) 與 Python json.dumps(21.0) 都給 '21.0'，JCS 要求 '21'。COST 表滿滿都是這種值，這題錯了全部 Hash 都錯。",
+      "input": {
+        "teamCostLimit": 62,
+        "cost": 21,
+        "half": 18.5
+      },
+      "canonical": "{\"cost\":21,\"half\":18.5,\"teamCostLimit\":62}",
+      "hash": "sha256:7c59b369e6f125c6387cf3ada76191415f3bc10406e56f8f345e76d064264040"
+    },
+    {
+      "name": "key-order-ascii",
+      "why": "鍵必須排序，且是 code unit 序不是插入序。",
+      "input": {
+        "0": 5,
+        "z": 1,
+        "a": 2,
+        "M": 3,
+        "_": 4
+      },
+      "canonical": "{\"0\":5,\"M\":3,\"_\":4,\"a\":2,\"z\":1}",
+      "hash": "sha256:05759393af8880500bb81705123efddb9a2fb4d29463cde2f6b917b1de572b55"
+    },
+    {
+      "name": "key-order-utf16-surrogate",
+      "why": "JCS 依 UTF-16 code unit 排序，不是 code point。U+1F602(emoji) 首個 code unit 0xD83D=55357，小於 U+FB33 的 64307，所以 emoji 排在前面；照 code point 排（Python 預設行為）會得到相反順序。注意 U+FB33 必須是預組合形，寫成 dalet+dagesh 的組合序列就測不到這條界線。",
+      "input": {
+        "€": "euro",
+        "דּ": "hebrew-precomposed",
+        "😂": "emoji",
+        "a": "ascii"
+      },
+      "canonical": "{\"a\":\"ascii\",\"€\":\"euro\",\"😂\":\"emoji\",\"דּ\":\"hebrew-precomposed\"}",
+      "hash": "sha256:baba9b304a965bb781d098f3cc16414ad81c2babc9d4b57795101a79a4132c7b"
+    },
+    {
+      "name": "negative-zero",
+      "why": "-0 與 0 在 JSON 是同一個值，JCS 規定輸出 '0'。",
+      "input": {
+        "a": 0,
+        "b": 0
+      },
+      "canonical": "{\"a\":0,\"b\":0}",
+      "hash": "sha256:c82eac97ef55b2f05b20616da2e88f9459043ceb8aee7715dba4c730c3abd278"
+    },
+    {
+      "name": "string-escapes",
+      "why": "只跳脫必要字元；控制字元用 \\u 短碼；不得把非 ASCII 轉成 \\u（PHP 預設會，要加 JSON_UNESCAPED_UNICODE）。",
+      "input": {
+        "s": "a\"\\\b\f\n\r\t ä 中文 😂"
+      },
+      "canonical": "{\"s\":\"a\\\"\\\\\\b\\f\\n\\r\\t ä 中文 😂\"}",
+      "hash": "sha256:30daca4a80701a224a1671eea4dd1353e083cae347d898be488453a2a1ac784e"
+    },
+    {
+      "name": "exponent-forms",
+      "why": "ES6 Number::toString 在 1e21 以上才用指數形式，小數則是 1e-7 以下。各語言的門檻不同。",
+      "input": {
+        "big": 1e+21,
+        "justUnder": 100000000000000000000,
+        "small": 1e-7,
+        "justOver": 0.000001
+      },
+      "canonical": "{\"big\":1e+21,\"justOver\":0.000001,\"justUnder\":100000000000000000000,\"small\":1e-7}",
+      "hash": "sha256:bac08d7de485052f98d369be6b78dde3c3c8053c27d5f0269bddc96a731a16bb"
+    },
+    {
+      "name": "nested-and-arrays",
+      "why": "陣列保持原順序（不排序），物件遞迴排序。",
+      "input": {
+        "b": [
+          3,
+          1,
+          2,
+          {
+            "y": 1,
+            "x": 2
+          }
+        ],
+        "a": {
+          "n": null,
+          "t": true,
+          "f": false
+        }
+      },
+      "canonical": "{\"a\":{\"f\":false,\"n\":null,\"t\":true},\"b\":[3,1,2,{\"x\":2,\"y\":1}]}",
+      "hash": "sha256:a63eeaaae9393b10594028f5e76005a149432eb43bed52200943d816736a515f"
+    },
+    {
+      "name": "empty-containers",
+      "why": "空物件與空陣列不得產生多餘空白。",
+      "input": {
+        "o": {},
+        "a": [],
+        "s": ""
+      },
+      "canonical": "{\"a\":[],\"o\":{},\"s\":\"\"}",
+      "hash": "sha256:c127f9b3c6f4233b3976f8e2d54486ab15f9a46cfa50fc14ae6d0787d1ac2917"
+    },
+    {
+      "name": "rule/arcadia-balance-1.2.0",
+      "why": "完整規則檔的端到端 Hash。ULGG 與插件對同一份規則必須算出同一個 contentHash。",
+      "input": {
+        "schemaVersion": 1,
+        "ruleSetId": "lampking/arcadia-balance",
+        "version": "1.2.0",
+        "name": "亞城平衡表",
+        "description": "社群試行的自訂 COST 表。僅供雙方同意的自訂房使用，不改變官方環境。",
+        "publisher": {
+          "id": "lampking",
+          "name": "燈皇"
+        },
+        "gameVersion": "2026.07",
+        "appliesTo": "duel",
+        "teamCostLimit": 62,
+        "characters": {
+          "WOLAND_L4": 21,
+          "LEON_L4": 16,
+          "RAGNAROK_L3": 18.5,
+          "GOAT_L2": 12.35
+        },
+        "equipment": {
+          "SWORD_4": 0.5,
+          "GUN_3": 0.25
+        },
+        "compressionRule": {
+          "type": "gap-band-v1",
+          "bands": [
+            {
+              "minGap": 6,
+              "maxGap": 6,
+              "extraCost": 1
+            },
+            {
+              "minGap": 7,
+              "maxGap": 13,
+              "extraCost": 5
+            }
+          ]
+        },
+        "restrictions": [
+          {
+            "target": "EX_DOMINION",
+            "condition": "range != near",
+            "enforcement": "agreement-only",
+            "note": "自我約束條款，插件只顯示不強制"
+          }
+        ],
+        "changelog": "調整沃蘭德 L4 與劍 4 COST；追加差距 6C 的 +1C 區間"
+      },
+      "canonical": "{\"appliesTo\":\"duel\",\"changelog\":\"調整沃蘭德 L4 與劍 4 COST；追加差距 6C 的 +1C 區間\",\"characters\":{\"GOAT_L2\":12.35,\"LEON_L4\":16,\"RAGNAROK_L3\":18.5,\"WOLAND_L4\":21},\"compressionRule\":{\"bands\":[{\"extraCost\":1,\"maxGap\":6,\"minGap\":6},{\"extraCost\":5,\"maxGap\":13,\"minGap\":7}],\"type\":\"gap-band-v1\"},\"description\":\"社群試行的自訂 COST 表。僅供雙方同意的自訂房使用，不改變官方環境。\",\"equipment\":{\"GUN_3\":0.25,\"SWORD_4\":0.5},\"gameVersion\":\"2026.07\",\"name\":\"亞城平衡表\",\"publisher\":{\"id\":\"lampking\",\"name\":\"燈皇\"},\"restrictions\":[{\"condition\":\"range != near\",\"enforcement\":\"agreement-only\",\"note\":\"自我約束條款，插件只顯示不強制\",\"target\":\"EX_DOMINION\"}],\"ruleSetId\":\"lampking/arcadia-balance\",\"schemaVersion\":1,\"teamCostLimit\":62,\"version\":\"1.2.0\"}",
+      "hash": "sha256:c5af2bd9e6c72e7adb949fec4aa22855b581600b6eb123bc77ea6d060dc32a5d"
+    }
+  ]
+}

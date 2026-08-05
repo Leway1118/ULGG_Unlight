@@ -1,0 +1,36 @@
+{
+    "frames": [
+        {
+            "filename": "start1",
+            "frame": {"x": 0, "y": 0, "w": 44, "h": 32}
+        },
+        {
+            "filename": "start2",
+            "frame": {"x": 0, "y": 32, "w": 44, "h": 32}
+        },
+        {
+            "filename": "delete1",
+            "frame": {"x": 44, "y": 0, "w": 44, "h": 32}
+        },
+        {
+            "filename": "delete2",
+            "frame": {"x": 44, "y": 32, "w": 44, "h": 32}
+        },
+        {
+            "filename": "pre1",
+            "frame": {"x": 88, "y": 0, "w": 44, "h": 32}
+        },
+        {
+            "filename": "pre2",
+            "frame": {"x": 88, "y": 32, "w": 44, "h": 32}
+        },
+        {
+            "filename": "give1",
+            "frame": {"x": 132, "y": 0, "w": 44, "h": 32}
+        },
+        {
+            "filename": "give2",
+            "frame": {"x": 132, "y": 32, "w": 44, "h": 32}
+        }
+    ]
+}

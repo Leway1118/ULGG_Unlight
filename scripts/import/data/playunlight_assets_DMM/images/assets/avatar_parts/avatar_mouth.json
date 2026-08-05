@@ -1,0 +1,141 @@
+{
+	"textures": [
+		{
+			"image": "avatar_mouth.webp",
+			"format": "RGBA8888",
+			"size": {
+				"w": 13,
+				"h": 30
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "mouth_x000a",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 300,
+						"h": 450
+					},
+					"spriteSourceSize": {
+						"x": 134,
+						"y": 114,
+						"w": 13,
+						"h": 8
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 13,
+						"h": 8
+					}
+				},
+				{
+					"filename": "mouth_a000b",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 300,
+						"h": 450
+					},
+					"spriteSourceSize": {
+						"x": 135,
+						"y": 117,
+						"w": 10,
+						"h": 5
+					},
+					"frame": {
+						"x": 0,
+						"y": 8,
+						"w": 10,
+						"h": 5
+					}
+				},
+				{
+					"filename": "mouth_a000c",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 300,
+						"h": 450
+					},
+					"spriteSourceSize": {
+						"x": 135,
+						"y": 117,
+						"w": 10,
+						"h": 5
+					},
+					"frame": {
+						"x": 0,
+						"y": 13,
+						"w": 10,
+						"h": 5
+					}
+				},
+				{
+					"filename": "mouth_x002a",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 300,
+						"h": 450
+					},
+					"spriteSourceSize": {
+						"x": 135,
+						"y": 116,
+						"w": 10,
+						"h": 5
+					},
+					"frame": {
+						"x": 0,
+						"y": 18,
+						"w": 10,
+						"h": 5
+					}
+				},
+				{
+					"filename": "mouth_x001a",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 300,
+						"h": 450
+					},
+					"spriteSourceSize": {
+						"x": 136,
+						"y": 116,
+						"w": 8,
+						"h": 5
+					},
+					"frame": {
+						"x": 0,
+						"y": 23,
+						"w": 8,
+						"h": 5
+					}
+				},
+				{
+					"filename": "mouth_a000a",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 300,
+						"h": 450
+					},
+					"spriteSourceSize": {
+						"x": 136,
+						"y": 118,
+						"w": 8,
+						"h": 2
+					},
+					"frame": {
+						"x": 0,
+						"y": 28,
+						"w": 8,
+						"h": 2
+					}
+				}
+			]
+		}
+	]
+}

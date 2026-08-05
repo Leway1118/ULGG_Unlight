@@ -110,6 +110,207 @@ class BattleObservationStreamTests(unittest.TestCase):
             },
         )
 
+    def test_matching_raid_room_context_is_attached_to_game_start(self):
+        stream = self.make_stream()
+        room_id = "raid-room-identity"
+        self.observe_context(
+            stream,
+            "raid_ready",
+            [{"room_id": room_id, "room_stage": "005", "rule": "raid"}],
+            sequence=791,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            [room_id, "main", True],
+            sequence=798,
+            direction="sent",
+        )
+        self.observe_context(
+            stream,
+            "gameReady",
+            [room_id, True],
+            sequence=807,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=810))[0]
+        self.assertEqual(
+            started["payload"],
+            {
+                "stage_code": "005",
+                "stage_source": "raid_ready",
+                "stage_source_sequence": 791,
+            },
+        )
+
+    def test_raid_room_identity_mismatch_fails_closed(self):
+        stream = self.make_stream()
+        self.observe_context(
+            stream,
+            "raid_ready",
+            [{"room_id": "raid-room-one", "room_stage": "005"}],
+            sequence=791,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            ["raid-room-two", "main", True],
+            sequence=798,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=810))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_sent_raid_ready_cannot_create_stage_context(self):
+        stream = self.make_stream()
+        self.observe_context(
+            stream,
+            "raid_ready",
+            [{"room_id": "raid-room", "room_stage": "005"}],
+            sequence=791,
+            direction="sent",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            ["raid-room", "main", True],
+            sequence=798,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=810))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_raid_game_start_must_follow_room_confirmation_sequence(self):
+        stream = self.make_stream()
+        self.observe_context(
+            stream,
+            "raid_ready",
+            [{"room_id": "raid-room", "room_stage": "005"}],
+            sequence=791,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "gameReady",
+            ["raid-room", True],
+            sequence=807,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=800))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_raid_context_without_stage_fails_closed(self):
+        stream = self.make_stream()
+        self.observe_context(
+            stream,
+            "raid_ready",
+            [{"room_id": "raid-room"}],
+            sequence=791,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            ["raid-room", "main", True],
+            sequence=798,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=810))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_raid_context_rejects_non_three_digit_string_stage(self):
+        invalid_values = ("05", "0005", 5, "A05", "００５")
+        for stage_code in invalid_values:
+            with self.subTest(stage_code=stage_code):
+                stream = self.make_stream()
+                self.observe_context(
+                    stream,
+                    "raid_ready",
+                    [{"room_id": "raid-room", "room_stage": stage_code}],
+                    sequence=791,
+                    direction="received",
+                )
+                self.observe_context(
+                    stream,
+                    "gameReady",
+                    ["raid-room", True],
+                    sequence=807,
+                    direction="sent",
+                )
+                started = stream.process(
+                    record("gameStart", [], sequence=810)
+                )[0]
+                self.assertEqual(started["payload"], {})
+
+    def test_db_raid_list_is_not_stage_authority(self):
+        stream = self.make_stream()
+        value = record(
+            "db_raid",
+            [{"value": [{"stage": 5, "map": 8}]}],
+            sequence=760,
+            direction="received",
+        )
+        stream.observe_transport_context(value, value["args_summary"])
+        self.assertEqual(stream.process(value), [])
+        started = stream.process(record("gameStart", [], sequence=810))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_invalid_new_raid_context_clears_previous_quest_context(self):
+        stream = self.make_stream()
+        self.observe_context(
+            stream,
+            "db_quest_land_now",
+            [{"room_id": "quest-room", "room_stage": "003"}],
+            sequence=36,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            ["quest-room", "main", True],
+            sequence=47,
+            direction="sent",
+        )
+        self.observe_context(
+            stream,
+            "raid_ready",
+            [{"room_id": "different-raid-room"}],
+            sequence=791,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "joinRoom",
+            ["different-raid-room", "main", True],
+            sequence=798,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=810))[0]
+        self.assertEqual(started["payload"], {})
+
+    def test_raid_room_identity_is_never_projected_or_persisted(self):
+        stream = self.make_stream()
+        room_id = "full-private-raid-room-identity"
+        self.observe_context(
+            stream,
+            "raid_ready",
+            [{"room_id": room_id, "room_stage": "005"}],
+            sequence=791,
+            direction="received",
+        )
+        self.observe_context(
+            stream,
+            "gameReady",
+            [room_id, True],
+            sequence=807,
+            direction="sent",
+        )
+        started = stream.process(record("gameStart", [], sequence=810))[0]
+        self.assertNotIn(room_id, json.dumps(started))
+        self.assertNotIn(room_id, self.output_path.read_text(encoding="utf-8"))
+
     def test_game_ready_can_confirm_room_and_preserves_leading_zero(self):
         stream = self.make_stream()
         room_id = "room-identity-two"

@@ -1,0 +1,332 @@
+{
+    "frames": [
+        {
+            "filename": "map_base_0",
+            "frame": {"x": 0, "y": 0, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_1",
+            "frame": {"x": 80, "y": 0, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_2",
+            "frame": {"x": 160, "y": 0, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_arch_1",
+            "frame": {"x": 240, "y": 0, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_arch_2",
+            "frame": {"x": 320, "y": 0, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_stone_1",
+            "frame": {"x": 400, "y": 0, "w": 80, "h": 64}
+        },
+
+
+        {
+            "filename": "map_base_stone_2",
+            "frame": {"x": 0, "y": 64, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_waste_1",
+            "frame": {"x": 80, "y": 64, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_waste_2",
+            "frame": {"x": 160, "y": 64, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_mount_1",
+            "frame": {"x": 240, "y": 64, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_mount_2",
+            "frame": {"x": 320, "y": 64, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_town_1",
+            "frame": {"x": 400, "y": 64, "w": 80, "h": 64}
+        },
+
+
+        {
+            "filename": "map_base_town_2",
+            "frame": {"x": 0, "y": 128, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_cemetery_1",
+            "frame": {"x": 80, "y": 128, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_cemetery_2",
+            "frame": {"x": 160, "y": 128, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_forest_1",
+            "frame": {"x": 240, "y": 128, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_forest_2",
+            "frame": {"x": 320, "y": 128, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_lake_1",
+            "frame": {"x": 400, "y": 128, "w": 80, "h": 64}
+        },
+
+
+        {
+            "filename": "map_base_lake_2",
+            "frame": {"x": 0, "y": 192, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_plane_1",
+            "frame": {"x": 80, "y": 192, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_plane_2",
+            "frame": {"x": 160, "y": 192, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_road_1",
+            "frame": {"x": 240, "y": 192, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_road_2",
+            "frame": {"x": 320, "y": 192, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_ruin_1",
+            "frame": {"x": 400, "y": 192, "w": 80, "h": 64}
+        },
+
+
+        {
+            "filename": "map_base_ruin_2",
+            "frame": {"x": 0, "y": 256, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_wilder_1",
+            "frame": {"x": 80, "y": 256, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_wilder_2",
+            "frame": {"x": 160, "y": 256, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_mons_1",
+            "frame": {"x": 240, "y": 256, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_mons_2",
+            "frame": {"x": 320, "y": 256, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_event_1",
+            "frame": {"x": 400, "y": 256, "w": 80, "h": 64}
+        },
+
+
+        {
+            "filename": "map_base_event_2",
+            "frame": {"x": 0, "y": 320, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_gem_1",
+            "frame": {"x": 80, "y": 320, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_gem_2",
+            "frame": {"x": 160, "y": 320, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_box_1",
+            "frame": {"x": 240, "y": 320, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_box_2",
+            "frame": {"x": 320, "y": 320, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_box_3",
+            "frame": {"x": 400, "y": 320, "w": 80, "h": 64}
+        },
+
+
+        {
+            "filename": "map_base_box_4",
+            "frame": {"x": 0, "y": 384, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_exp_1",
+            "frame": {"x": 80, "y": 384, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_exp_2",
+            "frame": {"x": 160, "y": 384, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_gem_1",
+            "frame": {"x": 240, "y": 384, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_gem_2",
+            "frame": {"x": 320, "y": 384, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_flag",
+            "frame": {"x": 400, "y": 384, "w": 80, "h": 64}
+        },
+
+
+        {
+            "filename": "map_base_pop_box_1",
+            "frame": {"x": 0, "y": 448, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_box_2",
+            "frame": {"x": 80, "y": 448, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_box_3",
+            "frame": {"x": 160, "y": 448, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_box_4",
+            "frame": {"x": 240, "y": 448, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_pop_hl",
+            "frame": {"x": 320, "y": 448, "w": 80, "h": 64}
+        },
+        {
+            "filename": "map_base_3",
+            "frame": {"x": 400, "y": 448, "w": 80, "h": 64}
+        },
+
+
+        {
+            "filename": "map_base_path_0",
+            "frame": {"x": 0, "y": 512, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_1",
+            "frame": {"x": 0, "y": 544, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_2",
+            "frame": {"x": 0, "y": 576, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_3",
+            "frame": {"x": 0, "y": 608, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_4",
+           "frame": {"x": 0, "y": 640, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_5",
+            "frame": {"x": 0, "y": 672, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_6",
+            "frame": {"x": 0, "y": 704, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_7",
+            "frame": {"x": 0, "y": 736, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_8",
+            "frame": {"x": 0, "y": 768, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_9",
+            "frame": {"x": 0, "y": 800, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_10",
+            "frame": {"x": 0, "y": 832, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_11",
+            "frame": {"x": 0, "y": 864, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_12",
+            "frame": {"x": 0, "y": 896, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_13",
+            "frame": {"x": 0, "y": 928, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_14",
+            "frame": {"x": 0, "y": 960, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_15",
+            "frame": {"x": 0, "y": 992, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_16",
+            "frame": {"x": 0, "y": 1024, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_17",
+            "frame": {"x": 0, "y": 1056, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_18",
+            "frame": {"x": 0, "y": 1088, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_19",
+            "frame": {"x": 0, "y": 1120, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_20",
+            "frame": {"x": 0, "y": 1152, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_21",
+            "frame": {"x": 0, "y": 1184, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_22",
+            "frame": {"x": 0, "y": 1216, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_23",
+            "frame": {"x": 0, "y": 1248, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_24",
+            "frame": {"x": 0, "y": 1280, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_25",
+            "frame": {"x": 0, "y": 1312, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_26",
+            "frame": {"x": 0, "y": 1344, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_27",
+            "frame": {"x": 0, "y": 1376, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_28",
+            "frame": {"x": 0, "y": 1408, "w": 204, "h": 32}
+        },
+        {
+            "filename": "map_base_path_29",
+            "frame": {"x": 0, "y": 1440, "w": 204, "h": 32}
+        }
+    ]
+}

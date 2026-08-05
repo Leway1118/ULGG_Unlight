@@ -1,0 +1,44 @@
+{
+    "frames": [
+        {
+            "filename": "ja_1",
+            "frame": {"x": 0, "y": 0, "w": 88, "h": 24}
+        },
+        {
+            "filename": "en_1",
+            "frame": {"x": 88, "y": 0, "w": 96, "h": 24}
+        },
+        {
+            "filename": "kr_1",
+            "frame": {"x": 88, "y": 0, "w": 96, "h": 24}
+        },
+        {
+            "filename": "scn_1",
+            "frame": {"x": 184, "y": 0, "w": 88, "h": 24}
+        },
+        {
+            "filename": "tcn_1",
+            "frame": {"x": 272, "y": 0, "w": 88, "h": 24}
+        },
+        {
+            "filename": "ja_2",
+            "frame": {"x": 0, "y": 24, "w": 88, "h": 24}
+        },
+        {
+            "filename": "en_2",
+            "frame": {"x": 88, "y": 24, "w": 96, "h": 24}
+        },
+        {
+            "filename": "kr_2",
+            "frame": {"x": 88, "y": 24, "w": 96, "h": 24}
+        },
+        {
+            "filename": "scn_2",
+            "frame": {"x": 184, "y": 24, "w": 88, "h": 24}
+        },
+        {
+            "filename": "tcn_2",
+            "frame": {"x": 272, "y": 24, "w": 88, "h": 24}
+        }
+    ]
+}

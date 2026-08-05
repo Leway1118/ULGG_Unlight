@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- 首頁 -->
+  <url>
+    <loc>https://ulgg.online/</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 排名頁 -->
+  <url>
+    <loc>https://ulgg.online/ranking.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://ulgg.online/ranking_bp.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://ulgg.online/ranking_qp.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 使用率相關 -->
+  <url>
+    <loc>https://ulgg.online/use_rate.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://ulgg.online/cost.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 詳細資料 → 內容型頁面 -->
+  <url>
+    <loc>https://ulgg.online/training.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ulgg.online/card_back.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://ulgg.online/eventindex.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://ulgg.online/weapon.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://ulgg.online/settings.php</loc>
+    <lastmod>2025-12-03T10:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

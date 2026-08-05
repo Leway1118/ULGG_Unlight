@@ -1,0 +1,47 @@
+name: 認領工作包
+description: 認領規格書附錄 B 的某個工作包，或回報它的進度
+title: "[WP-XX] "
+labels: ["work-package"]
+body:
+  - type: dropdown
+    id: wp
+    attributes:
+      label: 工作包
+      options:
+        - WP-01 Schema／Hash（已完成，僅修正用）
+        - WP-02 Cost Engine
+        - WP-03 規則資料表／GET API（ULGG 端）
+        - WP-04 Room Report API
+        - WP-05 Match Import 擴充
+        - WP-06 Character Analysis（ULGG 端）
+        - WP-07 CDP UI
+        - WP-08 Release／自動更新
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 打算做什麼
+      description: 這次要交付的範圍。不確定的部分也寫出來。
+    validations:
+      required: true
+
+  - type: textarea
+    id: blockers
+    attributes:
+      label: 有沒有被 open-questions 擋住
+      description: |
+        docs/open-questions.md 裡有沒有哪一題沒定案會讓你寫不下去？
+        （WP-02 目前被「角色 ID 格式」與「壓 C 的差距定義」兩題擋住）
+      placeholder: 沒有 / 被第 N 題擋住，因為…
+
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: 確認過的事
+      options:
+        - label: 我讀過 CONTRIBUTING.md 的硬規則
+          required: true
+        - label: 這個改動不會碰到隱藏資訊、不會記錄憑證、不會讓遠端資料變成可執行邏輯
+          required: true

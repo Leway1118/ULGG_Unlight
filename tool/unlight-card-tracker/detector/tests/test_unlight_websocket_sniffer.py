@@ -8,12 +8,17 @@ from pathlib import Path
 
 from unlight_websocket_sniffer import (
     ULSniffer,
+    build_argument_parser,
+    match_ws_debug_keywords,
+    parse_ws_debug_keywords,
     redact_existing_directory,
     redact_existing_jsonl,
+    redact_payload_for_console_debug,
     redact_payload_for_log,
     redact_sensitive_value,
     redact_url,
     sanitize_event_filename,
+    validate_runtime_arguments,
 )
 
 
@@ -353,6 +358,118 @@ class WebSocketSnifferTests(unittest.TestCase):
         self.assertEqual(len(files), 1)
         self.assertEqual(files[0].parent, self.output_dir / "events")
         self.assertEqual(json.loads(files[0].read_text())["sequence"], 1)
+
+    def test_ws_debug_defaults_off_and_filter_requires_debug(self):
+        parser = build_argument_parser()
+        defaults = validate_runtime_arguments(parser, parser.parse_args([]))
+        self.assertFalse(defaults.ws_debug)
+        self.assertFalse(defaults.ws_debug_full)
+        self.assertIsNone(defaults.ws_debug_filter)
+        with self.assertRaises(SystemExit):
+            validate_runtime_arguments(
+                parser,
+                parser.parse_args(["--ws-debug-full"]),
+            )
+
+    def test_ws_debug_filter_matches_event_and_nested_payload_keys(self):
+        keywords = parse_ws_debug_keywords("card, stage room")
+        self.assertEqual(
+            match_ws_debug_keywords(
+                "cardOpen_A",
+                {"args": [{"room_stage": "005"}]},
+                keywords,
+            ),
+            ["card", "stage", "room"],
+        )
+
+    def test_ws_debug_safe_masks_room_and_all_secret_keys(self):
+        room_id = "RoomIdentifier1234567890ABCDEF"
+        secrets = {
+            "token": "TokenValue1234567890ABCDEFGHIJ",
+            "cookie": "CookieValue1234567890ABCDEFGHI",
+            "authorization": "BearerValue1234567890ABCDEFGH",
+            "password": "PasswordValue1234567890ABCDEFG",
+            "secret": "SecretValue1234567890ABCDEFGHI",
+        }
+        redacted = redact_payload_for_console_debug(
+            [room_id, secrets, 4],
+            event_name="card",
+            direction="sent",
+        )
+        serialized = json.dumps(redacted)
+        self.assertNotIn(room_id, serialized)
+        for secret in secrets.values():
+            self.assertNotIn(secret, serialized)
+
+    def test_ws_debug_full_only_reveals_known_room_id(self):
+        room_id = "RoomIdentifier1234567890ABCDEF"
+        token = "SessionToken1234567890ABCDEFGHIJKL"
+        redacted = redact_payload_for_console_debug(
+            [room_id, token, 4],
+            event_name="card",
+            direction="sent",
+            show_room_id=True,
+        )
+        self.assertEqual(redacted[0], room_id)
+        self.assertNotEqual(redacted[1], token)
+
+    def test_ws_debug_is_console_only_and_does_not_change_logs(self):
+        room_id = "RoomIdentifier1234567890ABCDEF"
+        token = "SessionToken1234567890ABCDEFGHIJKL"
+        console = []
+        sniffer = self.make_sniffer(
+            log_all=True,
+            event_dir=True,
+            ws_debug=True,
+            ws_debug_keywords=("card",),
+            console=console.append,
+        )
+        sniffer.handle_frame(
+            {
+                "response": {
+                    "opcode": 1,
+                    "payloadData": json.dumps(
+                        {"event": "card", "args": [room_id, token, 4]}
+                    ),
+                }
+            },
+            "sent",
+        )
+        self.assertIn("[WS DEBUG]", console[0])
+        self.assertNotIn(room_id, console[0])
+        self.assertNotIn(token, console[0])
+        for path in (
+            self.output_dir / "events.jsonl",
+            self.output_dir / "packets.log",
+            next((self.output_dir / "events").glob("*.jsonl")),
+        ):
+            content = path.read_text(encoding="utf-8")
+            self.assertNotIn("[WS DEBUG]", content)
+            self.assertNotIn(room_id, content)
+            self.assertNotIn(token, content)
+
+    def test_ws_debug_failure_does_not_interrupt_frame_processing(self):
+        def broken_console(_message):
+            raise RuntimeError("console unavailable")
+
+        sniffer = self.make_sniffer(
+            ws_debug=True,
+            ws_debug_keywords=("card",),
+            console=broken_console,
+        )
+        record = sniffer.handle_frame(
+            {
+                "response": {
+                    "opcode": 1,
+                    "payloadData": json.dumps(
+                        {"event": "cardOpen_A", "args": []}
+                    ),
+                }
+            },
+            "received",
+        )
+        self.assertEqual(record["event"], "cardOpen_A")
+        self.assertEqual(self.read_events()[0]["sequence"], 1)
 
     def test_existing_jsonl_rewrite_redacts_and_preserves_source(self):
         source = self.output_dir / "captured.jsonl"

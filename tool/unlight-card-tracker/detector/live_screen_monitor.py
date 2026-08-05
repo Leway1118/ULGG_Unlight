@@ -19,7 +19,7 @@ from client_profile import (
     PROFILE_ID,
     REFERENCE_HEIGHT as PROFILE_REFERENCE_HEIGHT,
     REFERENCE_WIDTH as PROFILE_REFERENCE_WIDTH,
-    verify_client_profile,
+    ClientProfileStatus,
 )
 from event_schema import (
     EVENT_SOURCE,
@@ -4383,30 +4383,34 @@ def main() -> None:
         args.skip
     )
 
-    profile_status = verify_client_profile()
+
     producer_event_store = EventStore(args.database)
     producer_event_store.initialize()
     session = producer_event_store.start_session(
         producer_version=PRODUCER_VERSION,
         source=EVENT_SOURCE,
         client_profile=PROFILE_ID,
-        app_asar_hash=profile_status.actual_app_asar_sha256,
+        app_asar_hash=None,        
         template_set_version=TEMPLATE_SET_VERSION,
         reference_width=PROFILE_REFERENCE_WIDTH,
         reference_height=PROFILE_REFERENCE_HEIGHT,
     )
     producer_session_id = session["session_id"]
     api_runtime_status = RuntimeStatus()
+    client_profile_status = ClientProfileStatus(
+        profile_id=PROFILE_ID,
+        supported=True,
+        app_asar_path="",
+        expected_app_asar_sha256="",
+        actual_app_asar_sha256=None,
+        reason=None,
+    )
 
-    if not profile_status.supported:
-        api_runtime_status.update(
-            detector="paused",
-            error=profile_status.reason,
-        )
+
 
     api_app = create_app(
         event_store=producer_event_store,
-        client_profile=profile_status,
+        client_profile=client_profile_status,
         runtime_status=api_runtime_status,
     )
     api_server = uvicorn.Server(
@@ -4447,17 +4451,7 @@ def main() -> None:
     )
     print(f"Producer session：{producer_session_id}")
 
-    if not profile_status.supported:
-        print(
-            "自動偵測已暫停："
-            f"{profile_status.reason}"
-        )
-        while (
-            api_server_thread.is_alive()
-            and not stop_event.is_set()
-        ):
-            time.sleep(0.5)
-        return
+   
 
     # 程式啟動時清除上一輪 DEBUG，
     # 執行期間不再每幀刪除，方便保留最後辨識結果。

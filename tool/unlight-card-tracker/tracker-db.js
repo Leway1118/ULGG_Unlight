@@ -2,9 +2,11 @@
     "use strict";
 
     const DATABASE_NAME = "ulgg-unlight-card-tracker";
-    const DATABASE_VERSION = 1;
+    const DATABASE_VERSION = 2;
     const CHECKPOINT_STORE = "consumer_checkpoints";
+    const DOMAIN_PROJECTION_STORE = "domain_projections";
     const CONSUMER_SCHEMA_VERSION = 1;
+    const PROJECTION_SCHEMA_VERSION = 1;
 
     class TrackerDatabaseError extends Error {
         constructor(
@@ -99,6 +101,30 @@
         });
     }
 
+    function normalizeDomainProjection(value) {
+        if (
+            value === null ||
+            typeof value !== "object" ||
+            Array.isArray(value) ||
+            typeof value.session_id !== "string" ||
+            value.session_id.length === 0 ||
+            value.projection_schema_version !==
+                PROJECTION_SCHEMA_VERSION ||
+            !Number.isInteger(value.last_sequence) ||
+            value.last_sequence < 0 ||
+            !Array.isArray(value.applied_event_ids) ||
+            !Array.isArray(value.diagnostics)
+        ) {
+            throw new TrackerDatabaseError(
+                "INVALID_DOMAIN_PROJECTION",
+                "Domain projection is invalid"
+            );
+        }
+        return Object.freeze(
+            JSON.parse(JSON.stringify(value))
+        );
+    }
+
     function createTrackerDatabase({
         indexedDBImpl = global.indexedDB
     } = {}) {
@@ -161,6 +187,18 @@
                                 CHECKPOINT_STORE,
                                 {
                                     keyPath: "consumer_id"
+                                }
+                            );
+                        }
+                        if (
+                            !database.objectStoreNames.contains(
+                                DOMAIN_PROJECTION_STORE
+                            )
+                        ) {
+                            database.createObjectStore(
+                                DOMAIN_PROJECTION_STORE,
+                                {
+                                    keyPath: "session_id"
                                 }
                             );
                         }
@@ -350,12 +388,226 @@
             await completed;
         }
 
+        async function loadDomainProjection(
+            sessionId
+        ) {
+            if (
+                typeof sessionId !== "string" ||
+                sessionId.length === 0
+            ) {
+                throw new TypeError(
+                    "sessionId is required"
+                );
+            }
+            const database =
+                await openTrackerDatabase();
+            const transaction = database.transaction(
+                DOMAIN_PROJECTION_STORE,
+                "readonly"
+            );
+            const completed = transactionCompletion(
+                transaction,
+                "Unable to read domain projection"
+            );
+            const request = transaction
+                .objectStore(DOMAIN_PROJECTION_STORE)
+                .get(sessionId);
+            let value;
+            request.onsuccess = () => {
+                value = request.result;
+            };
+            await completed;
+            return value === undefined
+                ? null
+                : normalizeDomainProjection(value);
+        }
+
+        async function applyDomainEventBatch({
+            sessionId,
+            events,
+            expectedLastSequence,
+            createInitialProjection,
+            reduceEvent,
+            updatedAt,
+            commitToken
+        }) {
+            if (
+                typeof sessionId !== "string" ||
+                sessionId.length === 0 ||
+                !Array.isArray(events) ||
+                !Number.isInteger(expectedLastSequence) ||
+                expectedLastSequence < 0 ||
+                typeof createInitialProjection !== "function" ||
+                typeof reduceEvent !== "function" ||
+                typeof updatedAt !== "string" ||
+                typeof commitToken !== "string" ||
+                commitToken.length === 0
+            ) {
+                throw new TypeError(
+                    "Invalid domain batch arguments"
+                );
+            }
+
+            const database =
+                await openTrackerDatabase();
+            return new Promise((resolve, reject) => {
+                const transaction = database.transaction(
+                    DOMAIN_PROJECTION_STORE,
+                    "readwrite"
+                );
+                const store = transaction.objectStore(
+                    DOMAIN_PROJECTION_STORE
+                );
+                let result = null;
+                let batchError = null;
+
+                transaction.oncomplete = () => {
+                    resolve(normalizeDomainProjection(result));
+                };
+                transaction.onerror = () => {
+                    reject(
+                        batchError ||
+                        databaseError(
+                            "Unable to apply domain event batch",
+                            transaction.error
+                        )
+                    );
+                };
+                transaction.onabort = () => {
+                    reject(
+                        batchError ||
+                        databaseError(
+                            "Unable to apply domain event batch",
+                            transaction.error
+                        )
+                    );
+                };
+
+                const readRequest = store.get(sessionId);
+                readRequest.onsuccess = () => {
+                    try {
+                        let projection = (
+                            readRequest.result === undefined
+                                ? createInitialProjection(
+                                    sessionId
+                                )
+                                : normalizeDomainProjection(
+                                    readRequest.result
+                                )
+                        );
+                        projection = JSON.parse(
+                            JSON.stringify(projection)
+                        );
+                        if (
+                            projection.last_sequence !==
+                                expectedLastSequence
+                        ) {
+                            throw new TrackerDatabaseError(
+                                "PROJECTION_CURSOR_CONFLICT",
+                                "Stored projection cursor changed"
+                            );
+                        }
+
+                        const applied = new Set(
+                            projection.applied_event_ids
+                        );
+                        let sequence =
+                            projection.last_sequence;
+                        for (const event of events) {
+                            if (
+                                !event ||
+                                typeof event.event_id !== "string" ||
+                                !Number.isInteger(event.sequence)
+                            ) {
+                                throw new TrackerDatabaseError(
+                                    "MALFORMED_DOMAIN_EVENT",
+                                    "Durable event identity is invalid"
+                                );
+                            }
+                            if (event.sequence <= sequence) {
+                                if (
+                                    applied.has(event.event_id)
+                                ) {
+                                    continue;
+                                }
+                                throw new TrackerDatabaseError(
+                                    "DUPLICATE_SEQUENCE_CONFLICT",
+                                    "Sequence was reused by another event"
+                                );
+                            }
+                            if (event.sequence !== sequence + 1) {
+                                throw new TrackerDatabaseError(
+                                    "SEQUENCE_GAP",
+                                    "Domain event sequence gap"
+                                );
+                            }
+                            if (applied.has(event.event_id)) {
+                                throw new TrackerDatabaseError(
+                                    "DUPLICATE_EVENT_ID",
+                                    "Event ID was reused at another sequence"
+                                );
+                            }
+
+                            const reduced = reduceEvent(
+                                projection,
+                                event
+                            );
+                            if (
+                                !reduced ||
+                                typeof reduced !== "object" ||
+                                !reduced.nextState
+                            ) {
+                                throw new TrackerDatabaseError(
+                                    "INVALID_REDUCER_RESULT",
+                                    "Reducer did not return nextState"
+                                );
+                            }
+                            projection = JSON.parse(
+                                JSON.stringify(
+                                    reduced.nextState
+                                )
+                            );
+                            sequence = event.sequence;
+                            applied.add(event.event_id);
+                            projection.last_sequence =
+                                sequence;
+                            projection.applied_event_ids =
+                                [...applied];
+                        }
+
+                        projection.session_id = sessionId;
+                        projection.projection_schema_version =
+                            PROJECTION_SCHEMA_VERSION;
+                        projection.last_sequence = sequence;
+                        projection.updated_at = updatedAt;
+                        projection.commit_token = commitToken;
+                        result = projection;
+                        store.put(projection);
+                    } catch (error) {
+                        batchError = (
+                            error &&
+                            typeof error === "object" &&
+                            typeof error.code === "string"
+                                ? error
+                                : databaseError(
+                                    "Unable to apply domain event batch",
+                                    error
+                                )
+                        );
+                        transaction.abort();
+                    }
+                };
+            });
+        }
+
         return Object.freeze({
             openTrackerDatabase,
             loadConsumerCheckpoint,
             saveConsumerCheckpoint,
             clearConsumerCheckpoint,
-            validateConsumerCheckpoint
+            validateConsumerCheckpoint,
+            loadDomainProjection,
+            applyDomainEventBatch
         });
     }
 
@@ -365,7 +617,9 @@
         DATABASE_NAME,
         DATABASE_VERSION,
         CHECKPOINT_STORE,
+        DOMAIN_PROJECTION_STORE,
         CONSUMER_SCHEMA_VERSION,
+        PROJECTION_SCHEMA_VERSION,
         TrackerDatabaseError,
         createTrackerDatabase,
         ...defaultDatabase

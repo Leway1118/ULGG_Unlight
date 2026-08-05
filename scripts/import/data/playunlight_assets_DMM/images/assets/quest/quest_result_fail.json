@@ -1,0 +1,24 @@
+{
+  "frames": [
+    {
+      "filename": "ja",
+      "frame": {"x": 0, "y": 0, "w": 368, "h": 104}
+    },
+    {
+      "filename": "en",
+      "frame": {"x": 0, "y": 104, "w": 368, "h": 104}
+    },
+    {
+      "filename": "kr",
+      "frame": {"x": 0, "y": 208, "w": 368, "h": 104}
+    },
+    {
+      "filename": "scn",
+      "frame": {"x": 0, "y": 312, "w": 368, "h": 104}
+    },
+    {
+      "filename": "tcn",
+      "frame": {"x": 0, "y": 416, "w": 368, "h": 104}
+    }
+  ]
+}

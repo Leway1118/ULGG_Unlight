@@ -1,0 +1,12 @@
+{
+  "name": "@ulr/cdp-adapter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "WP-07：透過 CDP 連上遊戲、解析事件、注入畫面。目前只有已知常數與介面。",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

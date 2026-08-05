@@ -1,0 +1,15 @@
+{
+  "name": "@ulr/cost-engine",
+  "version": "0.0.0",
+  "private": true,
+  "description": "WP-02：依規則計算隊伍 COST。目前只有介面，實作待補。",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@ulr/rule-schema": "*"
+  }
+}

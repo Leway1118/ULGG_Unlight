@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import signal
 import socket
 import sys
@@ -20,6 +21,11 @@ from client_profile import (
 )
 from event_store import EventStore, default_database_path
 from server import RuntimeStatus, create_app
+from runtime_credentials import (
+    ProducerCredentials,
+    default_runtime_directory,
+    write_runtime_credentials,
+)
 
 
 DEFAULT_HOST = "127.0.0.1"
@@ -111,6 +117,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_LOG_LEVEL,
         help=f"Uvicorn log level (default: {DEFAULT_LOG_LEVEL})",
     )
+    parser.add_argument(
+        "--runtime-directory",
+        type=Path,
+        default=default_runtime_directory(),
+        help="private runtime metadata and producer credential directory",
+    )
     return parser
 
 
@@ -142,9 +154,30 @@ def standalone_client_profile() -> ClientProfileStatus:
 
 def build_app(
     database_path: Path | str | None = None,
+    *,
+    runtime_directory: Path | str | None = None,
+    api_port: int = DEFAULT_PORT,
+    process_id: int | None = None,
+    producer_credentials: ProducerCredentials | None = None,
 ) -> FastAPI:
     event_store = EventStore(database_path)
     event_store.initialize()
+    credentials = producer_credentials or ProducerCredentials.generate()
+    if runtime_directory is None:
+        runtime_path = (
+            Path(database_path).resolve().parent / "runtime"
+            if database_path is not None
+            else default_runtime_directory()
+        )
+    else:
+        runtime_path = Path(runtime_directory).resolve()
+    write_runtime_credentials(
+        runtime_directory=runtime_path,
+        credentials=credentials,
+        pid=process_id or os.getpid(),
+        port=api_port,
+        api_version="v1",
+    )
     return create_app(
         event_store=event_store,
         client_profile=standalone_client_profile(),
@@ -152,6 +185,7 @@ def build_app(
             detector="not_running",
             error=None,
         ),
+        producer_credentials=credentials,
     )
 
 
@@ -185,7 +219,11 @@ def ensure_port_available(host: str, port: int) -> None:
 def run_server(args: argparse.Namespace) -> int:
     ensure_port_available(args.host, args.port)
     database_path = Path(args.database).resolve()
-    app = build_app(database_path)
+    app = build_app(
+        database_path,
+        runtime_directory=args.runtime_directory,
+        api_port=args.port,
+    )
     url_host = f"[{args.host}]" if ":" in args.host else args.host
 
     print(f"Tracker UI: http://{url_host}:{args.port}/tracker/")

@@ -1,0 +1,173 @@
+{
+  "item": [
+    {
+      "price": 10,
+      "upper": 2,
+      "items": [ { "cate1": "item", "cate2": "avatar", "index": 6, "quantity": 1 } ]
+    },
+    {
+      "price": 10,
+      "upper": 2,
+      "items": [ { "cate1": "item", "cate2": "avatar", "index": 10, "quantity": 1 } ]
+    },
+    {
+      "price": 2,
+      "upper": 20,
+      "items": [ { "cate1": "item", "cate2": "battle", "index": 0, "quantity": 1 } ]
+    },
+    {
+      "price": 3,
+      "upper": 15,
+      "items": [ { "cate1": "item", "cate2": "battle", "index": 1, "quantity": 1 } ]
+    },
+    {
+      "price": 5,
+      "upper": 10,
+      "items": [ { "cate1": "item", "cate2": "battle", "index": 2, "quantity": 1 } ]
+    },
+    {
+      "price": 5,
+      "upper": 10,
+      "items": [ { "cate1": "item", "cate2": "battle", "index": 3, "quantity": 1 } ]
+    },
+    {
+      "price": 8,
+      "upper": 5,
+      "items": [ { "cate1": "item", "cate2": "battle", "index": 4, "quantity": 1 } ]
+    },
+    {
+      "price": 3,
+      "upper": 20,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 0, "quantity": 1 } ]
+    },
+    {
+      "price": 5,
+      "upper": 10,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 1, "quantity": 1 } ]
+    },
+    {
+      "price": 8,
+      "upper": 5,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 11, "quantity": 1 } ]
+    },
+    {
+      "price": 9,
+      "upper": 4,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 12, "quantity": 1 } ]
+    },
+    {
+      "price": 10,
+      "upper": 3,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 13, "quantity": 1 } ]
+    },
+    {
+      "price": 9,
+      "upper": 5,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 14, "quantity": 1 } ]
+    },
+    {
+      "price": 10,
+      "upper": 4,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 15, "quantity": 1 } ]
+    },
+    {
+      "price": 11,
+      "upper": 3,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 16, "quantity": 1 } ]
+    },
+    {
+      "price": 10,
+      "upper": 3,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 17, "quantity": 1 } ]
+    },
+    {
+      "price": 11,
+      "upper": 2,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 18, "quantity": 1 } ]
+    },
+    {
+      "price": 12,
+      "upper": 1,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 19, "quantity": 1 } ]
+    },
+    {
+      "price": 11,
+      "upper": 3,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 20, "quantity": 1 } ]
+    },
+    {
+      "price": 12,
+      "upper": 2,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 21, "quantity": 1 } ]
+    },
+    {
+      "price": 13,
+      "upper": 1,
+      "items": [ { "cate1": "item", "cate2": "quest", "index": 22, "quantity": 1 } ]
+    },
+    {
+      "price": 1,
+      "items": [{ "cate1": "item", "cate2": "gem", "index": 18, "quantity": 5 }],
+      "upper": null
+    },
+    {
+      "price": 10,
+      "items": [{ "cate1": "item", "cate2": "gem", "index": 18, "quantity": 50 }],
+      "upper": null
+    },
+    {
+      "price": 20,
+      "items": [{ "cate1": "item", "cate2": "gem", "index": 18, "quantity": 100 }],
+      "upper": null
+    },
+    {
+      "price": 200,
+      "items": [{ "cate1": "item", "cate2": "gem", "index": 18, "quantity": 1000 }],
+      "upper": null
+    }
+  ],
+  "card": [
+    {
+      "price": 60,
+      "items": [{ "cate1": "card", "cate2": "weapon", "index": 188, "quantity": 1 }],
+      "upper": 1
+    },
+    {
+      "price": 60,
+      "items": [{ "cate1": "card", "cate2": "event", "index": 95, "quantity": 1 }],
+      "upper": 1
+    },
+    {
+      "price": 55,
+      "items": [{ "cate1": "card", "cate2": "event", "index": 51, "quantity": 1 }],
+      "upper": 2
+    },
+    {
+      "price": 60,
+      "items": [{ "cate1": "card", "cate2": "event", "index": 52, "quantity": 1 }],
+      "upper": 1
+    },
+    {
+      "price": 65,
+      "items": [{ "cate1": "card", "cate2": "event", "index": 53, "quantity": 1 }],
+      "upper": 1
+    }
+  ],
+  "parts": [
+    {
+      "price": 30,
+      "items": [{ "cate1": "avatar", "cate2": "dress", "index": 129, "quantity": 1 }],
+      "upper": 1
+    },
+    {
+      "price": 30,
+      "items": [{ "cate1": "avatar", "cate2": "shoes", "index": 133, "quantity": 1 }],
+      "upper": 1
+    },
+    {
+      "price": 30,
+      "items": [{ "cate1": "avatar", "cate2": "hair", "index": 132, "quantity": 1 }],
+      "upper": 1
+    }
+  ]
+}

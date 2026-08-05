@@ -7,7 +7,10 @@ const vm = require("node:vm");
 
 function loadApi() {
     const sandbox = {
-        URLSearchParams
+        URLSearchParams,
+        AbortController,
+        setTimeout,
+        clearTimeout
     };
     vm.runInNewContext(
         fs.readFileSync(
@@ -65,6 +68,83 @@ test("reads current session", async () => {
 
     const session = await api.getCurrentSession();
     assert.equal(session.session_id, "session-1");
+});
+
+
+test("reads active session without falling back to current", async () => {
+    const TrackerApi = loadApi();
+    const calls = [];
+    const api = TrackerApi.createTrackerApi({
+        fetchImpl: async (url, options) => {
+            calls.push({ url, options });
+            return response({
+                body: {
+                    api_version: "v1",
+                    session: {
+                        session_id: "sniffer-1",
+                        producer_type:
+                            "websocket_sniffer"
+                    }
+                }
+            });
+        }
+    });
+    const controller = new AbortController();
+
+    const session = await api.getActiveSession({
+        signal: controller.signal
+    });
+
+    assert.equal(session.session_id, "sniffer-1");
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, "/api/v1/sessions/active");
+    assert.notEqual(
+        calls[0].options.signal,
+        controller.signal
+    );
+    assert.equal(calls[0].options.signal.aborted, false);
+});
+
+
+test("reads the diagnostics aggregate without mutation credentials", async () => {
+    const TrackerApi = loadApi();
+    const calls = [];
+    const api = TrackerApi.createTrackerApi({
+        fetchImpl: async (url, options) => {
+            calls.push({ url, options });
+            return response({
+                body: {
+                    api_version: "v1",
+                    room_observation: {
+                        observed_room_state: "WAITING"
+                    },
+                    cdp_diagnostic: {
+                        connection_state: "CONNECTED"
+                    },
+                    server_time: "2026-07-29T15:00:00Z"
+                }
+            });
+        }
+    });
+
+    const body = await api.getDiagnosticsStatus();
+
+    assert.equal(
+        calls[0].url,
+        "/api/v1/diagnostics/status"
+    );
+    assert.equal(
+        calls[0].options.headers.Accept,
+        "application/json"
+    );
+    assert.equal(
+        calls[0].options.headers.Authorization,
+        undefined
+    );
+    assert.equal(
+        body.room_observation.observed_room_state,
+        "WAITING"
+    );
 });
 
 
@@ -158,5 +238,63 @@ test("reports network and invalid JSON failures", async () => {
     await assert.rejects(
         invalidJsonApi.getCurrentSession(),
         error => error.code === "INVALID_JSON"
+    );
+});
+
+
+test("times out a hung request and aborts fetch", async () => {
+    const TrackerApi = loadApi();
+    let fetchSignal = null;
+    const api = TrackerApi.createTrackerApi({
+        requestTimeoutMs: 5,
+        fetchImpl: async (_url, options) => {
+            fetchSignal = options.signal;
+            return new Promise((_resolve, reject) => {
+                fetchSignal.addEventListener(
+                    "abort",
+                    () => {
+                        const error = new Error("aborted");
+                        error.name = "AbortError";
+                        reject(error);
+                    },
+                    { once: true }
+                );
+            });
+        }
+    });
+
+    await assert.rejects(
+        api.getCurrentSession(),
+        error => error.code === "REQUEST_TIMEOUT"
+    );
+    assert.equal(fetchSignal.aborted, true);
+});
+
+
+test("preserves caller cancellation as AbortError", async () => {
+    const TrackerApi = loadApi();
+    const controller = new AbortController();
+    const api = TrackerApi.createTrackerApi({
+        fetchImpl: async (_url, options) =>
+            new Promise((_resolve, reject) => {
+                options.signal.addEventListener(
+                    "abort",
+                    () => {
+                        const error = new Error("aborted");
+                        error.name = "AbortError";
+                        reject(error);
+                    },
+                    { once: true }
+                );
+            })
+    });
+
+    const pending = api.getActiveSession({
+        signal: controller.signal
+    });
+    controller.abort();
+    await assert.rejects(
+        pending,
+        error => error.name === "AbortError"
     );
 });

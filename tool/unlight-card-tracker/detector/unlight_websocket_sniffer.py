@@ -86,11 +86,45 @@ VERBOSE_EVENT_KEYWORDS = {
     "chara",
 }
 
-SENSITIVE_QUERY_KEYS = {"steamid", "token", "session", "auth"}
+DEFAULT_WS_DEBUG_KEYWORDS = (
+    "stage",
+    "field",
+    "map",
+    "quest",
+    "land",
+    "raid",
+    "vortex",
+    "boss",
+    "room",
+    "play",
+    "card",
+    "select",
+    "lock",
+    "ready",
+    "used",
+    "attack",
+    "defense",
+    "move",
+)
+SENSITIVE_QUERY_KEYS = {
+    "auth",
+    "authorization",
+    "cookie",
+    "password",
+    "secret",
+    "session",
+    "steamid",
+    "token",
+}
 SENSITIVE_VALUE_KEYS = {
     "auth",
     "authorization",
+    "cookie",
+    "cookies",
     "game_token",
+    "password",
+    "passwd",
+    "secret",
     "session",
     "session_id",
     "session_token",
@@ -358,6 +392,92 @@ def redact_payload_for_log(payload, event_name=None, direction=None):
                 )
 
     return redacted
+
+
+def parse_ws_debug_keywords(value):
+    """Normalize a comma/whitespace separated debug filter."""
+    if value is None:
+        return DEFAULT_WS_DEBUG_KEYWORDS
+    values = re.split(r"[\s,]+", value) if isinstance(value, str) else value
+    return tuple(
+        dict.fromkeys(
+            str(item).strip().lower()
+            for item in values
+            if str(item).strip()
+        )
+    )
+
+
+def match_ws_debug_keywords(event_name, payload, keywords):
+    """Return filters found in the event name or recursively in payload keys."""
+    searchable_keys = []
+
+    def collect_keys(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                searchable_keys.append(str(key).lower())
+                collect_keys(item)
+        elif isinstance(value, (list, tuple)):
+            for item in value:
+                collect_keys(item)
+
+    collect_keys(payload)
+    event_text = str(event_name or "").lower()
+    return [
+        keyword
+        for keyword in keywords
+        if keyword in event_text
+        or any(keyword in key for key in searchable_keys)
+    ]
+
+
+def redact_payload_for_console_debug(
+    payload,
+    *,
+    event_name=None,
+    direction=None,
+    show_room_id=False,
+):
+    """Redact console debug data, optionally preserving only known room IDs."""
+    positional_schema = POSITIONAL_SECRET_SCHEMA.get(
+        (normalize_direction(direction), event_name),
+        {},
+    )
+
+    def redact(value, key_hint=None, *, positional_index=None):
+        normalized_key = _normalized_key(key_hint) if key_hint is not None else ""
+        positional_kind = positional_schema.get(positional_index)
+
+        if positional_kind == "room_id":
+            return value if show_room_id else redact_sensitive_value(value)
+        if positional_kind is not None:
+            return redact_sensitive_value(value)
+        if normalized_key in ROOM_ID_KEYS:
+            return value if show_room_id else redact_sensitive_value(value)
+        if normalized_key in SENSITIVE_VALUE_KEYS:
+            return redact_sensitive_value(value)
+        if isinstance(value, dict):
+            return {key: redact(item, key) for key, item in value.items()}
+        if isinstance(value, list):
+            return [
+                redact(item, positional_index=index)
+                for index, item in enumerate(value)
+            ]
+        if isinstance(value, tuple):
+            return [
+                redact(item, positional_index=index)
+                for index, item in enumerate(value)
+            ]
+        if isinstance(value, str):
+            redacted_url = redact_url(value)
+            if redacted_url != value:
+                return redacted_url
+            if looks_like_opaque_identifier(value, key_hint=key_hint):
+                return redact_sensitive_value(value)
+            return value
+        return value
+
+    return redact(payload)
 
 
 def sanitize_event_filename(event_name):
@@ -764,6 +884,9 @@ class ULSniffer:
         battle_processor=None,
         tracker_event_client=None,
         tracker_api_required=False,
+        ws_debug=False,
+        ws_debug_keywords=None,
+        ws_debug_full=False,
         console=print,
     ):
         self.port = port
@@ -783,6 +906,9 @@ class ULSniffer:
             tracker_event_client if process_battle_state else None
         )
         self.tracker_api_required = bool(tracker_api_required)
+        self.ws_debug = bool(ws_debug)
+        self.ws_debug_keywords = parse_ws_debug_keywords(ws_debug_keywords)
+        self.ws_debug_full = bool(ws_debug_full)
         self._battle_processing_stopped = False
         self._battle_processor_stats = {
             "observations_processed": 0,
@@ -1186,6 +1312,60 @@ class ULSniffer:
         self.logfile.write(f"{timestamp} {direction} {log_payload}\n")
         self.logfile.flush()
 
+    def _emit_ws_debug(
+        self,
+        *,
+        timestamp,
+        record,
+        direction,
+        event,
+        decoded,
+        args,
+    ):
+        if not self.ws_debug:
+            return
+        try:
+            matched = match_ws_debug_keywords(
+                event,
+                decoded,
+                self.ws_debug_keywords,
+            )
+            if not matched:
+                return
+            namespace = decoded.get("namespace", decoded.get("ns"))
+            safe_namespace = redact_payload_for_console_debug(
+                namespace,
+                event_name=event,
+                direction=direction,
+                show_room_id=self.ws_debug_full,
+            )
+            safe_args = redact_payload_for_console_debug(
+                args,
+                event_name=event,
+                direction=direction,
+                show_room_id=self.ws_debug_full,
+            )
+            self.console(
+                "\n".join(
+                    (
+                        "[WS DEBUG]",
+                        f"time={timestamp}",
+                        f"seq={record.get('sequence')}",
+                        f"direction={normalize_direction(direction)}",
+                        f"event={event}",
+                        "namespace="
+                        + json.dumps(safe_namespace, ensure_ascii=False),
+                        "matched=" + ",".join(matched),
+                        "args=" + json.dumps(safe_args, ensure_ascii=False),
+                    )
+                )
+            )
+        except Exception as error:
+            try:
+                self.console(f"[WS DEBUG ERROR] {type(error).__name__}")
+            except Exception:
+                pass
+
     def handle_frame(self, params, direction, session_id=None):
         response = params.get("response", {})
         payload = response.get("payloadData", "")
@@ -1289,6 +1469,14 @@ class ULSniffer:
             payload,
             decoded=decoded,
             event=event,
+        )
+        self._emit_ws_debug(
+            timestamp=timestamp,
+            record=record,
+            direction=direction,
+            event=event,
+            decoded=decoded,
+            args=args,
         )
 
         is_noise = event.startswith("_ping") or event.startswith("_pong")
@@ -1570,6 +1758,21 @@ def build_argument_parser():
         help="另依事件寫入 deck/events/<event-name>.jsonl",
     )
     parser.add_argument(
+        "--ws-debug",
+        action="store_true",
+        help="Print safe matching WebSocket summaries to the console",
+    )
+    parser.add_argument(
+        "--ws-debug-filter",
+        metavar="KEYWORDS",
+        help="Comma/space separated WebSocket debug keywords",
+    )
+    parser.add_argument(
+        "--ws-debug-full",
+        action="store_true",
+        help="Show full room_id in console debug; other secrets stay redacted",
+    )
+    parser.add_argument(
         "--battle-observations",
         action="store_true",
         help="寫入安全 battle observation stream",
@@ -1618,6 +1821,8 @@ def build_argument_parser():
 
 
 def validate_runtime_arguments(parser, args):
+    if (args.ws_debug_filter is not None or args.ws_debug_full) and not args.ws_debug:
+        parser.error("--ws-debug-filter and --ws-debug-full require --ws-debug")
     if not args.process_battle_state and (
         args.battle_start_mode is not None
         or args.battle_console_level is not None
@@ -1698,6 +1903,9 @@ def main(argv=None):
         battle_console_level=args.battle_console_level,
         tracker_event_client=tracker_event_client,
         tracker_api_required=args.tracker_api_required,
+        ws_debug=args.ws_debug,
+        ws_debug_keywords=parse_ws_debug_keywords(args.ws_debug_filter),
+        ws_debug_full=args.ws_debug_full,
     )
     if tracker_event_client is not None:
         try:

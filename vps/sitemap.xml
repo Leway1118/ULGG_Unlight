@@ -1,0 +1,83 @@
+<?php
+header('Content-Type: application/xml; charset=UTF-8');
+
+$baseUrl  = 'https://ulgg.online';
+$pagesDir = __DIR__ . '/pages';
+
+/**
+ * 明確排除 sitemap 的檔案
+ */
+$excludeFiles = [
+  'login.php',
+  'logout.php',
+  'ranking_ajax.php',
+  'template.php'
+];
+
+/**
+ * 依檔名給 SEO 權重
+ */
+function getSeoRule(string $file): array {
+
+  if ($file === 'bp_rank.php' || $file === 'qp_rank.php') {
+    return ['hourly', '1.0'];
+  }
+
+  if (str_contains($file, 'ranking')) {
+    return ['daily', '0.9'];
+  }
+
+  if ($file === 'fight.php') {
+    return ['daily', '0.8'];
+  }
+
+  if ($file === 'calculator.php') {
+    return ['weekly', '0.6'];
+  }
+
+  if ($file === 'traffic_stats.php') {
+    return ['daily', '0.7'];
+  }
+
+  if ($file === 'index.php') {
+    return ['daily', '0.9'];
+  }
+
+  return ['weekly', '0.5'];
+}
+
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+echo "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n\n";
+
+/* 首頁 */
+echo "  <url>\n";
+echo "    <loc>{$baseUrl}/</loc>\n";
+echo "    <changefreq>daily</changefreq>\n";
+echo "    <priority>1.0</priority>\n";
+echo "  </url>\n\n";
+
+/* 掃描 pages */
+foreach (glob($pagesDir . '/*.php') as $filePath) {
+
+  $file = basename($filePath);
+
+  // 排除清單
+  if (in_array($file, $excludeFiles, true)) {
+    continue;
+  }
+
+  // 額外防呆：測試 / debug
+  if (preg_match('/test|debug|temp/i', $file)) {
+    continue;
+  }
+
+  [$freq, $priority] = getSeoRule($file);
+
+  echo "  <url>\n";
+  echo "    <loc>{$baseUrl}/pages/{$file}</loc>\n";
+  echo "    <changefreq>{$freq}</changefreq>\n";
+  echo "    <priority>{$priority}</priority>\n";
+  echo "  </url>\n\n";
+}
+
+echo "</urlset>";
