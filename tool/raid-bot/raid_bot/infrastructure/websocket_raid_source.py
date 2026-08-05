@@ -162,6 +162,12 @@ class WebSocketRaidSource:
             self.last_error = None
             await self._emit(websocket, "register", [self.owner_id])
 
+            print("[WS WAITING AFTER REGISTER]")
+
+            await asyncio.sleep(1)
+
+            print("[WS REQUEST RAID]")
+
             loop = asyncio.get_running_loop()
             next_request = loop.time()
             next_ping = loop.time() + 30.0
@@ -197,6 +203,7 @@ class WebSocketRaidSource:
             args = [now]
         message_id = f"{event}:{self._message_index}:{now}"
         self._message_index += 1
+        print("[WS SEND]", event, args)
         message = {
             "meta": {
                 "id": message_id,
@@ -215,6 +222,7 @@ class WebSocketRaidSource:
             if not isinstance(data, dict):
                 raise ValueError("message must be an object")
             event = data.get("event")
+            print("[WS EVENT]", event, data)
             if not isinstance(event, str):
                 raise ValueError("event is required")
 
