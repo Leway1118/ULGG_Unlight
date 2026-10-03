@@ -1,0 +1,11 @@
+[Unit]
+Description=ULGG GitHub Server Sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+UMask=0077
+ExecStart=/usr/local/sbin/ulgg-server-sync
