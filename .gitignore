@@ -171,3 +171,16 @@ steam/data/*.txt
 # User/payment and local media assets are not source code
 /assets/pay/
 /tool/unlight-card-tracker/videos/
+
+# Watcher live state / operational snapshots
+/watcher/room_snapshots/
+/watcher/jp_retired_snapshot_*/
+/watcher/cr_paused_snapshot_*/
+/watcher/channel*_room*.json*
+/watcher/ranking_*.json*
+/watcher/ranking_*_season_started_*.txt
+/watcher/*.flag*
+/watcher/import_and_compare(*).py
+
+# Catch dated rollback copies such as foo_before_YYYYMMDD
+*before_*
