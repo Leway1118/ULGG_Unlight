@@ -1,0 +1,10 @@
+[Unit]
+Description=Run ULGG GitHub server-sync daily at 03:15
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+Persistent=true
+Unit=ulgg-git-sync.service
+
+[Install]
+WantedBy=timers.target
