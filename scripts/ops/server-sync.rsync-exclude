@@ -86,3 +86,12 @@ Thumbs.db
 # Other generated build artifacts
 /tool/unlight_bonus_navigator_exe_build/
 /tool/TOOL_VPS.zip
+
+# Accidental shell-output file
+/watcher/udo systemctl status unlight_watcher.service
+
+# CDP release artifacts (source remains synced)
+/src/script/cdp-v*/
+/src/script/cdp/cdp-v*/
+/src/script/cdp/*.exe
+/src/script/cdp/*.zip
