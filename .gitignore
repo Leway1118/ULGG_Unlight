@@ -132,3 +132,34 @@ steam/data/*.txt
 /tool/raid-bot/db_raid_probe_debug.json
 /tool/raid-bot/db_raid_probe_result.json
 /tool/raid-bot/raid_observer_my_raid_probe.txt
+
+# Server-sync safety boundary
+/.gitignore
+/.env
+/.env.*
+!/.env.example
+/venv311/
+/vendor/
+/cache/
+/assets/uploads/
+/_debug/
+/test*.php
+/api/_debug_*
+/api/debug_*
+
+# Global rollback / emergency copies should stay on the VPS only
+*.bak*
+*.backup*
+*.before_*
+
+# Tracker local runtime/build state
+/tool/unlight-card-tracker/detector/.venv/
+/tool/unlight-card-tracker/detector/dist/
+/tool/unlight-card-tracker/detector/build/
+/tool/unlight-card-tracker/detector/output/
+/tool/unlight-card-tracker/detector/debug_frames/
+/tool/unlight-card-tracker/detector/log/
+
+# VPS-only generated/build artifacts
+/tool/unlight_bonus_navigator_exe_build/
+/tool/TOOL_VPS.zip
