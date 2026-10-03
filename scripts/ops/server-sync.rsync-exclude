@@ -1,0 +1,88 @@
+# ULGG VPS -> GitHub server-sync exclusions
+# Keep this list source-oriented: runtime state, secrets, backups and third-party
+# dependency trees stay on the VPS / backup system, not in Git.
+
+# Git / repository-maintained files
+/.git/
+/.gitignore
+/README.md
+/.github/
+
+# Secrets and local environment
+/.env
+/.env.*
+**/.ssh/
+**/id_rsa*
+**/id_ed25519*
+*.pem
+*.ppk
+*.key
+
+# Runtime / dependency trees
+/venv311/
+/vendor/
+/cache/
+/uploads/
+/assets/uploads/
+/assets/pay/
+/assets/bower_components/
+/highcharts/
+
+# Debug / temporary / rollback copies
+/_debug/
+/test*.php
+/api/_debug_*
+/api/debug_*
+**/__pycache__/
+*.pyc
+*.pyo
+*.log
+*.tmp
+*.bak*
+*.backup*
+*.before_*
+*before_*
+*.sqlite*
+.DS_Store
+Thumbs.db
+
+# Watcher runtime state and snapshots
+/watcher/*_backup/
+/watcher/*_history_backup/
+/watcher/probe_logs/
+/watcher/room4_probe/
+/watcher/raid_probe/
+/watcher/room_snapshots/
+/watcher/jp_retired_snapshot_*/
+/watcher/cr_paused_snapshot_*/
+/watcher/channel*_room*.json*
+/watcher/ranking_*.json*
+/watcher/ranking_*_season_started_*.txt
+/watcher/*.flag*
+/watcher/watcher_log.txt
+/watcher/import_and_compare(*).py
+
+# Raid Bot runtime and old nested Git metadata
+/tool/raid-bot/.env
+/tool/raid-bot/data/
+/tool/raid-bot/backup/
+/tool/raid-bot/.git.disabled_*
+/tool/raid-bot/False
+/tool/raid-bot/True
+/tool/raid-bot/db_raid_probe_debug.json
+/tool/raid-bot/db_raid_probe_result.json
+/tool/raid-bot/raid_observer_my_raid_probe.txt
+/tool/raid-bot/*.tar.gz
+
+# Card tracker local build/runtime state
+/tool/unlight-card-tracker/detector/.venv/
+/tool/unlight-card-tracker/detector/dist/
+/tool/unlight-card-tracker/detector/build/
+/tool/unlight-card-tracker/detector/output/
+/tool/unlight-card-tracker/detector/debug_frames/
+/tool/unlight-card-tracker/detector/log/
+/tool/unlight-card-tracker/videos/
+
+# Other generated build artifacts
+/tool/unlight_bonus_navigator_exe_build/
+/tool/TOOL_VPS.zip
