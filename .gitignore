@@ -163,3 +163,7 @@ steam/data/*.txt
 # VPS-only generated/build artifacts
 /tool/unlight_bonus_navigator_exe_build/
 /tool/TOOL_VPS.zip
+
+# Third-party dependency trees are deployed artifacts, not application source
+/assets/bower_components/
+/highcharts/
