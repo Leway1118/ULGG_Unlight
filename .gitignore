@@ -167,3 +167,7 @@ steam/data/*.txt
 # Third-party dependency trees are deployed artifacts, not application source
 /assets/bower_components/
 /highcharts/
+
+# User/payment and local media assets are not source code
+/assets/pay/
+/tool/unlight-card-tracker/videos/
