@@ -111,3 +111,24 @@ steam/data/*.txt
 /-before-cleanup.txt
 /steam/data/diff.diff
 /tool/unlight-card-tracker-v2-starter.zip
+
+
+# Raid Bot source sync: keep code, exclude VPS runtime/secrets
+/tool/raid-bot/.env
+/tool/raid-bot/.env.*
+!/tool/raid-bot/.env.example
+/tool/raid-bot/data/
+/tool/raid-bot/backup/
+/tool/raid-bot/.git.disabled_*
+/tool/raid-bot/*.before_*
+/tool/raid-bot/**/*.before_*
+/tool/raid-bot/*.bak_*
+/tool/raid-bot/**/*.bak_*
+/tool/raid-bot/*.backup_*
+/tool/raid-bot/**/*.backup_*
+/tool/raid-bot/*.tar.gz
+/tool/raid-bot/False
+/tool/raid-bot/True
+/tool/raid-bot/db_raid_probe_debug.json
+/tool/raid-bot/db_raid_probe_result.json
+/tool/raid-bot/raid_observer_my_raid_probe.txt
