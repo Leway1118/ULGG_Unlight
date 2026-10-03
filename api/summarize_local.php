@@ -808,6 +808,16 @@ function localSummarize($text)
     }
 
     return "• " . implode("\n• ", $summary);
+
+
+
+
+
+
+    // 限制最多 5 項
+    $summary = array_slice($summary, 0, 5);
+
+    return "• " . implode("\n• ", $summary);
 }
 
 function localRewriteTitle($title)

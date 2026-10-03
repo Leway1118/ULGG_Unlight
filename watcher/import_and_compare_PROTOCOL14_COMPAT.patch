@@ -1,0 +1,632 @@
+--- a/import_and_compare.py
++++ b/import_and_compare.py
+@@ -70,6 +70,167 @@
+ 
+     return ev1, ev2
+ 
++# ----------------------------------------------------------------
++# Protocol 1.4 room/deck -> legacy DB schema compatibility
++# ----------------------------------------------------------------
++# 2026-09-23 protocol 1.4 changed deck fields from:
++#   charaIndex / weapon / eventIndex
++# to:
++#   chara_card_id / weapon_card_id / event_card_id
++#
++# Character card IDs retain the legacy relation: charaIndex = chara_card_id - 1.
++# Weapon/Event IDs are explicit card IDs and MUST NOT be converted with -1.
++# The maps below were verified against the legacy asset tables.
++# Unknown future IDs are never guessed: legacy slot becomes None and one warning is logged.
++
++LEGACY_EVENT_INDEX_BY_CARD_ID = {1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 21, 10: 22, 11: 23, 12: 24, 13: 25, 14: 26, 15: 27, 16: 28, 17: 42, 18: 43, 19: 44, 20: 45, 21: 46, 22: 54, 23: 55, 24: 56, 25: 57, 26: 58, 27: 66, 28: 67, 29: 68, 30: 69, 31: 70, 32: 78, 33: 79, 34: 80, 35: 81, 36: 82, 37: 88, 38: 89, 39: 90, 40: 91, 42: 83, 43: 84, 44: 85, 45: 86, 46: 87, 47: 9, 48: 10, 49: 11, 50: 30, 51: 31, 52: 32, 53: 51, 54: 52, 55: 53, 56: 75, 57: 76, 58: 77, 59: 92, 60: 93, 61: 94, 62: 95, 63: 15, 64: 16, 65: 17, 66: 12, 67: 13, 68: 14, 69: 18, 70: 19, 71: 20, 72: 36, 73: 37, 74: 38, 75: 33, 76: 34, 77: 35, 78: 39, 79: 40, 80: 41, 81: 63, 82: 64, 83: 65, 88: 102, 92: 103, 93: 104, 94: 106, 100: 107, 101: 108, 103: 109, 105: 96, 106: 8, 107: 29, 108: 47, 109: 48, 110: 49, 111: 50, 112: 59, 113: 60, 114: 61, 115: 62, 116: 71, 117: 72, 118: 73, 119: 74, 120: 97, 121: 98, 122: 99, 123: 100, 124: 101, 125: 105}
++
++LEGACY_WEAPON_INDEX_BY_CARD_ID = {1: 0, 2: 3, 3: 6, 6: 1, 7: 4, 8: 7, 11: 2, 12: 5, 13: 8, 16: 9, 17: 10, 18: 11, 19: 12, 20: 13, 21: 14, 26: 15, 27: 17, 28: 16, 29: 18, 30: 20, 31: 19, 32: 21, 33: 23, 34: 22, 35: 24, 36: 26, 37: 25, 38: 27, 39: 29, 40: 28, 41: 30, 42: 32, 43: 31, 44: 33, 45: 35, 46: 34, 47: 36, 48: 38, 49: 37, 50: 39, 51: 41, 52: 40, 53: 42, 54: 44, 55: 43, 56: 45, 57: 47, 58: 46, 59: 48, 60: 50, 61: 49, 62: 51, 63: 53, 64: 52, 65: 54, 66: 56, 67: 55, 68: 57, 69: 59, 70: 58, 71: 60, 72: 62, 73: 61, 74: 63, 75: 65, 76: 64, 77: 66, 78: 68, 79: 67, 80: 69, 81: 71, 82: 70, 83: 72, 84: 74, 85: 73, 86: 75, 87: 77, 88: 76, 89: 78, 90: 80, 91: 79, 92: 81, 93: 83, 94: 82, 95: 84, 96: 86, 97: 85, 98: 87, 99: 89, 100: 88, 101: 90, 102: 92, 103: 91, 104: 93, 105: 95, 106: 94, 107: 96, 108: 98, 109: 97, 110: 99, 111: 101, 112: 100, 113: 102, 114: 104, 115: 103, 116: 105, 117: 107, 118: 106, 119: 108, 120: 110, 121: 109, 122: 111, 123: 113, 124: 112, 125: 114, 126: 116, 127: 115, 128: 117, 129: 119, 130: 118, 131: 120, 132: 122, 133: 121, 134: 123, 135: 125, 136: 124, 137: 126, 138: 128, 139: 127, 140: 129, 141: 131, 142: 130, 143: 132, 144: 134, 145: 133, 146: 137, 147: 139, 148: 138, 149: 140, 150: 142, 151: 141, 152: 143, 153: 145, 154: 144, 155: 146, 156: 148, 157: 147, 158: 149, 159: 151, 160: 150, 161: 152, 162: 154, 163: 153, 165: 135, 166: 136, 167: 155, 168: 157, 169: 156, 170: 158, 171: 160, 172: 159, 173: 161, 174: 163, 175: 162, 176: 164, 177: 166, 178: 165, 179: 167, 180: 169, 181: 168, 182: 172, 183: 174, 184: 173, 185: 175, 186: 177, 187: 176, 189: 179, 190: 181, 191: 180, 193: 182, 194: 184, 195: 183, 196: 185, 197: 187, 198: 186, 199: 189, 200: 191, 201: 190, 205: 192, 206: 194, 207: 193, 209: 195, 210: 197, 211: 196, 212: 198, 213: 200, 214: 199, 215: 201, 216: 203, 217: 202, 218: 207, 219: 209, 220: 208, 221: 210, 222: 212, 224: 213, 225: 215, 228: 221, 229: 223, 230: 222, 232: 224, 233: 226, 234: 225, 235: 227, 236: 229, 237: 228, 239: 235, 268: 188, 270: 204, 271: 205, 272: 206, 273: 230, 274: 232, 275: 231, 276: 236, 277: 237, 5000: 216, 5005: 217, 5006: 218, 5007: 219, 5008: 220}
++
++_WARNED_UNMAPPED_WEAPON_IDS = set()
++_WARNED_UNMAPPED_EVENT_IDS = set()
++
++
++def _is_int_id(value):
++    return isinstance(value, int) and not isinstance(value, bool)
++
++
++def normalize_deck_for_legacy(deck, room_id=None, side="?"):
++    """Return a copy containing legacy charaIndex/weapon/eventIndex keys.
++
++    Legacy decks pass through unchanged. Protocol 1.4 decks keep their raw new
++    keys and gain compatibility keys consumed by the existing importer/ULGG DB code.
++    """
++    if not isinstance(deck, dict):
++        return {}
++
++    out = dict(deck)
++    is_v14 = any(
++        key in deck
++        for key in ("chara_card_id", "weapon_card_id", "event_card_id")
++    )
++
++    if not is_v14:
++        return out
++
++    raw_chara = deck.get("chara_card_id", [])
++    if not isinstance(raw_chara, list):
++        raw_chara = []
++
++    chara_index = []
++    for card_id in raw_chara[:3]:
++        if _is_int_id(card_id) and card_id > 0:
++            chara_index.append(card_id - 1)
++        else:
++            chara_index.append(-1)
++
++    while len(chara_index) < 3:
++        chara_index.append(-1)
++
++    raw_weapon = deck.get("weapon_card_id", [])
++    if not isinstance(raw_weapon, list):
++        raw_weapon = []
++
++    weapon = []
++    for card_id in raw_weapon[:3]:
++        if card_id is None:
++            weapon.append(None)
++            continue
++
++        if _is_int_id(card_id):
++            legacy_index = LEGACY_WEAPON_INDEX_BY_CARD_ID.get(card_id)
++            if legacy_index is not None:
++                weapon.append(legacy_index)
++                continue
++
++            weapon.append(None)
++            if card_id not in _WARNED_UNMAPPED_WEAPON_IDS:
++                _WARNED_UNMAPPED_WEAPON_IDS.add(card_id)
++                print(
++                    f"⚠️ [SCHEMA 1.4] UNMAPPED_WEAPON_ID id={card_id} "
++                    f"room={room_id or '-'} side={side} -> legacy weapon=NULL"
++                )
++            continue
++
++        weapon.append(None)
++
++    while len(weapon) < 3:
++        weapon.append(None)
++
++    raw_event = deck.get("event_card_id", [])
++    if not isinstance(raw_event, list):
++        raw_event = []
++
++    event_index = []
++    for card_id in raw_event:
++        if card_id is None:
++            event_index.append(None)
++            continue
++
++        if _is_int_id(card_id):
++            legacy_index = LEGACY_EVENT_INDEX_BY_CARD_ID.get(card_id)
++            if legacy_index is not None:
++                event_index.append(legacy_index)
++                continue
++
++            event_index.append(None)
++            if card_id not in _WARNED_UNMAPPED_EVENT_IDS:
++                _WARNED_UNMAPPED_EVENT_IDS.add(card_id)
++                print(
++                    f"⚠️ [SCHEMA 1.4] UNMAPPED_EVENT_CARD_ID id={card_id} "
++                    f"room={room_id or '-'} side={side} -> legacy eventIndex=NULL"
++                )
++            continue
++
++        event_index.append(None)
++
++    out["charaIndex"] = chara_index
++    out["weapon"] = weapon
++    out["eventIndex"] = event_index
++    out["_schema_compat"] = "1.4->legacy"
++    return out
++
++
++def normalize_room_collection_for_legacy(room_data, source_name="room"):
++    """Normalize only protocol-1.4 decks; supports mixed old/new room history."""
++    if not isinstance(room_data, dict):
++        return room_data
++
++    converted_rooms = 0
++    for fallback_room_id, room in room_data.items():
++        if not isinstance(room, dict):
++            continue
++
++        room_id = room.get("room_id") or fallback_room_id
++        converted = False
++
++        for deck_key, side in (("deckA", "A"), ("deckB", "B")):
++            deck = room.get(deck_key)
++            if not isinstance(deck, dict):
++                continue
++
++            if any(
++                key in deck
++                for key in ("chara_card_id", "weapon_card_id", "event_card_id")
++            ):
++                room[deck_key] = normalize_deck_for_legacy(
++                    deck,
++                    room_id=room_id,
++                    side=side,
++                )
++                converted = True
++
++        if converted:
++            converted_rooms += 1
++
++    if converted_rooms:
++        print(
++            f"🔄 [SCHEMA 1.4] {source_name}："
++            f"已相容轉換 {converted_rooms} 間新版房間；舊格式房間保持不變"
++        )
++
++    return room_data
++
+ 
+ # ----------------------------------------------------------------
+ # 1) 基本設定
+@@ -211,7 +372,8 @@
+ # ----------------------------------------------------------------
+ # 2) 上傳 channel1_room (舊程式) 匯入新的,更新前一筆
+ # ----------------------------------------------------------------
+-room_data, room_path = backup_and_load("channel1_room")    
++room_data, room_path = backup_and_load("channel1_room")
++room_data = normalize_room_collection_for_legacy(room_data, "channel1_room")    
+ # 如果 room_data 是空 dict，就跳過整個流程
+ if not room_data:
+     print("⚠️ channel1_room.json 無任何新資料，跳過上傳與清空")
+@@ -401,7 +563,8 @@
+ # ----------------------------------------------------------------
+ # 2) 上傳 channel3_room (舊程式) 匯入新的,更新前一筆
+ # ----------------------------------------------------------------
+-room_data, room_path = backup_and_load("channel3_room")    
++room_data, room_path = backup_and_load("channel3_room")
++room_data = normalize_room_collection_for_legacy(room_data, "channel3_room")    
+ # 如果 room_data 是空 dict，就跳過整個流程
+ if not room_data:
+     print("⚠️ channel3_room.json 無任何新資料，跳過上傳與清空")
+@@ -594,62 +757,129 @@
+ 
+ 
+ # ----------------------------------------------------------------
+-# 上傳 ranking_bp_TW / ranking_bp_JP 並備份
++# Ranking legacy / protocol-1.4 compatibility
+ # ----------------------------------------------------------------
+-import re
+-from datetime import datetime, timezone, timedelta
+-
+-# 要處理的來源檔案與對應的資料表
+-sources = [
+-    ("ranking_bp_TW", "ranking_bp_TW"),
+-    ("ranking_bp_JP", "ranking_bp_JP")
+-]
++# protocol 1.4:
++#   {"data": [{"player_name": "...", "point": 1234}, ...], "update_at": <epoch ms>}
++# legacy:
++#   {"ranks": [{"name": "...", "bp"/"qp": ..., ...}, ...], "updatedAt": <ISO>}
++#
++# IMPORTANT:
++# Protocol 1.4 no longer supplies level or ranked W/D/L. We do not carry old
++# values forward and do not fabricate zeroes. New snapshots store these fields
++# as NULL so they cannot be mistaken for current ranking data.
++
++def _ranking_timestamp_to_tw(value):
++    """Convert ranking updatedAt/update_at into a Taipei minute timestamp."""
++    dt_utc = None
+ 
+-for source_name, table_name in sources:
+-    # 讀取備份並解析 JSON
+-    bp_data, bp_path = backup_and_load(source_name)
+-    raw = bp_data if isinstance(bp_data, list) else bp_data.get("ranks", [])
+-    last = raw[-1] if raw else None
++    if isinstance(value, (int, float)) and not isinstance(value, bool):
++        try:
++            seconds = float(value)
++            if abs(seconds) >= 10_000_000_000:  # epoch milliseconds
++                seconds /= 1000.0
++            dt_utc = datetime.fromtimestamp(seconds, tz=timezone.utc)
++        except (ValueError, OSError, OverflowError):
++            dt_utc = None
+ 
+-    # ✅ 從 JSON 最後一筆時間取出 timestamp（支援舊格式與新格式）
+-    # 台日本版：使用 updatedAt 欄位
+-    updated_at = bp_data.get("updatedAt")
+-    raw = bp_data.get("ranks", [])
++    elif isinstance(value, str):
++        value = value.strip()
++        if value:
++            try:
++                number = float(value)
++            except ValueError:
++                number = None
+ 
+-    if isinstance(updated_at, str) and re.match(r"^\d{4}-\d{2}-\d{2}T", updated_at):
+-        try:
+-            ts_utc = datetime.fromisoformat(updated_at.replace("Z", "+00:00"))
+-        except ValueError:
+-            ts_utc = datetime.strptime(updated_at, "%Y-%m-%dT%H:%M:%S.%fZ")
+-        ts_local = (ts_utc + timedelta(hours=8)).replace(second=0, microsecond=0)
+-        ts = ts_local.strftime("%Y-%m-%d %H:%M:%S")
+-        bp_list = raw
++            if number is not None:
++                try:
++                    if abs(number) >= 10_000_000_000:
++                        number /= 1000.0
++                    dt_utc = datetime.fromtimestamp(number, tz=timezone.utc)
++                except (ValueError, OSError, OverflowError):
++                    dt_utc = None
++            else:
++                try:
++                    dt_utc = datetime.fromisoformat(value.replace("Z", "+00:00"))
++                    if dt_utc.tzinfo is None:
++                        dt_utc = dt_utc.replace(tzinfo=timezone.utc)
++                    else:
++                        dt_utc = dt_utc.astimezone(timezone.utc)
++                except ValueError:
++                    dt_utc = None
++
++    if dt_utc is None:
++        dt_utc = datetime.now(timezone.utc)
++
++    return (dt_utc + timedelta(hours=8)).replace(
++        second=0,
++        microsecond=0,
++    ).strftime("%Y-%m-%d %H:%M:%S")
++
++
++def _normalize_ranking_payload(payload, score_key):
++    """Return (rows, ts, schema) for both legacy and protocol-1.4 ranking JSON."""
++    if isinstance(payload, dict) and isinstance(payload.get("data"), list):
++        raw_rows = payload.get("data", [])
++        updated_at = payload.get("update_at")
++        schema = "1.4"
++    elif isinstance(payload, dict):
++        raw_rows = payload.get("ranks", [])
++        updated_at = payload.get("updatedAt")
++        schema = "legacy"
++    elif isinstance(payload, list):
++        raw_rows = payload
++        updated_at = raw_rows[-1] if raw_rows and isinstance(raw_rows[-1], str) else None
++        schema = "legacy-list"
+     else:
+-        ts_local = (datetime.now(timezone.utc) + timedelta(hours=8)).replace(second=0, microsecond=0)
+-        ts = ts_local.strftime("%Y-%m-%d %H:%M:%S")
+-        bp_list = raw
++        raw_rows = []
++        updated_at = None
++        schema = "unknown"
++
++    rows = []
++    for rec in raw_rows:
++        if not isinstance(rec, dict):
++            continue
++
++        if schema == "1.4":
++            name = rec.get("player_name")
++            point = rec.get("point")
++            level = None
++            win_ranked = None
++            lose_ranked = None
++            draw_ranked = None
++        else:
++            name = rec.get("name")
++            point = rec.get(score_key)
++            level = rec.get("level")
++            win_ranked = rec.get("win_ranked")
++            lose_ranked = rec.get("lose_ranked")
++            draw_ranked = rec.get("draw_ranked")
+ 
++        if name is None or point is None:
++            continue
+ 
++        name = str(name).strip()
++        if not name:
++            continue
+ 
+-    if not bp_list:
+-        print(f"⚠️ {source_name}.json ranks 為空 → 只更新時間，不覆蓋排行")
++        try:
++            point = int(point)
++        except (TypeError, ValueError):
++            continue
+ 
+-        # 🔥 關鍵：寫一筆「只有 ts」的記錄（用 rank_num=1，但不覆蓋）
+-        cursor.execute(f"""
+-            INSERT INTO `{table_name}` (ts, rank_num)
+-            VALUES (%s, %s)
+-            ON DUPLICATE KEY UPDATE ts=ts
+-        """, (ts, 1))
++        rows.append({
++            "name": name,
++            score_key: point,
++            "level": level,
++            "win_ranked": win_ranked,
++            "lose_ranked": lose_ranked,
++            "draw_ranked": draw_ranked,
++        })
+ 
+-        db.commit()
+-        clear_json(bp_path)
+-        continue
++    return rows, _ranking_timestamp_to_tw(updated_at), schema
+ 
+-        # 補滿到 100 筆
+-        while len(bp_list) < 100:
+-            bp_list.append({})
+ 
+-    # ✅ 清除舊資料（僅刪除非 00:00:00 的前筆資料）
++def _delete_old_ranking_snapshots(table_name, ts):
+     sql_delete = f"""
+     DELETE FROM `{table_name}`
+     WHERE CONCAT(ts, rank_num) IN (
+@@ -667,139 +897,152 @@
+     )
+     """
+     cursor.execute(sql_delete, (ts,))
+-    deleted = cursor.rowcount
+-    print(f"🧹 SQL：已刪除 {deleted} 筆前 100 中非 00:00:00 的 {table_name} 資料")
++    print(
++        f"🧹 SQL：已刪除 {cursor.rowcount} 筆前 100 中非 00:00:00 的 "
++        f"{table_name} 資料"
++    )
+ 
+-    # ✅ 匯入資料
+-    insert_sql = f"""
+-    INSERT INTO `{table_name}`
+-        (`ts`, `rank_num`, `name`, `level`, `bp`, `win_ranked`, `lose_ranked`, `draw_ranked`)
+-    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+-    ON DUPLICATE KEY UPDATE
+-        name=VALUES(name),
+-        level=VALUES(level),
+-        bp=VALUES(bp),
+-        win_ranked=VALUES(win_ranked),
+-        lose_ranked=VALUES(lose_ranked),
+-        draw_ranked=VALUES(draw_ranked)
+-    """
+ 
+-    for rankx, rec in enumerate(bp_list[:100]):
+-        rank_num = rankx + 1
+-        if isinstance(rec, dict):
+-            values = (
+-                ts, rank_num,
+-                rec.get("name"), rec.get("level"), rec.get("bp"),
+-                rec.get("win_ranked"), rec.get("lose_ranked"), rec.get("draw_ranked")
++# ----------------------------------------------------------------
++# 上傳 ranking_bp_TW / ranking_bp_JP 並備份
++# ----------------------------------------------------------------
++sources = [
++    ("ranking_bp_TW", "ranking_bp_TW"),
++    ("ranking_bp_JP", "ranking_bp_JP"),
++]
++
++for source_name, table_name in sources:
++    bp_data, bp_path = backup_and_load(source_name)
++    bp_list, ts, ranking_schema = _normalize_ranking_payload(bp_data, "bp")
++
++    if not bp_list:
++        print(f"⚠️ {source_name}.json 無有效 BP 排行資料 → 跳過 DB 寫入及清空原檔")
++        continue
++
++    _delete_old_ranking_snapshots(table_name, ts)
++
++    if ranking_schema == "1.4":
++        insert_sql = f"""
++        INSERT INTO `{table_name}`
++            (`ts`, `rank_num`, `name`, `level`, `bp`, `win_ranked`, `lose_ranked`, `draw_ranked`)
++        VALUES (%s,%s,%s,NULL,%s,NULL,NULL,NULL)
++        ON DUPLICATE KEY UPDATE
++            name=VALUES(name),
++            level=NULL,
++            bp=VALUES(bp),
++            win_ranked=NULL,
++            lose_ranked=NULL,
++            draw_ranked=NULL
++        """
++
++        for rankx, rec in enumerate(bp_list[:100]):
++            cursor.execute(
++                insert_sql,
++                (ts, rankx + 1, rec["name"], rec["bp"]),
++            )
++    else:
++        insert_sql = f"""
++        INSERT INTO `{table_name}`
++            (`ts`, `rank_num`, `name`, `level`, `bp`, `win_ranked`, `lose_ranked`, `draw_ranked`)
++        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
++        ON DUPLICATE KEY UPDATE
++            name=VALUES(name),
++            level=VALUES(level),
++            bp=VALUES(bp),
++            win_ranked=VALUES(win_ranked),
++            lose_ranked=VALUES(lose_ranked),
++            draw_ranked=VALUES(draw_ranked)
++        """
++
++        for rankx, rec in enumerate(bp_list[:100]):
++            cursor.execute(
++                insert_sql,
++                (
++                    ts,
++                    rankx + 1,
++                    rec["name"],
++                    rec.get("level"),
++                    rec["bp"],
++                    rec.get("win_ranked"),
++                    rec.get("lose_ranked"),
++                    rec.get("draw_ranked"),
++                ),
+             )
+-        else:
+-            values = (ts, rank_num, None, None, None, None, None, None)
+-        cursor.execute(insert_sql, values)
+ 
+     db.commit()
+-    print(f"✅ 已匯入 {min(100, len(bp_list))} 筆資料到 {table_name}")
++    print(
++        f"✅ 已匯入 {min(100, len(bp_list))} 筆資料到 {table_name} "
++        f"(ranking schema={ranking_schema}"
++        + ("; level/WDL=NULL" if ranking_schema == "1.4" else "")
++        + ")"
++    )
+     clear_json(bp_path)
+ 
+ 
+ # ----------------------------------------------------------------
+ # 上傳 ranking_qp_TW / ranking_qp_JP 並備份
+ # ----------------------------------------------------------------
+-import re
+-from datetime import datetime, timezone, timedelta
+-
+-# 要處理的來源檔案與對應的資料表
+ sources = [
+     ("ranking_qp_TW", "ranking_qp_TW"),
+-    ("ranking_qp_JP", "ranking_qp_JP")
++    ("ranking_qp_JP", "ranking_qp_JP"),
+ ]
+ 
+ for source_name, table_name in sources:
+-    # 讀取備份並解析 JSON
+     qp_data, qp_path = backup_and_load(source_name)
+-    raw = qp_data if isinstance(qp_data, list) else qp_data.get("ranks", [])
+-    last = raw[-1] if raw else None
+-
+-    # ✅ 從 JSON 最後一筆時間取出 timestamp
+-    # 嘗試讀取排行榜資料
+-    if isinstance(qp_data, dict):
+-        raw = qp_data.get("ranks", [])
+-        updated_at = qp_data.get("updatedAt")
+-    else:
+-        raw = qp_data if isinstance(qp_data, list) else []
+-        updated_at = raw[-1] if raw and isinstance(raw[-1], str) else None
+-
+-    # 判斷並解析時間戳
+-    if isinstance(updated_at, str) and re.match(r"^\d{4}-\d{2}-\d{2}T", updated_at):
+-        try:
+-            ts_utc = datetime.fromisoformat(updated_at.replace("Z", "+00:00"))
+-        except ValueError:
+-            ts_utc = datetime.strptime(updated_at, "%Y-%m-%dT%H:%M:%S.%fZ")
+-        ts_local = (ts_utc + timedelta(hours=8)).replace(second=0, microsecond=0)
+-        ts = ts_local.strftime("%Y-%m-%d %H:%M:%S")
+-        qp_list = raw
+-    else:
+-        ts_local = (datetime.now(timezone.utc) + timedelta(hours=8)).replace(second=0, microsecond=0)
+-        ts = ts_local.strftime("%Y-%m-%d %H:%M:%S")
+-        qp_list = raw
+-
+-
++    qp_list, ts, ranking_schema = _normalize_ranking_payload(qp_data, "qp")
+ 
+     if not qp_list:
+-        print(f"⚠️ {source_name}.json 無任何排行物件，跳過 DB 寫入及清空原檔")
++        print(f"⚠️ {source_name}.json 無有效 QP 排行資料 → 跳過 DB 寫入及清空原檔")
+         continue
+ 
+-    # 補滿到 100 筆
+-    while len(qp_list) < 100:
+-        qp_list.append({})
++    _delete_old_ranking_snapshots(table_name, ts)
+ 
+-    # ✅ 清除舊資料（僅刪除非 00:00:00 的前筆資料）
+-    sql_delete = f"""
+-    DELETE FROM `{table_name}`
+-    WHERE CONCAT(ts, rank_num) IN (
+-        SELECT CONCAT(ts, rank_num) FROM (
+-            SELECT ts, rank_num
+-            FROM `{table_name}` t1
+-            WHERE ts < %s
+-            AND ts NOT IN (
+-                SELECT MIN(ts) FROM `{table_name}` GROUP BY DATE(ts)
+-            )
+-            AND TIME(ts) != '00:00:00'
+-            ORDER BY ts ASC, rank_num ASC
+-            LIMIT 100
+-        ) AS tmp
+-    )
+-    """
+-    cursor.execute(sql_delete, (ts,))
+-    deleted = cursor.rowcount
+-    print(f"🧹 SQL：已刪除 {deleted} 筆前 100 中非 00:00:00 的 {table_name} 資料")
+-
+-    # ✅ 匯入資料
+-    insert_sql = f"""
+-    INSERT INTO `{table_name}`
+-        (`ts`, `rank_num`, `name`, `level`, `qp`)
+-      VALUES (%s,%s,%s,%s,%s)
+-      ON DUPLICATE KEY UPDATE
+-        name=VALUES(name),
+-        level=VALUES(level),
+-        qp=VALUES(qp)
+-    """
+-    
+-    
++    if ranking_schema == "1.4":
++        insert_sql = f"""
++        INSERT INTO `{table_name}`
++            (`ts`, `rank_num`, `name`, `level`, `qp`)
++        VALUES (%s,%s,%s,NULL,%s)
++        ON DUPLICATE KEY UPDATE
++            name=VALUES(name),
++            level=NULL,
++            qp=VALUES(qp)
++        """
+ 
+-    for rankx, rec in enumerate(qp_list[:100]):
+-        rank_num = rankx + 1
+-        if isinstance(rec, dict):
+-            name  = rec.get("name")
+-            level = rec.get("level")
+-            qp    = rec.get("qp")
+-        else:
+-            name = level = qp = None
++        for rankx, rec in enumerate(qp_list[:100]):
++            cursor.execute(
++                insert_sql,
++                (ts, rankx + 1, rec["name"], rec["qp"]),
++            )
++    else:
++        insert_sql = f"""
++        INSERT INTO `{table_name}`
++            (`ts`, `rank_num`, `name`, `level`, `qp`)
++        VALUES (%s,%s,%s,%s,%s)
++        ON DUPLICATE KEY UPDATE
++            name=VALUES(name),
++            level=VALUES(level),
++            qp=VALUES(qp)
++        """
+ 
+-        values = (ts, rank_num, name, level, qp)  # ✅ 關鍵補上
+-        cursor.execute(insert_sql, values)
++        for rankx, rec in enumerate(qp_list[:100]):
++            cursor.execute(
++                insert_sql,
++                (
++                    ts,
++                    rankx + 1,
++                    rec["name"],
++                    rec.get("level"),
++                    rec["qp"],
++                ),
++            )
+ 
+     db.commit()
+-    print(f"✅ 已匯入 {min(100, len(qp_list))} 筆資料到 {table_name}")
++    print(
++        f"✅ 已匯入 {min(100, len(qp_list))} 筆資料到 {table_name} "
++        f"(ranking schema={ranking_schema}"
++        + ("; level=NULL" if ranking_schema == "1.4" else "")
++        + ")"
++    )
+     clear_json(qp_path)
+ 
+ 
+@@ -2101,6 +2344,7 @@
+ # ----------------------------------------------------------------
+ 
+ room_data, room_path = backup_and_load("channel2_room")
++room_data = normalize_room_collection_for_legacy(room_data, "channel2_room")
+ 
+ # ① JSON 本身不對 → 整段跳過
+ if not isinstance(room_data, dict) or not room_data:

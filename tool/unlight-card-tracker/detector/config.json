@@ -1,0 +1,64 @@
+{
+  "screen": {
+    "width": 848,
+    "height": 760
+  },
+  "capture": {
+    "source": "video",
+    "stable_seconds": 0.6,
+    "sample_fps": 5
+  },
+  "regions": {
+    "deck_counter": {
+      "x": 62,
+      "y": 58,
+      "width": 62,
+      "height": 48
+    },
+    "phase_bar": {
+      "x": 160,
+      "y": 68,
+      "width": 560,
+      "height": 46
+    },
+    "top_played": {
+      "x": 300,
+      "y": 92,
+      "width": 280,
+      "height": 105
+    },
+    "bottom_played": {
+      "x": 285,
+      "y": 365,
+      "width": 310,
+      "height": 120
+    },
+    "bottom_hand": {
+      "x": 185,
+      "y": 525,
+      "width": 500,
+      "height": 95
+    },
+    "bottom_death_markers": {
+      "x": 185,
+      "y": 700,
+      "width": 500,
+      "height": 58
+    },
+    "site_background": {
+      "x": 145,
+      "y": 125,
+      "width": 560,
+      "height": 230
+    }
+  },
+  "rules": {
+    "opening_public_cards_each": 6,
+    "opening_personal_cards_each": 1,
+    "base_public_hand_target": 6,
+    "hand_target_per_dead_character": 1,
+    "personal_card_enters_public_discard": false,
+    "selected_cards_may_return": true,
+    "reshuffle_when_deck_empty": true
+  }
+}

@@ -1,0 +1,9 @@
+
+.raid-card__code {
+  margin-top: 2px;
+  color: #8f98aa;
+  font-size: 11px;
+  font-family: monospace;
+  overflow-wrap: anywhere;
+}
+

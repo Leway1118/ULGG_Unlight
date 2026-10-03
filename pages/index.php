@@ -59,8 +59,9 @@ function ulggSteamNewsUrl(mixed $value): ?string
   $allowedHosts = [
     'steamcommunity.com',
     'store.steampowered.com',
+    'steamstore-a.akamaihd.net',
   ];
-
+  
   $hostAllowed = false;
   foreach ($allowedHosts as $allowedHost) {
     if ($host === $allowedHost || str_ends_with($host, '.' . $allowedHost)) {
@@ -89,8 +90,8 @@ function ulggNoticeUrl(mixed $value): ?string
 
   return filter_var($url, FILTER_VALIDATE_URL) !== false
     && strtolower((string)parse_url($url, PHP_URL_SCHEME)) === 'https'
-      ? $url
-      : null;
+    ? $url
+    : null;
 }
 
 function ulggCacheRemember(string $key, int $ttl, callable $callback)
@@ -300,7 +301,7 @@ function classifySteamCategory($title)
   /* ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ */
 
   .bulletin-board {
-      background: #151417;
+    background: #151417;
     background-size: cover;
     border: 2px solid #3e3428;
     box-shadow: 0 0 18px rgba(0, 0, 0, 0.6);
@@ -1343,7 +1344,7 @@ $tomorrowStart = date('Y-m-d 00:00:00', strtotime('+1 day'));
 
 $hotData = ulggCacheRemember('index_hot_data_' . date('Ymd'), 300, function () use ($db, $todayStart, $tomorrowStart) {
   try {
-  $sqlSearch = "
+    $sqlSearch = "
     SELECT
       search_term,
       COUNT(*) AS cnt,
@@ -1374,14 +1375,14 @@ $hotData = ulggCacheRemember('index_hot_data_' . date('Ymd'), 300, function () u
     ORDER BY cnt DESC, MAX(visited_at) DESC
     LIMIT 5
   ";
-  $stmtSearch = $db->prepare($sqlSearch);
-  $stmtSearch->execute([
-    ':today_start' => $todayStart,
-    ':tomorrow_start' => $tomorrowStart
-  ]);
-  $topSearch = $stmtSearch->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $stmtSearch = $db->prepare($sqlSearch);
+    $stmtSearch->execute([
+      ':today_start' => $todayStart,
+      ':tomorrow_start' => $tomorrowStart
+    ]);
+    $topSearch = $stmtSearch->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-  $sqlChar = "
+    $sqlChar = "
   SELECT
     u.id AS char_id,
     u.name AS character_name,
@@ -1399,17 +1400,17 @@ $hotData = ulggCacheRemember('index_hot_data_' . date('Ymd'), 300, function () u
   ORDER BY cnt DESC, last_view_at DESC
   LIMIT 5
 ";
-  $stmtChar = $db->prepare($sqlChar);
-  $stmtChar->execute([
-    ':today_start' => $todayStart,
-    ':tomorrow_start' => $tomorrowStart
-  ]);
-  $topChar = $stmtChar->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $stmtChar = $db->prepare($sqlChar);
+    $stmtChar->execute([
+      ':today_start' => $todayStart,
+      ':tomorrow_start' => $tomorrowStart
+    ]);
+    $topChar = $stmtChar->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-  return [
-    'topSearch' => $topSearch,
-    'topChar' => $topChar
-  ];
+    return [
+      'topSearch' => $topSearch,
+      'topChar' => $topChar
+    ];
   } catch (Throwable $error) {
     error_log(sprintf(
       '[INDEX HOT DATA ERROR] type=%s code=%s',
@@ -2015,14 +2016,14 @@ $strongDeckSnapshots = ulggCacheRemember('index_strong_deck_snapshots_meta_v1_' 
 
             <div class="strong-deck-score">
               <span>綜合分 <strong><?= number_format((float)$team['meta_score'], 1) ?></strong></span>
-              <span>勝率 <strong><?= number_format((float)$team['adjusted_win_rate'], 1) ?>%</strong></span>
+              <span>近期勝率 <strong><?= number_format((float)$team['raw_win_rate'], 1) ?>%</strong></span>
             </div>
 
             <div class="strong-deck-meta-line">
-              角色淨C <?= htmlspecialchars(
-                      (string)(number_format($team['cost_sum'] ?? $team['avg_cost'] ,0)?? '-'),
-                      ENT_QUOTES
-                    ) ?>
+              牌組C <?= htmlspecialchars(
+                    (string)(number_format($team['cost_sum'] ?? $team['avg_cost'], 0) ?? '-'),
+                    ENT_QUOTES
+                  ) ?>
               · 平均 BP <?= htmlspecialchars(
                         (string)($team['avg_match_bp'] ?? '-'),
                         ENT_QUOTES
@@ -2076,7 +2077,9 @@ $strongDeckSnapshots = ulggCacheRemember('index_strong_deck_snapshots_meta_v1_' 
           $newsSummary = !empty($news['summary'])
             ? (string)$news['summary']
             : '（摘要取得失敗）';
-          $newsUrl = ulggSteamNewsUrl($news['url'] ?? null);
+          $newsUrl = $news['url'] ?? null;
+
+
         ?>
           <div class="notice">
             <div class="notice-title">

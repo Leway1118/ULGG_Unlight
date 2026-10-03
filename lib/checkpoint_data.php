@@ -28,7 +28,7 @@ function getCheckpointOverview(PDO $pdo, string $player, int $year): array
       SUM(is_win = 0) AS lose_cnt,
       SUM(is_win IS NULL) AS tie_cnt,
       COUNT(DISTINCT DATE_FORMAT(update_time, '%Y-%m')) AS active_months
-    FROM v_arena_player_match_result
+    FROM arena_player_match_result
     WHERE player_name = :player
       AND YEAR(update_time) = :year
   ";
@@ -66,7 +66,7 @@ function getCheckpointCoreCharacters(PDO $pdo, string $player, int $year, int $l
       u.ico,
       COUNT(*) AS usage_cnt,
       SUM(v.is_win = 1) AS win_cnt
-    FROM v_arena_player_match_result v
+    FROM arena_player_match_result v
     JOIN unlight u ON u.id = v.leader_id
     WHERE v.player_name = :player
       AND YEAR(v.update_time) = :year
@@ -108,7 +108,7 @@ function getCheckpointTopTeams(PDO $pdo, string $player, int $year, int $limit =
       v.back2_id,
       COUNT(*) AS cnt,
       SUM(v.is_win = 1) AS win_cnt
-    FROM v_arena_player_match_result v
+    FROM arena_player_match_result v
     WHERE v.player_name = :player
       AND YEAR(v.update_time) = :year
     GROUP BY v.leader_id, v.back1_id, v.back2_id
@@ -211,7 +211,7 @@ function getCheckpointStyleProfile(PDO $pdo, string $player, int $year): array
   // 平均 COST
   $sqlCost = "
     SELECT AVG(cost) AS avg_cost
-    FROM v_arena_player_match_result
+    FROM arena_player_match_result
     WHERE player_name = :player
       AND YEAR(update_time) = :year
       AND cost IS NOT NULL

@@ -63,34 +63,178 @@
       background: var(--purple);
     }
 
-    .app {
+    .card-tracker-app {
+      --bg: #0f131a;
+      --panel: #1a202b;
+      --panel2: #232b39;
+      --line: #344055;
+      --text: #f4f6f8;
+      --muted: #9ba7b8;
+      --blue: #3b82f6;
+      --red: #b84a4a;
+      --green: #2f8f63;
+      --gold: #a97720;
+      --purple: #7557c9;
+
+      --tracker-bg: var(--bg);
+      --tracker-panel: var(--panel);
+      --tracker-panel-2: var(--panel2);
+      --tracker-line: var(--line);
+      --tracker-text: var(--text);
+      --tracker-muted: var(--muted);
+      --tracker-blue: var(--blue);
+      --tracker-red: var(--red);
+      --tracker-green: var(--green);
+      --tracker-gold: var(--gold);
+      --tracker-purple: var(--purple);
+
+      width: 100%;
       max-width: 1600px;
-      margin: auto;
+      margin: 0 auto;
+      padding: 10px;
+      border-radius: 14px;
+      background: linear-gradient(#0b0f15, #141a24);
+      color: var(--text);
+    }
+
+
+
+    .tracker-dashboard {
+      display: grid;
+      grid-template-columns: minmax(360px, 420px) minmax(0, 1fr) 320px;
+      grid-template-areas:
+        "controls enemy enemy"
+        "public public public-side"
+        "hand hand hand";
+      gap: 12px;
+      align-items: start;
+    }
+
+    .dashboard-controls {
+      grid-area: controls;
+    }
+
+    .dashboard-enemy {
+      grid-area: enemy;
+      min-width: 0;
       padding: 10px;
     }
 
-    
-
-    .control-bar {
+    .tracker-status-bar {
       display: grid;
       grid-template-columns:
-        minmax(220px, 1.2fr) minmax(480px, 2.8fr) auto;
-      gap: 8px;
+        minmax(76px, .8fr) minmax(82px, .9fr) minmax(70px, .7fr) minmax(120px, 1.25fr) minmax(82px, .85fr) minmax(70px, .7fr) minmax(70px, .7fr) auto;
+      gap: 6px;
       align-items: stretch;
-      margin-bottom: 10px;
+    }
+
+    .tracker-status-item {
+      min-width: 0;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #111720;
+      text-align: center;
+    }
+
+    .tracker-status-item small {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .tracker-status-item strong {
+      display: block;
+      overflow: hidden;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.3;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tracker-status-field strong {
+      font-size: 14px;
+    }
+
+    .tracker-confirm-button {
+      align-self: stretch;
+      min-width: 120px;
+      padding: 7px 11px;
+      white-space: nowrap;
+    }
+
+    .tracker-status-errors {
+      display: none;
+      margin-top: 7px;
+      padding: 7px 9px;
+      border: 1px solid #8f3e46;
+      border-radius: 8px;
+      background: #2b171c;
+    }
+
+    .tracker-status-errors[data-status="warning"],
+    .tracker-status-errors[data-status="offline"],
+    .tracker-status-errors[data-status="paused"] {
+      display: block;
+    }
+
+    .tracker-error-message {
+      color: #ffb4b4;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .tracker-error-message:empty {
+      display: none;
+    }
+
+    .enemy-section-head {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid var(--line);
+    }
+
+    .dashboard-public {
+      grid-area: public;
+      min-width: 0;
+    }
+
+    .dashboard-public-side {
+      grid-area: public-side;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .dashboard-hand {
+      grid-area: hand;
+      min-width: 0;
+    }
+
+    .dashboard-history {
+      min-width: 0;
     }
 
     .field-box,
     .compact-summary,
-    .control-bar .actions {
+    .dashboard-controls>.actions {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 12px;
       box-shadow: 0 8px 20px #0004;
     }
 
+    .compact-summary {
+      padding: 12px 10px;
+    }
+
     .field-box {
-      padding: 6px 9px;
+      padding: 10px 9px;
     }
 
     .field-box label {
@@ -104,7 +248,8 @@
 
     .compact-summary {
       display: grid;
-      grid-template-columns: repeat(5, minmax(74px, 1fr));
+      grid-template-columns: repeat(5, minmax(54px, 1fr));
+      margin-top: 8px;
       overflow: hidden;
     }
 
@@ -133,14 +278,15 @@
       line-height: 1.1;
     }
 
-    .control-bar .actions {
+    .dashboard-controls>.actions {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 6px;
+      margin-top: 8px;
+      padding: 12px 10px;
     }
 
-    .control-bar .actions button {
+    .dashboard-controls>.actions button {
       padding: 8px 11px;
       white-space: nowrap;
     }
@@ -182,13 +328,7 @@
 
 
 
-    
 
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 340px;
-      gap: 12px;
-    }
 
     .panel {
       padding: 10px;
@@ -231,13 +371,13 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
       gap: 8px;
     }
 
     .zone-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
       gap: 8px;
       min-height: 100px;
     }
@@ -269,12 +409,6 @@
       border-color: #8a6b2a;
     }
 
-    .card.zero {
-      opacity: .45;
-      text-decoration: line-through;
-      background: #171b22;
-    }
-
     .card.in-hand {
       border-color: var(--green);
       box-shadow: inset 0 0 0 1px #2f8f6388;
@@ -285,22 +419,19 @@
       box-shadow: inset 0 0 0 1px #a9772088;
     }
 
-    .game-card-button {
+    .game-card-single {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
-      min-height: 112px;
-      padding: 10px;
-    }
-
-    .compact-card {
-      min-height: 102px;
-      padding: 8px;
-      gap: 8px;
+      gap: 5px;
+      min-width: 0;
+      min-height: auto;
+      padding: 7px 5px;
+      text-align: center;
     }
 
     .game-card-preview {
-      flex: 0 0 56px;
+      flex: none;
       display: flex;
       justify-content: center;
     }
@@ -375,50 +506,13 @@
         0 2px 1px #000;
     }
 
-    .game-card-info {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .game-card-info .n {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .game-card-info .c {
-      font-size: 23px;
-      font-weight: 800;
-    }
-
-    .compact-card .game-card-info .n {
-      font-size: 13px;
-    }
-
-    .compact-card .game-card-info .c {
-      font-size: 19px;
-    }
-
-    .game-card-info .m {
+    .game-card-probability {
+      width: 100%;
       color: var(--muted);
-      font-size: 12px;
-      margin-top: 3px;
-    }
-
-    .game-card-info .m {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .game-card-info .m .meta-label,
-    .game-card-info .m .meta-value {
-      display: block;
+      font-size: 11px;
+      line-height: 1.2;
+      text-align: center;
       white-space: nowrap;
-    }
-
-    .game-card-info .m .meta-value {
-      margin-top: 2px;
     }
 
 
@@ -435,7 +529,7 @@
 
     .type-buttons {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(5, minmax(48px, 1fr));
       gap: 7px;
     }
 
@@ -491,27 +585,59 @@
       color: var(--muted);
     }
 
-    @media(max-width:950px) {
-      .top {
-        grid-template-columns: 1fr;
+    @media(max-width:1100px) {
+      .tracker-dashboard {
+        grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+        grid-template-areas:
+          "controls enemy"
+          "public public"
+          "public-side public-side"
+          "hand hand";
       }
 
-      .summary {
-        grid-template-columns: repeat(2, 1fr);
+      .tracker-status-bar {
+        grid-template-columns: repeat(4, minmax(90px, 1fr));
       }
 
-      .layout {
-        grid-template-columns: 1fr;
+      .tracker-confirm-button {
+        grid-column: span 2;
+      }
+
+      .dashboard-public-side {
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
       }
 
       .type-buttons {
-        grid-template-columns: repeat(5, minmax(54px, 1fr));
+        grid-template-columns: repeat(5, minmax(48px, 1fr));
       }
     }
 
-    @media(max-width:560px) {
-      .summary {
-        grid-template-columns: 1fr 1fr;
+    @media(max-width:700px) {
+      .tracker-dashboard {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "controls"
+          "enemy"
+          "public"
+          "public-side"
+          "hand";
+      }
+
+      .tracker-status-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tracker-confirm-button {
+        grid-column: 1 / -1;
+      }
+
+      .tracker-status-item strong {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .dashboard-public-side {
+        grid-template-columns: 1fr;
       }
 
       .head {
@@ -563,12 +689,30 @@
       line-height: 1.25;
     }
 
-    .sidebar-stack {
-      align-content: start;
-      grid-auto-rows: max-content;
+    .dashboard-history .history {
+      max-height: 420px;
     }
+
+    .tracker-diagnostics {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .tracker-diagnostics summary {
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .diagnostic-subsection {
+      margin: 18px 0 8px;
+      font-size: 0.95rem;
+      color: #dbeafe;
+    }
+
     .observation-status {
-      margin: 12px 0;
+      margin: 8px 0 0;
       padding: 12px 14px;
       border: 1px solid #344052;
       border-left: 4px solid #718096;
@@ -590,17 +734,10 @@
       border-left-color: #f56565;
     }
 
-    .observation-status h2 {
-      margin: 0 0 10px;
-      font-size: 15px;
-    }
-
     .observation-grid {
       display: grid;
-      grid-template-columns: repeat(
-        auto-fit,
-        minmax(120px, 1fr)
-      );
+      grid-template-columns: repeat(auto-fit,
+          minmax(120px, 1fr));
       gap: 8px 14px;
     }
 
@@ -623,168 +760,436 @@
     .observation-error {
       grid-column: 1 / -1;
     }
+
+    .card-tracker-app .panel,
+    .card-tracker-app .box {
+      background: var(--panel) !important;
+      border: 1px solid var(--line) !important;
+      color: var(--text) !important;
+    }
+
+    .card-tracker-app .card {
+      background: var(--panel2) !important;
+      border-color: var(--line) !important;
+      color: var(--text) !important;
+    }
+
+    .card-tracker-app button {
+      background: #2f394b;
+      color: #fff;
+    }
+
+    .card-tracker-app button.danger {
+      background: var(--red);
+    }
+
+    .card-tracker-app button.shuffle {
+      background: var(--purple);
+    }
+
+    .card-tracker-app select {
+      background: #0f141d;
+      color: #fff;
+      border-color: var(--line);
+    }
+
+    .card-tracker-app .hint,
+    .card-tracker-app .note,
+    .card-tracker-app .empty,
+    .card-tracker-app label {
+      color: var(--muted);
+    }
+
+    .card-tracker-app .compact-stat strong,
+    .card-tracker-app h2,
+    .card-tracker-app strong {
+      color: var(--text);
+    }
+
+    .card-tracker-app .tracker-status-item {
+      background: #111720 !important;
+      border-color: var(--line) !important;
+    }
+
+    .card-tracker-app .type-button {
+      background: #202838 !important;
+      border-color: var(--line) !important;
+    }
+
+    .card-tracker-app .type-button.active {
+      background: var(--blue) !important;
+    }
+
+    .card-tracker-app .hist {
+      background: var(--panel2) !important;
+      border-color: var(--line) !important;
+    }
   </style>
 </head>
 
 <body>
-  <div class="app">
-    <div class="control-bar">
-      <div class="field-box">
-        <label for="field">場地</label>
-        <select id="field"></select>
-      </div>
-
-      <div class="compact-summary">
-        <div class="compact-stat">
-          <small>初始牌庫</small>
-          <strong id="initial">0</strong>
+  <div class="card-tracker-app">
+    <div class="tracker-dashboard">
+      <section class="panel dashboard-controls">
+        <div class="field-box">
+          <label for="field">場地</label>
+          <select id="field"></select>
         </div>
 
-        <div class="compact-stat">
-          <small>公牌剩餘</small>
-          <strong id="deckLeft">0</strong>
+        <div class="compact-summary">
+          <div class="compact-stat">
+            <small>初始牌庫</small>
+            <strong id="initial">0</strong>
+          </div>
+          <div class="compact-stat">
+            <small>公牌剩餘</small>
+            <strong id="deckLeft">0</strong>
+          </div>
+          <div class="compact-stat">
+            <small>我方手牌</small>
+            <strong id="myHandCount">0</strong>
+          </div>
+          <div class="compact-stat">
+            <small>敵方候選</small>
+            <strong id="enemyCandidateCount">0</strong>
+          </div>
+          <div class="compact-stat">
+            <small>已公開</small>
+            <strong id="seen">0</strong>
+          </div>
         </div>
 
-        <div class="compact-stat">
-          <small>我方手牌</small>
-          <strong id="myHandCount">0</strong>
+        <div class="actions">
+          <button id="undo">復原</button>
+          <button id="shuffle" class="shuffle">洗牌</button>
+          <button id="reset" class="danger">重設本局</button>
         </div>
 
-        <div class="compact-stat">
-          <small>敵方候選</small>
-          <strong id="enemyCandidateCount">0</strong>
+
+      </section>
+
+      <section class="panel dashboard-enemy">
+
+        <!-- 常駐 Tracker 狀態列 -->
+        <div class="tracker-status-bar" aria-live="polite">
+
+          <div class="tracker-status-item">
+            <small>連線</small>
+            <strong id="observation-connection">connecting</strong>
+          </div>
+
+          <div class="tracker-status-item">
+            <small>儲存</small>
+            <strong id="observation-persistence">initializing</strong>
+          </div>
+
+          <div class="tracker-status-item">
+            <small>場地代碼</small>
+            <strong id="observation-stage-code">—</strong>
+          </div>
+
+          <div class="tracker-status-item tracker-status-field">
+            <small>偵測場地</small>
+            <strong id="observation-stage-field">—</strong>
+          </div>
+
+          <div class="tracker-status-item">
+            <small>場地狀態</small>
+            <strong id="observation-stage-status">missing</strong>
+          </div>
+
+          <div class="tracker-status-item">
+            <small>暫存事件</small>
+            <strong id="observation-pending-events">0</strong>
+          </div>
+
+          <div class="tracker-status-item">
+            <small>暫存牌</small>
+            <strong id="observation-pending-cards">0</strong>
+          </div>
+
+          <button id="confirm-pending-field" class="tracker-confirm-button" type="button" disabled>
+            套用暫存收牌
+          </button>
         </div>
 
-        <div class="compact-stat">
-          <small>已公開</small>
-          <strong id="seen">0</strong>
-        </div>
-      </div>
+        <!-- 錯誤常駐區 -->
+        <div id="observation-status" class="tracker-status-errors" data-status="connecting">
 
-      <div class="actions">
-        <button id="undo">復原</button>
-        <button id="shuffle" class="shuffle">洗牌</button>
-        <button id="reset" class="danger">重設本局</button>
-      </div>
-    </div>
+          <div id="observation-stage-error" class="tracker-error-message"></div>
 
-    <section
-      id="observation-status"
-      class="observation-status"
-      data-status="connecting"
-      aria-live="polite"
-    >
-      <h2>Tracker API 診斷</h2>
+          <div id="observation-error" class="tracker-error-message"></div>
 
-      <div class="observation-grid">
-        <div class="observation-item">
-          <small>連線</small>
-          <strong id="observation-connection">connecting</strong>
+          <div id="observation-persistence-error" class="tracker-error-message"></div>
         </div>
 
-        <div class="observation-item">
-          <small>Persistence</small>
-          <strong id="observation-persistence">initializing</strong>
-        </div>
+        <!-- 次要診斷收合 -->
+        <details class="tracker-diagnostics">
+          <summary>Tracker 診斷</summary>
 
-        <div class="observation-item">
-          <small>Session</small>
-          <strong id="observation-session">—</strong>
-        </div>
+          <div class="observation-grid">
+            <div class="observation-item">
+              <small>Session</small>
+              <strong id="observation-session">—</strong>
+            </div>
 
-        <div class="observation-item">
-          <small>Cursor</small>
-          <strong id="observation-cursor">0</strong>
-        </div>
+            <div class="observation-item">
+              <small>Cursor</small>
+              <strong id="observation-cursor">0</strong>
+            </div>
 
-        <div class="observation-item">
-          <small>Checkpoint session</small>
-          <strong id="observation-checkpoint-session">—</strong>
-        </div>
+            <div class="observation-item">
+              <small>Checkpoint session</small>
+              <strong id="observation-checkpoint-session">—</strong>
+            </div>
 
-        <div class="observation-item">
-          <small>Checkpoint cursor</small>
-          <strong id="observation-checkpoint-cursor">0</strong>
-        </div>
+            <div class="observation-item">
+              <small>Checkpoint cursor</small>
+              <strong id="observation-checkpoint-cursor">0</strong>
+            </div>
 
-        <div class="observation-item">
-          <small>Checkpoint commit</small>
-          <strong id="observation-checkpoint-token">—</strong>
-        </div>
+            <div class="observation-item">
+              <small>Checkpoint commit</small>
+              <strong id="observation-checkpoint-token">—</strong>
+            </div>
 
-        <div class="observation-item">
-          <small>Loading</small>
-          <strong id="observation-loading">—</strong>
-        </div>
+            <div class="observation-item">
+              <small>Loading</small>
+              <strong id="observation-loading">—</strong>
+            </div>
 
-        <div class="observation-item">
-          <small>Observation mode</small>
-          <strong id="observation-mode">—</strong>
-        </div>
+            <div class="observation-item">
+              <small>Observation mode</small>
+              <strong id="observation-mode">—</strong>
+            </div>
 
-        <div class="observation-item">
-          <small>Confidence</small>
-          <strong id="observation-confidence">—</strong>
-        </div>
+            <div class="observation-item">
+              <small>Confidence</small>
+              <strong id="observation-confidence">—</strong>
+            </div>
 
-        <div class="observation-item">
-          <small>Last event</small>
-          <strong id="observation-last-event">—</strong>
-        </div>
+            <div class="observation-item">
+              <small>Last event</small>
+              <strong id="observation-last-event">—</strong>
+            </div>
+          </div>
 
-        <div class="observation-item observation-error">
-          <small>Error</small>
-          <strong id="observation-error">—</strong>
-        </div>
+          <h3 class="diagnostic-subsection">ROOM observation</h3>
 
-        <div class="observation-item observation-error">
-          <small>Persistence error</small>
-          <strong id="observation-persistence-error">—</strong>
-        </div>
-      </div>
-    </section>
+          <div class="observation-grid">
+            <div class="observation-item">
+              <small>Observed state</small>
+              <strong id="room-observed-state">UNKNOWN</strong>
+            </div>
 
-    <div class="layout">
-      <main class="stack">
-        <section class="panel">
+            <div class="observation-item">
+              <small>Freshness</small>
+              <strong id="room-freshness">EXPIRED</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Observation status</small>
+              <strong id="room-observation-status">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Room name</small>
+              <strong id="room-name">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Platform</small>
+              <strong id="room-platform">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Channel</small>
+              <strong id="room-channel">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Game room ID</small>
+              <strong id="room-game-id">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Host</small>
+              <strong id="room-host">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Opponent</small>
+              <strong id="room-opponent">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Ruleset version</small>
+              <strong id="room-ruleset-version">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Content hash</small>
+              <strong id="room-content-hash">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Tracker session link</small>
+              <strong id="room-tracker-session">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Last update</small>
+              <strong id="room-last-update">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Age</small>
+              <strong id="room-age">-</strong>
+            </div>
+
+            <div class="observation-item observation-error">
+              <small>Room error</small>
+              <strong id="room-error">-</strong>
+            </div>
+          </div>
+
+          <h3 class="diagnostic-subsection">CDP diagnostics</h3>
+
+          <div class="observation-grid">
+            <div class="observation-item">
+              <small>CDP connection</small>
+              <strong id="cdp-connection">DISCONNECTED</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>CDP freshness</small>
+              <strong id="cdp-freshness">EXPIRED</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Context state</small>
+              <strong id="cdp-context-state">NOT_FOUND</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Target</small>
+              <strong id="cdp-target">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Context ID</small>
+              <strong id="cdp-context-id">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Injection state</small>
+              <strong id="cdp-injection-state">NOT_STARTED</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Ruleset apply state</small>
+              <strong id="cdp-ruleset-apply-state">NOT_STARTED</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Ruleset version</small>
+              <strong id="cdp-ruleset-version">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Content hash</small>
+              <strong id="cdp-content-hash">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Format valid</small>
+              <strong id="cdp-format-valid">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Expected</small>
+              <strong id="cdp-expected-count">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Matched</small>
+              <strong id="cdp-matched-count">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Changed</small>
+              <strong id="cdp-changed-count">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Already compliant</small>
+              <strong id="cdp-already-compliant-count">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Verified</small>
+              <strong id="cdp-verified-count">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Missing</small>
+              <strong id="cdp-missing-count">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Invalid</small>
+              <strong id="cdp-invalid-count">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Last update</small>
+              <strong id="cdp-last-update">-</strong>
+            </div>
+
+            <div class="observation-item">
+              <small>Age</small>
+              <strong id="cdp-age">-</strong>
+            </div>
+
+            <div class="observation-item observation-error">
+              <small>CDP error</small>
+              <strong id="cdp-error">-</strong>
+            </div>
+
+            <div class="observation-item observation-error">
+              <small>Diagnostics read error</small>
+              <strong id="diagnostics-read-error">-</strong>
+            </div>
+          </div>
+        </details>
+
+        <div class="enemy-section-head">
           <div class="head">
             <h2>敵方手牌候選區</h2>
+
             <span class="hint">
-              點一下代表敵方已出牌；洗牌 會重新建立候選清單
+              點一下代表敵方已出牌；洗牌會重新建立候選清單
             </span>
           </div>
+        </div>
 
-          <div id="enemyCandidates" class="zone-grid"></div>
-        </section>
+        <div id="enemyCandidates" class="zone-grid"></div>
+      </section>
 
-        <section class="panel">
-          <div class="head">
-            <h2>公牌清單</h2>
-            <span class="hint">
-              左鍵／點一下扣除；手機長按或電腦右鍵加入我方手牌
-            </span>
-          </div>
+      <section class="panel dashboard-public">
+        <div class="head">
+          <h2>公牌清單</h2>
+          <span class="hint">
+            左鍵／點一下扣除；手機長按或電腦右鍵加入我方手牌
+          </span>
+        </div>
+        <div id="cards" class="grid"></div>
+        <div class="note">
+          「剩餘」代表目前仍可能位於公牌庫的數量。我方手牌會從此清單移出。
+        </div>
+      </section>
 
-          <div id="cards" class="grid"></div>
-
-          <div class="note">
-            「剩餘」代表目前仍可能位於公牌庫的數量。我方手牌會從此清單移出。
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="head">
-            <h2>我方手牌區</h2>
-            <span class="hint">
-              點一下代表我方已出牌，卡片會維持公牌扣除狀態
-            </span>
-          </div>
-
-          <div id="myHand" class="zone-grid"></div>
-        </section>
-      </main>
-
-      <aside class="stack sidebar-stack">
+      <aside class="dashboard-public-side">
         <section class="panel type-panel">
           <div class="head">
             <h2>屬性統計</h2>
@@ -797,7 +1202,7 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel dashboard-history">
           <div class="head">
             <h2>最近操作</h2>
             <button id="clear">清除紀錄</button>
@@ -806,13 +1211,26 @@
           <div id="history" class="history"></div>
         </section>
       </aside>
+
+      <section class="panel dashboard-hand">
+        <div class="head">
+          <h2>我方手牌區</h2>
+          <span class="hint">
+            點一下代表我方已出牌，卡片會維持公牌扣除狀態
+          </span>
+        </div>
+        <div id="myHand" class="zone-grid"></div>
+      </section>
     </div>
   </div>
 
   <script src="./field-decks.js"></script>
+  <script src="./tracker-stage-sync.js"></script>
   <script src="./tracker.js"></script>
+  <script src="./tracker-domain-reducer.js"></script>
   <script src="./tracker-db.js"></script>
   <script src="./tracker-api.js"></script>
+  <script src="./tracker-auto-card-sync.js"></script>
   <script src="./observation-poller.js"></script>
 </body>
 

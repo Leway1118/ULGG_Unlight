@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 背景 -->
+  <rect width="64" height="64" rx="14" fill="#0b0c10"></rect>
+
+  <!-- 外框 -->
+  <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke="#6c7cff" stroke-width="3"></rect>
+
+  <!-- UL 字樣 -->
+  <text x="32" y="40" text-anchor="middle" font-size="26" font-weight="700" font-family="Inter, Arial, sans-serif" fill="#e0e0ff">
+    UL
+  </text>
+</svg>

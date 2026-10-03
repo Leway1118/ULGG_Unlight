@@ -1,0 +1,24 @@
+{
+  "chara": [
+    "cc001",
+    "cc002",
+    "cc003"
+  ],
+  "charaIndex": [
+    0,
+    10,
+    20
+  ],
+  "weapon": [
+    null,
+    null,
+    null
+  ],
+  "eventIndex": [
+    null,
+    null,
+    null
+  ],
+  "cost": 24,
+  "card_effect": []
+}

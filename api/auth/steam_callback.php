@@ -1,35 +1,10 @@
 <?php
+//I'm steam_callback.php
+/* phpinfo();
+exit; */
 
-declare(strict_types=1);
-
-const STEAM_AUTH_BASE_URL = 'https://ulgg.online';
-
-set_exception_handler(static function (Throwable $error): void {
-  error_log(sprintf(
-    '[STEAM AUTH ERROR] type=%s code=%s',
-    get_class($error),
-    (string)$error->getCode()
-  ));
-
-  if (!headers_sent()) {
-    http_response_code(500);
-  }
-
-  exit('Steam 登入暫時無法完成，請稍後再試');
-});
-
-if (session_status() === PHP_SESSION_NONE) {
-  session_set_cookie_params([
-    'lifetime' => 86400,
-    'path' => '/',
-    'secure' => true,
-    'httponly' => true,
-    'samesite' => 'Lax',
-  ]);
-  session_start();
-}
-
-header('Cache-Control: no-store');
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 /**
  * 向 Steam 驗證 OpenID 2.0 回傳簽章。
@@ -142,36 +117,11 @@ function verifySteamOpenIdCallback(array $query): bool
  * 驗證 Steam OpenID 回傳
  * ============================ */
 
-$state = trim((string)($_GET['state'] ?? ''));
-$expectedState = (string)($_SESSION['steam_auth_state'] ?? '');
-$authStartedAt = (int)($_SESSION['steam_auth_started_at'] ?? 0);
-
-if (
-  !preg_match('/^[a-f0-9]{64}$/', $state)
-  || !preg_match('/^[a-f0-9]{64}$/', $expectedState)
-  || !hash_equals($expectedState, $state)
-) {
-  http_response_code(400);
-  exit('Steam 登入驗證失敗');
-}
-
-unset(
-  $_SESSION['steam_auth_state'],
-  $_SESSION['steam_auth_started_at']
-);
-
-$authAge = time() - $authStartedAt;
-
-if ($authStartedAt <= 0 || $authAge > 600 || $authAge < -60) {
-  http_response_code(400);
-  exit('Steam 登入驗證已逾時，請重新登入');
-}
-
 $claimedId = trim((string)($_GET['openid_claimed_id'] ?? ''));
 $identity = trim((string)($_GET['openid_identity'] ?? ''));
 $mode = trim((string)($_GET['openid_mode'] ?? ''));
 if ($mode === 'cancel') {
-  header('Location: /pages/index.php', true, 303);
+  header('Location: /pages/index.php');
   exit;
 }
 $namespace = trim((string)($_GET['openid_ns'] ?? ''));
@@ -179,25 +129,8 @@ $opEndpoint = trim((string)($_GET['openid_op_endpoint'] ?? ''));
 $returnTo = trim((string)($_GET['openid_return_to'] ?? ''));
 $responseNonce = trim((string)($_GET['openid_response_nonce'] ?? ''));
 
-$expectedReturnTo = STEAM_AUTH_BASE_URL
-  . '/api/auth/steam_callback.php?state='
-  . rawurlencode($state);
-
-$signedFields = array_filter(
-  array_map(
-    'trim',
-    explode(',', (string)($_GET['openid_signed'] ?? ''))
-  ),
-  static fn(string $field): bool => $field !== ''
-);
-
-$requiredSignedFields = [
-  'op_endpoint',
-  'claimed_id',
-  'identity',
-  'return_to',
-  'response_nonce',
-];
+$expectedReturnTo =
+  'https://ulgg.online/api/auth/steam_callback.php';
 
 /*
  * 第一層：固定格式檢查
@@ -208,7 +141,6 @@ $isBasicCallbackValid =
   && $opEndpoint === 'https://steamcommunity.com/openid/login'
   && $returnTo === $expectedReturnTo
   && $claimedId === $identity
-  && array_diff($requiredSignedFields, $signedFields) === []
   && preg_match(
     '#^https://steamcommunity\.com/openid/id/(\d{17})$#',
     $claimedId,
@@ -276,23 +208,6 @@ if (!verifySteamOpenIdCallback($_GET)) {
 }
 
 $steamID = $matches[1];
-
-/*
- * 已通過 Steam 驗證才載入 DB bootstrap。
- * config.php 目前會直接輸出 PDO 連線錯誤，因此在此入口收斂為通用訊息。
- */
-$bootstrapComplete = false;
-ob_start(static function (string $output) use (&$bootstrapComplete): string {
-  if ($bootstrapComplete) {
-    return $output;
-  }
-
-  http_response_code(500);
-  return 'Steam 登入暫時無法完成，請稍後再試';
-});
-require_once __DIR__ . '/../../config.php';
-$bootstrapComplete = true;
-ob_end_clean();
 
 /*
  * 第四層：阻擋同一個 nonce 重播
@@ -457,7 +372,7 @@ $redirect = (string)(
 unset($_SESSION['login_redirect']);
 
 if (
-  !preg_match('#^/pages/[a-zA-Z0-9_./-]+(?:\?[^\x00-\x1F\x7F]*)?$#', $redirect)
+  !preg_match('#^/pages/[a-zA-Z0-9_./-]+(?:\?.*)?$#', $redirect)
   || str_contains($redirect, '..')
 ) {
   $redirect = '/pages/index.php';
@@ -502,5 +417,5 @@ unset($_SESSION['remember_login']); // ⭐ 一定要清
 
 
 
-header('Location: ' . $redirect, true, 303);
+header("Location: {$redirect}");
 exit;

@@ -1,55 +1,33 @@
 <?php
-
-declare(strict_types=1);
-
-const STEAM_AUTH_BASE_URL = 'https://ulgg.online';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'lifetime' => 86400,
-        'path' => '/',
-        'secure' => true,
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
-    session_start();
+// steam_start.php
+ini_set('session.cookie_path', '/');
+session_start();
+error_log("START sid=" . session_id() . " redirect=" . ($_SESSION['login_redirect'] ?? 'NULL'));
+if (empty($_SESSION['login_redirect'])) {
+    $_SESSION['login_redirect'] =
+        $_SERVER['HTTP_REFERER']
+        ?? '/pages/index.php';
 }
 
-if (
-    empty($_SESSION['login_redirect'])
-    || !is_string($_SESSION['login_redirect'])
-) {
-    $_SESSION['login_redirect'] = '/pages/index.php';
-}
-
-$state = bin2hex(random_bytes(32));
-$_SESSION['steam_auth_state'] = $state;
-$_SESSION['steam_auth_started_at'] = time();
-
-$returnTo = STEAM_AUTH_BASE_URL
-    . '/api/auth/steam_callback.php?state='
-    . rawurlencode($state);
-
-$params = http_build_query(
-    [
-        'openid.ns' => 'http://specs.openid.net/auth/2.0',
-        'openid.mode' => 'checkid_setup',
-        'openid.return_to' => $returnTo,
-        'openid.realm' => STEAM_AUTH_BASE_URL,
-        'openid.identity' =>
-            'http://specs.openid.net/auth/2.0/identifier_select',
-        'openid.claimed_id' =>
-            'http://specs.openid.net/auth/2.0/identifier_select',
-    ],
-    '',
-    '&',
-    PHP_QUERY_RFC3986
+error_log(
+    'STEAM_START sid=' . session_id() .
+        ' redirect=' . ($_SESSION['login_redirect'] ?? 'NULL')
 );
 
-header('Cache-Control: no-store');
-header(
-    'Location: https://steamcommunity.com/openid/login?' . $params,
-    true,
-    302
-);
+$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host   = $_SERVER['HTTP_HOST'];
+$base   = $scheme . "://" . $host;
+
+$returnTo = $base . "/api/auth/steam_callback.php";
+
+$params = http_build_query([
+    'openid.ns'         => 'http://specs.openid.net/auth/2.0',
+    'openid.mode'       => 'checkid_setup',
+    'openid.return_to'  => $returnTo,
+    'openid.realm'      => $base,
+    'openid.identity'   => 'http://specs.openid.net/auth/2.0/identifier_select',
+    'openid.claimed_id' => 'http://specs.openid.net/auth/2.0/identifier_select'
+]);
+
+header("Location: https://steamcommunity.com/openid/login?{$params}");
 exit;
