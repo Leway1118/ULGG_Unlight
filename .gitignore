@@ -184,3 +184,12 @@ steam/data/*.txt
 
 # Catch dated rollback copies such as foo_before_YYYYMMDD
 *before_*
+
+# Accidental shell-output file
+/watcher/udo systemctl status unlight_watcher.service
+
+# CDP source stays in Git; packaged Windows release artifacts stay on the VPS
+/src/script/cdp-v*/
+/src/script/cdp/cdp-v*/
+/src/script/cdp/*.exe
+/src/script/cdp/*.zip
