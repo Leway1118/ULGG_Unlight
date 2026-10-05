@@ -442,9 +442,11 @@ if ($currentServer === 'ALL') {
   /* BP */
   .bp-box {
     font-size: 13px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 6px;
-    padding: 4px;
+    padding: 4px 6px;
+    color: var(--ul-text);
   }
 
   .bp-label {
@@ -452,8 +454,33 @@ if ($currentServer === 'ALL') {
     font-size: 11px;
   }
 
-  .bp-value {
-    font-weight: 600;
+  .bp-value,
+  .bp-delta {
+    font-weight: 700;
+  }
+
+  .bp-box.bp-win {
+    color: #8fe3b4;
+  }
+
+  .bp-box.bp-lose {
+    color: #ffd0d0;
+    background: rgba(224, 90, 90, 0.22);
+    border-color: rgba(255, 130, 130, 0.55);
+  }
+
+  .bp-box.bp-lose .bp-label {
+    color: #ffb7b7;
+  }
+
+  .bp-box.bp-lose .bp-value,
+  .bp-box.bp-lose .bp-delta {
+    color: #ffd0d0 !important;
+    text-shadow: 0 0 4px rgba(255, 120, 120, 0.22);
+  }
+
+  .bp-box.bp-tie {
+    color: #ffe08a;
   }
 
 
@@ -3544,7 +3571,7 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                   if ($unknown_pre == 1 && $permission >= 2) {
                     if ($result == 1) {
                       $outPutString .=
-                        '<div class="bp-box" style="color: #80c880;">'
+                        '<div class="bp-box bp-win">'
                         . '<span class="bp-label">BP</span>'
                         . '<span class="bp-value">'
                         . htmlspecialchars($bp1, ENT_QUOTES, 'UTF-8')
@@ -3555,7 +3582,7 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                         . '</div>';
                     } elseif ($result == 0) {
                       $outPutString .=
-                        '<div class="bp-box"  style="color: red;">'
+                        '<div class="bp-box bp-lose">'
                         . '<span class="bp-label">BP</span>'
                         . '<span class="bp-value">'
                         . htmlspecialchars($bp1, ENT_QUOTES, 'UTF-8')
@@ -3566,7 +3593,7 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                         . '</div>';
                     } else { //平手
                       $outPutString .=
-                        '<div class="bp-box"  style="color: yellow;">'
+                        '<div class="bp-box bp-tie">'
                         . '<span class="bp-label">BP</span>'
                         . '<span class="bp-value">'
                         . htmlspecialchars($bp1, ENT_QUOTES, 'UTF-8')
