@@ -3305,6 +3305,64 @@
       return outputArray;
     }
 
+    function applicationServerKeyMatches(subscription, publicKey) {
+      const currentKey = subscription?.options?.applicationServerKey;
+
+      if (!currentKey) {
+        return false;
+      }
+
+      const expectedKey = urlBase64ToUint8Array(publicKey);
+      const actualKey = new Uint8Array(currentKey);
+
+      if (actualKey.length !== expectedKey.length) {
+        return false;
+      }
+
+      for (let i = 0; i < actualKey.length; i++) {
+        if (actualKey[i] !== expectedKey[i]) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    async function ensureCurrentVapidSubscription(registration) {
+      const publicKey = await getPublicKey();
+      let subscription = await registration.pushManager.getSubscription();
+
+      if (subscription && applicationServerKeyMatches(subscription, publicKey)) {
+        return subscription;
+      }
+
+      if (subscription) {
+        const oldSubscription = subscription;
+        const removed = await subscription.unsubscribe();
+
+        if (!removed) {
+          throw new Error('無法移除舊的推播訂閱。');
+        }
+
+        try {
+          await saveSubscription(oldSubscription.toJSON(), 'unsubscribe');
+        } catch (error) {
+          console.warn('Failed to deactivate old tournament push subscription:', error);
+        }
+
+        subscription = null;
+      }
+
+      if (Notification.permission !== 'granted') {
+        return null;
+      }
+
+      return registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      });
+    }
+
     async function getPublicKey() {
       const response = await fetch('/pages/tournament/api_push_public_key.php', {
         cache: 'no-store',
@@ -3354,12 +3412,17 @@
       }
 
       const registration = await navigator.serviceWorker.register('/service-worker.js');
-      const subscription = await registration.pushManager.getSubscription();
+      const subscription = await ensureCurrentVapidSubscription(registration);
 
-      if (subscription) {
-        pushBtn.textContent = '✅ 已訂閱賽事推播';
-        pushBtn.classList.add('is-subscribed');
+      if (!subscription) {
+        pushBtn.textContent = '🔔 訂閱賽事消息推播';
+        pushBtn.classList.remove('is-subscribed');
+        return;
       }
+
+      await saveSubscription(subscription.toJSON(), 'subscribe');
+      pushBtn.textContent = '✅ 已訂閱賽事推播';
+      pushBtn.classList.add('is-subscribed');
     }
 
     pushBtn.addEventListener('click', async function() {
@@ -3382,18 +3445,13 @@
         }
 
         const registration = await navigator.serviceWorker.register('/service-worker.js');
-        let subscription = await registration.pushManager.getSubscription();
+        let subscription = await ensureCurrentVapidSubscription(registration);
 
         if (!subscription) {
-          const publicKey = await getPublicKey();
-
-          subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(publicKey)
-          });
+          throw new Error('無法建立推播訂閱，請確認瀏覽器通知權限。');
         }
 
-        await saveSubscription(subscription, 'subscribe');
+        await saveSubscription(subscription.toJSON(), 'subscribe');
 
         pushBtn.textContent = '✅ 已訂閱賽事推播';
         pushBtn.classList.add('is-subscribed');

@@ -46,6 +46,8 @@ $input = json_decode(
     true
 );
 
+$action = trim((string)($input['action'] ?? 'subscribe'));
+
 $subscription = $input['subscription'] ?? null;
 
 if (!is_array($subscription)) {
@@ -65,6 +67,23 @@ if ($endpoint === '' || $p256dh === '' || $auth === '') {
     respond(422, [
         'ok' => false,
         'message' => '推播訂閱資料不完整。',
+    ]);
+}
+
+if ($action === 'unsubscribe') {
+    $stmt = $db->prepare("
+      UPDATE ulgg_push_subscriptions
+      SET is_active = 0, updated_at = NOW()
+      WHERE endpoint_hash = :endpoint_hash
+      LIMIT 1
+    ");
+
+    $stmt->execute([
+        ':endpoint_hash' => hash('sha256', $endpoint),
+    ]);
+
+    respond(200, [
+        'ok' => true,
     ]);
 }
 

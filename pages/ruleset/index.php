@@ -2191,6 +2191,64 @@ ob_start();
         return outputArray;
       }
 
+      function applicationServerKeyMatches(subscription, publicKey) {
+        const currentKey = subscription?.options?.applicationServerKey;
+
+        if (!currentKey) {
+          return false;
+        }
+
+        const expectedKey = urlBase64ToUint8Array(publicKey);
+        const actualKey = new Uint8Array(currentKey);
+
+        if (actualKey.length !== expectedKey.length) {
+          return false;
+        }
+
+        for (let i = 0; i < actualKey.length; i++) {
+          if (actualKey[i] !== expectedKey[i]) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      async function ensureCurrentVapidSubscription(registration) {
+        const publicKey = await getPublicKey();
+        let subscription = await registration.pushManager.getSubscription();
+
+        if (subscription && applicationServerKeyMatches(subscription, publicKey)) {
+          return subscription;
+        }
+
+        if (subscription) {
+          const oldSubscription = subscription;
+          const removed = await subscription.unsubscribe();
+
+          if (!removed) {
+            throw new Error('無法移除舊的推播訂閱。');
+          }
+
+          try {
+            await saveSubscription(oldSubscription, 'unsubscribe');
+          } catch (error) {
+            console.warn('Failed to deactivate old ruleset push subscription:', error);
+          }
+
+          subscription = null;
+        }
+
+        if (Notification.permission !== 'granted') {
+          return null;
+        }
+
+        return registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey)
+        });
+      }
+
       async function getPublicKey() {
         const response = await fetch(
           '/pages/tournament/api_push_public_key.php', {
@@ -2210,7 +2268,7 @@ ob_start();
         return data.publicKey;
       }
 
-      async function saveSubscription(subscription) {
+      async function saveSubscription(subscription, action = 'subscribe') {
         const response = await fetch(
           '/pages/ruleset/api_push_subscribe.php', {
             method: 'POST',
@@ -2220,6 +2278,7 @@ ob_start();
               'Accept': 'application/json'
             },
             body: JSON.stringify({
+              action,
               subscription: subscription.toJSON()
             })
           }
@@ -2272,7 +2331,7 @@ ob_start();
         );
 
         const subscription =
-          await registration.pushManager.getSubscription();
+          await ensureCurrentVapidSubscription(registration);
 
         if (!subscription) {
           pushButton.textContent = '🔔 開啟配對推播';
@@ -2281,8 +2340,9 @@ ob_start();
         }
 
         /*
-         * 瀏覽器已有 Subscription，不代表它已綁定目前登入帳號。
-         * 將現有 Subscription 再送至後端，由後端綁定目前 user_id。
+         * 既有 Subscription 可能綁的是舊 VAPID key，也可能尚未綁定
+         * 目前登入帳號。若 key 已輪替，會自動重訂，再把最新
+         * Subscription 寫回後端。
          */
         await saveSubscription(subscription);
 
@@ -2313,15 +2373,10 @@ ob_start();
           );
 
           let subscription =
-            await registration.pushManager.getSubscription();
+            await ensureCurrentVapidSubscription(registration);
 
           if (!subscription) {
-            const publicKey = await getPublicKey();
-
-            subscription = await registration.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(publicKey)
-            });
+            throw new Error('無法建立推播訂閱，請確認瀏覽器通知權限。');
           }
 
           await saveSubscription(subscription);
