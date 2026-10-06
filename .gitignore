@@ -115,3 +115,7 @@ steam/data/*.txt
 /-before-cleanup.txt
 /steam/data/diff.diff
 /tool/unlight-card-tracker-v2-starter.zip
+
+# Local secret material - never commit real values
+/tool/unlight-card-tracker/detector/raid_stage_sync_local_env.ps1
+/doc/env.txt
