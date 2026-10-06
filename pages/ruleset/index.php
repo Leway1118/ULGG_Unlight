@@ -1735,20 +1735,6 @@ ob_start();
                   ※補丁只會修正玩家遊戲畫面上顯示的 COST，
                   不會修改或影響官方天梯實際使用的 COST。
                 </p>
-
-                <div class="ruleset-ladder-download">
-                  <a
-                    class="ruleset-ladder-download-button"
-                    href="/src/script/cdp/cdp-v0.0.1.zip"
-                    download="cdp-v0.0.1.zip">
-                    下載 自訂 COST 補丁 v0.0.1
-                  </a>
-
-                  <span class="ruleset-ladder-download-note">
-                    下載後解壓縮，執行資料夾內的 app.exe。
-                  </span>
-                </div>
-
                 <ol class="ruleset-ladder-flow">
                   <li>
                     在 Steam 遊戲庫中找到 Unlight，開啟「內容／一般」，
