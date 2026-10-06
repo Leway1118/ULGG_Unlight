@@ -193,3 +193,7 @@ steam/data/*.txt
 /src/script/cdp/cdp-v*/
 /src/script/cdp/*.exe
 /src/script/cdp/*.zip
+
+# Retired local Stage Sync secret files
+/tool/unlight-card-tracker/detector/raid_stage_sync_local_env.ps1
+/doc/env.txt
