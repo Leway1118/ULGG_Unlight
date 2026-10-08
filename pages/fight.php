@@ -74,6 +74,16 @@ if ($currentServer === 'ALL') {
     border: 1px solid var(--ul-border);
     border-radius: 10px;
     box-shadow: var(--ul-shadow);
+    scroll-margin-top: 96px;
+  }
+
+  /* 從 Queue / 對手名稱定位進來時，醒目標示該場 */
+  .fight-container:target {
+    border-color: rgba(111, 168, 255, 0.95);
+    box-shadow:
+      0 0 0 2px rgba(111, 168, 255, 0.30),
+      0 0 20px rgba(111, 168, 255, 0.35),
+      var(--ul-shadow);
   }
 
   .team {
@@ -2208,6 +2218,16 @@ $check_rate = $_SESSION['check_rate'] ?? '';
 $player_name  = $_SESSION['player_name'] ?? '';
 $player2_name = '';
 
+// 精準定位某一場：由 Queue / 對手名稱連入 fight.php 時使用
+$focus_id = 0;
+if (
+  isset($_GET['focus_id']) &&
+  is_scalar($_GET['focus_id']) &&
+  ctype_digit((string)$_GET['focus_id'])
+) {
+  $focus_id = max(0, (int)$_GET['focus_id']);
+}
+
 $bp_min = (int)($_SESSION['bp_min'] ?? 1000);
 $bp_max = (int)($_SESSION['bp_max'] ?? 2000);
 
@@ -2868,6 +2888,91 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                 $match_range = max($match_range, 50);  // 至少 50，不降級已請求的 100
               }
             }
+            // focus_id 模式：讓指定場一定落在目前顯示視窗中，
+            // 並保留前後場次，方便直接比較上下場戰績。
+            $playerLimitClause = "LIMIT $match_range";
+
+            if ($combined == 2 && $focus_id > 0 && !empty($player_name)) {
+              $stmtFocus = $db->prepare(
+                "SELECT id, update_time, name_p1, name_p2, region
+                   FROM arena_unlight
+                  WHERE id = :focus_id
+                    AND (name_p1 = :focus_player1 OR name_p2 = :focus_player2)
+                  LIMIT 1"
+              );
+              $stmtFocus->execute([
+                ':focus_id' => $focus_id,
+                ':focus_player1' => $player_name,
+                ':focus_player2' => $player_name,
+              ]);
+              $focusRow = $stmtFocus->fetch(PDO::FETCH_ASSOC);
+
+              $focusOpponentOk = true;
+              if ($focusRow && !empty($player2_name)) {
+                $focusOpponentOk =
+                  (
+                    $focusRow['name_p1'] === $player_name &&
+                    $focusRow['name_p2'] === $player2_name
+                  ) ||
+                  (
+                    $focusRow['name_p2'] === $player_name &&
+                    $focusRow['name_p1'] === $player2_name
+                  );
+              }
+
+              if ($focusRow && $focusOpponentOk) {
+                $focusCountParams = [
+                  ':focus_time' => $focusRow['update_time'],
+                  ':focus_time_same' => $focusRow['update_time'],
+                  ':focus_id_order' => $focus_id,
+                ];
+
+                if (!empty($player2_name)) {
+                  $focusPlayerWhere = "(
+                    (name_p1 = :focus_p1a AND name_p2 = :focus_p2a)
+                    OR
+                    (name_p2 = :focus_p1b AND name_p1 = :focus_p2b)
+                  )";
+                  $focusCountParams[':focus_p1a'] = $player_name;
+                  $focusCountParams[':focus_p2a'] = $player2_name;
+                  $focusCountParams[':focus_p1b'] = $player_name;
+                  $focusCountParams[':focus_p2b'] = $player2_name;
+                } else {
+                  $focusPlayerWhere = "(name_p1 = :focus_p1 OR name_p2 = :focus_p2)";
+                  $focusCountParams[':focus_p1'] = $player_name;
+                  $focusCountParams[':focus_p2'] = $player_name;
+                }
+
+                $focusRegionWhere = '';
+                if ($currentServer !== 'ALL') {
+                  $focusRegionWhere = "AND (
+                    region = :focus_region
+                    OR region IS NULL
+                    OR region = 'CR'
+                    OR region = 'MATCH'
+                  )";
+                  $focusCountParams[':focus_region'] = $dbRegion;
+                }
+
+                $stmtFocusCount = $db->prepare(
+                  "SELECT COUNT(*)
+                     FROM arena_unlight
+                    WHERE $focusPlayerWhere
+                      AND (
+                        update_time > :focus_time
+                        OR (update_time = :focus_time_same AND id > :focus_id_order)
+                      )
+                      $focusRegionWhere"
+                );
+                $stmtFocusCount->execute($focusCountParams);
+
+                $newerMatchCount = (int)$stmtFocusCount->fetchColumn();
+                $focusBefore = intdiv(max(2, $match_range), 2);
+                $focusOffset = max(0, $newerMatchCount - $focusBefore);
+                $playerLimitClause = "LIMIT $focusOffset, $match_range";
+              }
+            }
+
             // 玩家搜尋
             if ($combined == 2) {
               // 這裡新增：目標玩家若在黑名單，放寬延遲與數量
@@ -2899,11 +3004,11 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                     $player2Condition
                     AND temp.update_time < (NOW() - INTERVAL :time_range MINUTE)
                     $regionCondition
-                  ORDER BY temp.update_time DESC
-                  LIMIT $match_range
+                  ORDER BY temp.update_time DESC, temp.id DESC
+                  $playerLimitClause
                   ) AS recent
                 -- 最後再把這 N 筆反向排序為 ASC
-                ORDER BY recent.update_time ASC
+                ORDER BY recent.update_time ASC, recent.id ASC
                 ";
 
                 $params = [
@@ -2930,11 +3035,11 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                   WHERE temp.player_name1 = :player_name
                     AND temp.update_time < (NOW() - INTERVAL :time_range MINUTE)
                     $regionCondition
-                  ORDER BY temp.update_time DESC
-                  LIMIT $match_range
+                  ORDER BY temp.update_time DESC, temp.id DESC
+                  $playerLimitClause
                   ) AS recent
                 -- 最後再把這 N 筆反向排序為 ASC
-                ORDER BY recent.update_time ASC
+                ORDER BY recent.update_time ASC, recent.id ASC
                 ";
 
                 $params = [
@@ -3395,7 +3500,7 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
               $cost_sum_team2 = 0;
               //$outPutString .= '<div class="fight-form">';
               if ($unknown == 0 || $permission >= 2) { //已判定 或 權限=admin
-                $outPutString .= '<div class="fight-container ' . $bg_class . '">'; // ✅ 加入背景顏色
+                $outPutString .= '<div id="fight-' . (int)$id . '" class="fight-container ' . $bg_class . '">'; // 可由 #fight-ID 精準定位
 
                 $cost_sum = 0;
                 $img_arr = '';
@@ -3507,7 +3612,11 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                 $outPutString .= '<div class="player-card player-card1">';
 
                 /* ===== 玩家連結 / 名稱 ===== */
-                $search_link = 'fight.php?player_name=' . rawurlencode($player_name1);
+                $search_link = 'fight.php?' . http_build_query([
+                  'player_name' => $player_name1,
+                  'focus_id' => (int)$id,
+                  'server' => $currentServer,
+                ]) . '#fight-' . (int)$id;
                 $rank_text   = isset($rankNumP1) ? (string)$rankNumP1 : '';
                 $rank_badge  = $rank_text !== ''
                   ? '<span class="rank-badge">' . htmlspecialchars($rank_text, ENT_QUOTES, 'UTF-8') . '</span> '
@@ -3877,7 +3986,11 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                 }
 
                 /* ===== 名稱 / Rank ===== */
-                $search_link2 = 'fight.php?player_name=' . rawurlencode($player_name2);
+                $search_link2 = 'fight.php?' . http_build_query([
+                  'player_name' => $player_name2,
+                  'focus_id' => (int)$id,
+                  'server' => $currentServer,
+                ]) . '#fight-' . (int)$id;
                 $rank_text2   = isset($rankNumP2) ? (string)$rankNumP2 : '';
                 $rank_badge2  = $rank_text2 !== ''
                   ? '<span class="rank-badge">' . htmlspecialchars($rank_text2, ENT_QUOTES, 'UTF-8') . '</span>'

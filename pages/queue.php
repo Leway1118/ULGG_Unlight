@@ -1067,6 +1067,13 @@ ob_start();  // ⭐ 開始收集本頁 HTML
   }
 
   /* UL Active Button */
+  .queue-focus-link,
+  .queue-focus-link:hover,
+  .queue-focus-link:focus {
+    color: inherit;
+    text-decoration: none;
+  }
+
   .queue-admin-panel .btn.active {
     background: linear-gradient(180deg, #4a7dff, #2f5fd1);
     color: #ffffff;
@@ -1515,8 +1522,12 @@ function renderPlayerName(
     return '<span class="player-name text-muted">匿名玩家</span>';
   }
 
-  // 有權限 → 可點連結
+  // 有權限 → 可點連結；focus_id 會直接定位到該場
+  $focusId = isset($linkParams['focus_id']) ? (int)$linkParams['focus_id'] : 0;
   $url = 'fight.php?' . http_build_query($linkParams);
+  if ($focusId > 0) {
+    $url .= '#fight-' . $focusId;
+  }
 
   return '<a href="' . htmlspecialchars($url) . '" class="player-name">'
     . htmlspecialchars($playerName)
@@ -2239,6 +2250,9 @@ if ($check_ack == 1) { //查詢已略
                 $admin        = $row['username'];
                 $region       = $row['region'];
                 $matchCost       = $row['cost'];
+                $focusServer     = ($region === 'JP')
+                  ? 'DMM'
+                  : (($region === 'TW') ? 'STEAM' : 'ALL');
 
                 // Player 1 資料
                 $player_name1 = $row['name_p1'];
@@ -2337,7 +2351,9 @@ if ($check_ack == 1) { //查詢已略
                     $player_name1,
                     $permission,
                     [
-                      'player_name' => $player_name1
+                      'player_name' => $player_name1,
+                      'focus_id' => (int)$id,
+                      'server' => $focusServer
                     ]
                   );
                   if ($permission >= 1) {
@@ -2363,7 +2379,9 @@ if ($check_ack == 1) { //查詢已略
                     $player_name1,
                     $permission,
                     [
-                      'player_name' => $player_name1
+                      'player_name' => $player_name1,
+                      'focus_id' => (int)$id,
+                      'server' => $focusServer
                     ]
                   );
                   if ($permission >= 1) {
@@ -2381,10 +2399,17 @@ if ($check_ack == 1) { //查詢已略
 
                 // ========== VS & 操作按鈕 ==========
                 print '<div class="vs-panel">';
-                print '<input type="hidden" name="player_name" value="' . htmlspecialchars($player_name1, ENT_QUOTES) . '">
-                    <button type="submit" name="check_detail" value="1" class="region-btn">
+                $caseFocusUrl = 'fight.php?' . http_build_query([
+                  'player_name' => $player_name1,
+                  'focus_id' => (int)$id,
+                  'server' => $focusServer,
+                ]) . '#fight-' . (int)$id;
+                print '<input type="hidden" name="player_name" value="' . htmlspecialchars($player_name1, ENT_QUOTES) . '">';
+                print '<a href="' . htmlspecialchars($caseFocusUrl, ENT_QUOTES, 'UTF-8') . '"
+                    class="region-btn queue-focus-link"
+                    title="定位到此場對戰">
                       ' . regionIcon($region) . ' ' . $matchCost . '
-                    </button>';
+                    </a>';
                 print '<span class="timestamp">' . $showDate . '</span>';
                 if ($permission >= 2) {
                   print '<span class="timestamp">' . htmlspecialchars($admin) . '</span><br>';
@@ -2442,7 +2467,9 @@ if ($check_ack == 1) { //查詢已略
                     $player_name2,
                     $permission,
                     [
-                      'player_name' => $player_name2
+                      'player_name' => $player_name2,
+                      'focus_id' => (int)$id,
+                      'server' => $focusServer
                     ]
                   );
                   if ($permission >= 1) {
@@ -2466,7 +2493,9 @@ if ($check_ack == 1) { //查詢已略
                     $player_name2,
                     $permission,
                     [
-                      'player_name' => $player_name2
+                      'player_name' => $player_name2,
+                      'focus_id' => (int)$id,
+                      'server' => $focusServer
                     ]
                   );
                   if ($permission >= 1) {
