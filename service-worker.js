@@ -16,8 +16,8 @@ self.addEventListener('push', function(event) {
 
   const options = {
     body: data.body || '有新的賽事消息。',
-    icon: data.icon || '/assets/favicon/android-chrome-192x192.png',
-    badge: data.badge || '/assets/favicon/android-chrome-192x192.png',
+    icon: data.icon || '/favicon.ico',
+    badge: data.badge || '/favicon.ico',
     data: {
       url: data.url || '/pages/tournament/ulgg_cup.php'
     }

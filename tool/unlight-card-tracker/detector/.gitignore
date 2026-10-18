@@ -10,3 +10,16 @@ htmlcov/
 logs/
 *.log
 debug_frames/
+debug/quest_detector/
+debug/dark_tower_agent/
+
+.env
+.env.*
+!.env.example
+
+test_webhook.json
+
+test_webhook.json
+
+raid_bot/raid_bottest_new_raid.py
+raid_bot/test_*.py

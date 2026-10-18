@@ -1,6 +1,10 @@
 <?php
-require_once __DIR__ . '/../config.php';
-$pdo = $db;
+session_start();
+require_once __DIR__ . '/../config.php';   // ⭐ 必須包含資料庫設定
+$pdo = $db; // ⭐ 一定要這行
+/* require_once __DIR__ . '/../lib/_analysis_base.php'; */ // ⭐ 必須包含時間區間設定
+/* require_once __DIR__ . '/_admin_gate.php'; */ //確認是否為管理員
+// ⭐ 全站常數 define('IMG_BASE', '/assets/uploads/');
 
 $pageTitleText = '關於本站 About Me';
 $seoTitle = $pageTitleText . ' | UL.GG 戰績網 UNLIGHT 戰術研究中心'; //瀏覽器標題
@@ -11,22 +15,13 @@ $activeMenu = "about"; //.php
 // =========================
 // Donators (sorted by amount, name only)
 // =========================
-$donators = [];
-try {
-  $stmt = $pdo->query("
-    SELECT name
-    FROM donators
-    WHERE is_public = 1
-    ORDER BY created_at ASC
-  ");
-  $donators = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
-} catch (Throwable $error) {
-  error_log(sprintf(
-    '[ABOUT DONATORS ERROR] type=%s code=%s',
-    get_class($error),
-    (string)$error->getCode()
-  ));
-}
+$stmt = $pdo->query("
+  SELECT name
+  FROM donators
+  WHERE is_public = 1
+  ORDER BY created_at ASC
+");
+$donators = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 
 
@@ -179,6 +174,8 @@ header('X-Robots-Tag: noindex, follow');
     margin-left: 240px;
     padding: 0 24px;
   } */
+
+  
 
   .checkpoint-username {
     font-size: 17px;
@@ -802,7 +799,7 @@ header('X-Robots-Tag: noindex, follow');
                   <div id="donatorList" class="char-bookmarks">
                     <?php foreach ($donators as $name): ?>
                       <div class="char-bookmark">
-        <?= htmlspecialchars((string)$name, ENT_QUOTES, 'UTF-8') ?>
+                        <?= htmlspecialchars($name) ?>
                       </div>
                     <?php endforeach; ?>
                   </div>

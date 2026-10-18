@@ -1,0 +1,29 @@
+{
+  "activity": {
+    "matches": 92384,
+    "active_days": 214
+  },
+  "core_character": {
+    "main": "里斯",
+    "secondary": ["瑪格麗特", "史特靈"]
+  },
+  "team": {
+    "members": ["里斯", "瑪格麗特", "史特靈"],
+    "matches": 128,
+    "win_rate": 0.62
+  },
+  "enemy": [
+    { "name": "康拉德", "matches": 54 },
+    { "name": "阿貝爾", "matches": 41 }
+  ],
+  "style": [
+    "穩定 COST 區間",
+    "角色專精型",
+    "固定組合派",
+    "META 對策明確"
+  ],
+  "summary": {
+    "title": "角色研究員",
+    "tagline": "你專注於角色本身的可能性"
+  }
+}

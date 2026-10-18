@@ -2,11 +2,21 @@
 
 declare(strict_types=1);
 
-// 先驗證管理員權限，避免未授權請求觸發資料庫連線。
-require_once __DIR__ . '/admin/_admin_gate.php';
-
+// 不要自行 session_start()，交由 config.php
 require_once __DIR__ . '/../config.php';
 $pdo = $db;
+
+// 管理員權限
+$adminGate = __DIR__ . '/_admin_gate.php';
+if (is_file($adminGate)) {
+  require_once $adminGate;
+} else {
+  $permission = (int)($_SESSION['permission'] ?? 0);
+  if ($permission < 2) {
+    http_response_code(403);
+    exit('Forbidden');
+  }
+}
 
 $pageTitleText = '系統監控總覽';
 $seoTitle = $pageTitleText . ' | UL.GG 戰績網 UNLIGHT 戰術研究中心';
@@ -99,6 +109,8 @@ function adminWatcherClass(string $status): string
     'running' => 'is-ok',
     'warning' => 'is-warning',
     'stopped' => 'is-danger',
+    'retired' => 'is-muted',
+    'paused' => 'is-muted',
     default => 'is-muted',
   };
 }
@@ -109,6 +121,8 @@ function adminWatcherLabel(string $status): string
     'running' => '正常',
     'warning' => '警告',
     'stopped' => '停止',
+    'retired' => '退役',
+    'paused' => '暫停',
     default => '未知',
   };
 }
@@ -256,12 +270,49 @@ $watchers = adminFetchAll(
     "
 );
 
+/* DMM_RETIRE_DASHBOARD_20260930_V1
+ * JP / DMM 資料源保留在表格供歷史查閱，
+ * 但不再計入 active watcher 健康度或告警。
+ */
 $watcherRunning = 0;
 $watcherWarning = 0;
 $watcherStopped = 0;
+$watcherRetired = 0;
+
+// CR_DASHBOARD_PAUSE_20260930_V1
+$watcherPaused = 0;
+
+$watcherMonitored = 0;
 
 foreach ($watchers as $watcher) {
-  match ((string)$watcher['status']) {
+  // JP_DASHBOARD_FINAL_RETIRE_20260930_V3
+  // JP / DMM 四個資料源皆為歷史封存，不再計入現役健康度。
+  //
+  // CR_DASHBOARD_PAUSE_20260930_V1
+  // CR Ch3/Ch4 暫停監控，保留歷史但不列入健康度。
+  $region = strtoupper(
+    trim((string)($watcher['region'] ?? ''))
+  );
+
+  $effectiveStatus = match ($region) {
+    'JP' => 'retired',
+    'CR' => 'paused',
+    default => (string)$watcher['status'],
+  };
+
+  if ($effectiveStatus === 'retired') {
+    $watcherRetired++;
+    continue;
+  }
+
+  if ($effectiveStatus === 'paused') {
+    $watcherPaused++;
+    continue;
+  }
+
+  $watcherMonitored++;
+
+  match ($effectiveStatus) {
     'running' => $watcherRunning++,
     'warning' => $watcherWarning++,
     'stopped' => $watcherStopped++,
@@ -1018,10 +1069,10 @@ ob_start();
         <div class="admin-stat-card">
           <div class="admin-stat-label">Watcher 狀態</div>
           <div class="admin-stat-value">
-            <?= adminNumber($watcherRunning) ?>/<?= adminNumber(count($watchers)) ?>
+            <?= adminNumber($watcherRunning) ?>/<?= adminNumber($watcherMonitored) ?>
           </div>
           <div class="admin-stat-note">
-            警告 <?= adminNumber($watcherWarning) ?>・停止 <?= adminNumber($watcherStopped) ?>
+            警告 <?= adminNumber($watcherWarning) ?>・停止 <?= adminNumber($watcherStopped) ?>・暫停 <?= adminNumber($watcherPaused) ?>・退役 <?= adminNumber($watcherRetired) ?>
           </div>
         </div>
       </div>
@@ -1132,23 +1183,60 @@ ob_start();
                   </tr>
                 <?php else: ?>
                   <?php foreach ($watchers as $watcher): ?>
+                    <?php
+                    // JP_DASHBOARD_FINAL_RETIRE_20260930_V3
+                    // CR_DASHBOARD_PAUSE_20260930_V1
+                    $watcherRegion =
+                      strtoupper(
+                        trim(
+                          (string)($watcher['region'] ?? '')
+                        )
+                      );
+
+                    $watcherDisplayStatus =
+                      match ($watcherRegion) {
+                        'JP' => 'retired',
+                        'CR' => 'paused',
+                        default => (string)$watcher['status'],
+                      };
+                    ?>
                     <tr>
                       <td>
                         <span class="admin-region"><?= adminH($watcher['region'] ?? '—') ?></span>
                       </td>
                       <td>
-                        <strong><?= adminH($watcher['watcher_name']) ?></strong>
-                        <?php if (!empty($watcher['last_error'])): ?>
+                        <strong>
+                          <?= adminH($watcher['watcher_name']) ?>
+                          <?= $watcherDisplayStatus === 'retired'
+      ? '（歷史）'
+      : ($watcherDisplayStatus === 'paused' ? '（暫停）' : '') ?>
+                        </strong>
+
+                        <?php if ($watcherDisplayStatus === 'retired'): ?>
+                          <div class="admin-panel-note">
+                            DMM / JP 已退役，保留最後封存資料。
+                          </div>
+                        <?php elseif ($watcherDisplayStatus === 'paused'): ?>
+                          <div class="admin-panel-note">
+                            CR 跨服頻道暫停監控，保留歷史資料；待整合後重新探測。
+                          </div>
+                        <?php elseif (!empty($watcher['last_error'])): ?>
                           <div class="admin-panel-note"><?= adminH($watcher['last_error']) ?></div>
                         <?php endif; ?>
                       </td>
                       <td>
-                        <span class="admin-status <?= adminWatcherClass((string)$watcher['status']) ?>">
-                          <?= adminWatcherLabel((string)$watcher['status']) ?>
+                        <span class="admin-status <?= adminWatcherClass($watcherDisplayStatus) ?>">
+                          <?= adminWatcherLabel($watcherDisplayStatus) ?>
                         </span>
                       </td>
                       <td>
-                        <?= adminH(adminTimeAgo($watcher['last_data_at'] ?? null)) ?>
+                        <?= in_array(
+                          $watcherDisplayStatus,
+                          ['retired', 'paused'],
+                          true
+                        )
+                          ? '—'
+                          : adminH(adminTimeAgo($watcher['last_data_at'] ?? null)) ?>
                       </td>
                       <td class="is-num">
                         <?php if (str_starts_with((string)$watcher['watcher_key'], 'ranking_')): ?>
@@ -1157,7 +1245,13 @@ ob_start();
                           <?= adminNumber($watcher['processed_count'] ?? 0) ?>
                         <?php endif; ?>
                       </td>
-                      <td><?= adminH(adminTimeAgo($watcher['last_heartbeat_at'] ?? null)) ?></td>
+                      <td><?= in_array(
+                          $watcherDisplayStatus,
+                          ['retired', 'paused'],
+                          true
+                        )
+                          ? '—'
+                          : adminH(adminTimeAgo($watcher['last_heartbeat_at'] ?? null)) ?></td>
                     </tr>
                   <?php endforeach; ?>
                 <?php endif; ?>
