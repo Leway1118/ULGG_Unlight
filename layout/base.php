@@ -3474,6 +3474,11 @@ if (
       background-color: #f44336;
     }
 
+    /* DMM_RETIRE_BASE_20260930_V1 */
+    .status-retired {
+      background-color: #7f8c9a;
+    }
+
     /* =========================
    Sidebar Server Switcher (Refined)
 ========================= */
@@ -4034,6 +4039,146 @@ if (
     .fortune-float-btn:hover {
       transform: translateY(-2px) scale(1.05);
       box-shadow: 0 8px 24px rgba(0, 0, 0, .5), 0 0 22px rgba(219, 189, 255, .48);
+    }
+
+    /* MOBILE_RIGHT_BUTTON_STACK_V2
+       手機三顆按鈕全部維持右下，固定槽位避免互相重疊。
+       由下往上：▼ / ▲ / 🔮 */
+    @media (max-width: 768px) {
+      #goToBottom,
+      #backToTop,
+      .fortune-float-btn {
+        position: fixed;
+        left: auto;
+        right: -4px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px 0 0 999px;
+
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+
+        transition:
+          right .18s ease,
+          opacity .18s ease,
+          transform .18s ease,
+          box-shadow .18s ease,
+          background .18s ease;
+      }
+
+      /* 最下：到底部 */
+      #goToBottom {
+        bottom: calc(
+          28px + env(safe-area-inset-bottom, 0px)
+        );
+
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        padding: 0;
+
+        border: 1px solid rgba(190, 198, 220, .28);
+        border-right: 0;
+
+        color: rgba(238, 242, 255, .92);
+        background: rgba(31, 35, 48, .82);
+
+        box-shadow:
+          -2px 4px 12px rgba(0, 0, 0, .30);
+
+        font-size: 14px;
+        line-height: 1;
+        opacity: .62;
+        z-index: 14990;
+      }
+
+      /* 中間：回頂部 */
+      #backToTop {
+        bottom: calc(
+          74px + env(safe-area-inset-bottom, 0px)
+        );
+
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        padding: 0;
+
+        border: 1px solid rgba(190, 198, 220, .28);
+        border-right: 0;
+
+        color: rgba(238, 242, 255, .92);
+        background: rgba(31, 35, 48, .82);
+
+        box-shadow:
+          -2px 4px 12px rgba(0, 0, 0, .30);
+
+        font-size: 14px;
+        line-height: 1;
+        opacity: .62;
+        z-index: 14991;
+      }
+
+      /* 最上：今日命運 */
+      .fortune-float-btn {
+        bottom: calc(
+          120px + env(safe-area-inset-bottom, 0px)
+        );
+
+        width: 40px;
+        height: 40px;
+
+        font-size: 18px;
+        opacity: .72;
+        z-index: 15000;
+
+        box-shadow:
+          -2px 4px 12px rgba(0, 0, 0, .38),
+          0 0 10px rgba(176, 131, 255, .20);
+      }
+
+      #goToBottom:active,
+      #backToTop:active,
+      #goToBottom:focus-visible,
+      #backToTop:focus-visible {
+        right: 5px;
+        opacity: 1;
+        transform: scale(1.04);
+        background: rgba(47, 53, 72, .96);
+        outline: none;
+      }
+
+      .fortune-float-btn:active,
+      .fortune-float-btn:focus-visible {
+        right: 5px;
+        opacity: 1;
+        transform: scale(1.03);
+
+        box-shadow:
+          0 6px 18px rgba(0, 0, 0, .45),
+          0 0 16px rgba(219, 189, 255, .36);
+
+        outline: none;
+      }
+    }
+
+    @media (max-width: 768px) and (hover: hover) {
+      #goToBottom:hover,
+      #backToTop:hover {
+        right: 5px;
+        opacity: 1;
+        transform: scale(1.04);
+        background: rgba(47, 53, 72, .96);
+      }
+
+      .fortune-float-btn:hover {
+        right: 5px;
+        opacity: 1;
+        transform: scale(1.03);
+      }
     }
 
     /* =========================================
@@ -5423,44 +5568,14 @@ if (
       $statusText = "{$hours} 小時前";
     }
   }
+  // DMM_RETIRE_BASE_20260930_V1
+  // DMM / JP 已停止作為即時資料來源。
+  // 歷史排行資料仍保留，但 Sidebar 不再判定為過期/故障。
+  $server = 'JP';
+  $serverLabelJP = 'DMM 服（歷史）';
+  $statusTextJP = '已停止追蹤';
+  $statusDotJP = 'status-retired';
 
-
-  $server =  'JP';
-  $tableName   = 'ranking_bp_JP';
-  $serverLabelJP = 'DMM 服';
-
-  // 撈最後更新時間
-  $sql = "SELECT MAX(ts) AS last_update FROM {$tableName}";
-  $stmt = $db->query($sql);
-  $row  = $stmt->fetch(PDO::FETCH_ASSOC);
-
-  $lastUpdate = $row['last_update'] ?? null;
-
-  // 預設顯示
-  $statusTextJP = '尚無資料';
-  $statusDotJP  = 'status-red';
-
-  if ($lastUpdate) {
-    $diffSeconds = time() - strtotime($lastUpdate);
-    $diffMinutes = floor($diffSeconds / 60);
-
-    if ($diffMinutes < 30) {
-      $statusDotJP = 'status-green';
-    } elseif ($diffMinutes < 60) {
-      $statusDotJP = 'status-yellow';
-    } else {
-      $statusDotJP = 'status-red';
-    }
-
-    if ($diffMinutes < 1) {
-      $statusTextJP = '剛剛更新';
-    } elseif ($diffMinutes < 60) {
-      $statusTextJP = "{$diffMinutes} 分鐘前";
-    } else {
-      $hours = floor($diffMinutes / 60);
-      $statusTextJP = "{$hours} 小時前";
-    }
-  }
   // arena_unlight 中實際用來分析的場次
   $sql = "SELECT COUNT(*)
   FROM arena_unlight
@@ -5713,6 +5828,9 @@ if (
           </div>
         </div>
 
+        <!-- ⭐ 新增：ULGG 杯 -->
+        
+
         <!-- 工具 -->
         <div class="sidebar-group">
 
@@ -5760,6 +5878,53 @@ if (
           class="sidebar-link <?= $activeMenu === 'queue' ? 'is-active' : '' ?>">
           <span class="sidebar-icon">👀</span>
           <span class="sidebar-text">觀察大廳 <small>Lobby</small></span>
+        </a>
+
+        <!-- RAID_PUBLIC_NAV_GROUP_V1 -->
+        <div class="sidebar-group <?= in_array(
+          $activeMenu,
+          ['raid_observer', 'raid_stats'],
+          true
+        ) ? 'is-open' : '' ?>">
+
+          <button
+            class="sidebar-group-toggle"
+            type="button"
+            data-target="group-raid">
+            <span class="sidebar-icon">🌀</span>
+            <span class="sidebar-text">
+              公開渦 <small>Raid</small>
+            </span>
+            <span class="chevron">▾</span>
+          </button>
+
+          <div
+            class="sidebar-group-items"
+            id="group-raid">
+
+            <a href="/pages/raid_observer.php"
+              class="sidebar-link sidebar-sub-link <?= $activeMenu === 'raid_observer' ? 'is-active' : '' ?>">
+              <span class="sidebar-icon">👁</span>
+              <span class="sidebar-text">
+                觀察渦 <small>Live</small>
+              </span>
+            </a>
+
+            <a href="/pages/raid_stats.php"
+              class="sidebar-link sidebar-sub-link <?= $activeMenu === 'raid_stats' ? 'is-active' : '' ?>">
+              <span class="sidebar-icon">📊</span>
+              <span class="sidebar-text">
+                Raid 統計 <small>Stats</small>
+              </span>
+            </a>
+
+          </div>
+        </div>
+
+        <a href="/pages/raising/index.php"
+          class="sidebar-link <?= $activeMenu === 'raising' ? 'is-active' : '' ?>">
+          <span class="sidebar-icon">⚔️</span>
+          <span class="sidebar-text">暗房育成 <small>Prototype</small></span>
         </a>
 
         <?php if (!empty($_SESSION['permission']) && $_SESSION['permission'] >= 2): ?>
@@ -5810,7 +5975,7 @@ if (
 
           <div class="sidebar-section-title">🧪 開發中</div>
 
-          <div class="sidebar-group <?= $activeMenu === 'card_tracker' ? 'is-open' : '' ?>">
+          <div class="sidebar-group <?= in_array($activeMenu, ['card_tracker', 'raid_stats'], true) ? 'is-open' : '' ?>">
 
             <!-- 🃏 公牌追蹤 -->
             <a href="/tool/unlight-card-tracker/index.php"
@@ -5823,13 +5988,8 @@ if (
               </span>
             </a>
 
-            <a href="/pages/ruleset/index.php"
-              class="sidebar-link <?= $activeMenu === 'ruleset' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">📜</span>
-              <span class="sidebar-text">
-                社群規則 <small>Ruleset</small>
-              </span>
-            </a>
+            <!-- 📊 Raid 統計 -->
+
           </div>
 
 
@@ -6053,15 +6213,33 @@ if (
 
 
   <?php if (count($fortuneCards) === 3 && $fortuneSelectedCard && $fortuneSelectedSkill): ?>
-    <button
-      id="fortuneOpenBtn"
-      class="fortune-float-btn"
-      type="button"
-      title="今日命運"
-      aria-label="開啟今日命運"
-      style="visibility:hidden;">
-      🔮
-    </button>
+    <?php
+    /*
+     * FORTUNE_GLOBAL_ENTRY_RESTORE_V2
+     *
+     * 若個別頁面已自行提供 fortuneOpenBtn，
+     * base 不再輸出第二顆相同 ID。
+     */
+    $hasInlineFortuneOpenBtn =
+      isset($pageContent)
+      && str_contains(
+        (string)$pageContent,
+        'id="fortuneOpenBtn"'
+      );
+    ?>
+
+    <?php if (!$hasInlineFortuneOpenBtn): ?>
+      <button
+        id="fortuneOpenBtn"
+        class="fortune-float-btn"
+        type="button"
+        title="今日命運"
+        aria-label="開啟今日命運"
+        style="visibility:hidden;">
+        🔮
+      </button>
+    <?php endif; ?>
+
     <div id="fortuneModal" class="fortune-modal hidden" aria-hidden="true">
       <div class="fortune-backdrop" data-fortune-close></div>
       <div class="fortune-dialog" role="dialog" aria-modal="true" aria-labelledby="fortuneTitle">
@@ -6359,46 +6537,150 @@ if (
     </div>
   <?php endif; ?>
 
-  <!-- Go To Top Button -->
-  <button id="backToTop" onclick="scrollToTop()">▲</button>
-  <!-- Go To Bottom Button -->
-  <button id="goToBottom" onclick="scrollToBottom()">▼</button>
+  <?php
+  /* SCROLL_JUMP_DEDUP_V1
+   * 舊頁面若已自己放 backToTop / goToBottom，
+   * base 不再輸出第二組相同 ID。
+   */
+  $hasInlineBackToTop =
+    isset($pageContent)
+    && str_contains(
+      (string)$pageContent,
+      'id="backToTop"'
+    );
+
+  $hasInlineGoToBottom =
+    isset($pageContent)
+    && str_contains(
+      (string)$pageContent,
+      'id="goToBottom"'
+    );
+  ?>
+
+  <?php if (!$hasInlineBackToTop): ?>
+    <button
+      id="backToTop"
+      type="button"
+      title="回到頂部"
+      aria-label="回到頂部"
+      onclick="scrollToTop()">▲</button>
+  <?php endif; ?>
+
+  <?php if (!$hasInlineGoToBottom): ?>
+    <button
+      id="goToBottom"
+      type="button"
+      title="前往底部"
+      aria-label="前往底部"
+      onclick="scrollToBottom()">▼</button>
+  <?php endif; ?>
 
   <script>
-    // 監聽滾動事件，決定是否顯示按鈕
-    window.onscroll = function() {
-      let topButton = document.getElementById("backToTop");
-      let bottomButton = document.getElementById("goToBottom");
-      let scrollTop = document.documentElement.scrollTop;
-      let scrollHeight = document.documentElement.scrollHeight;
-      let clientHeight = document.documentElement.clientHeight;
+    // SCROLL_JUMP_LISTENER_V2
+    // 不覆蓋 window.onscroll；手機降低邊界門檻。
+    let scrollJumpTicking = false;
 
-      if (scrollTop > 200) {
-        topButton.style.display = "flex"; // 顯示回到頂部按鈕
-      } else {
-        topButton.style.display = "none"; // 隱藏按鈕
+    function updateScrollJumpButtons() {
+      const topButton =
+        document.getElementById('backToTop');
+
+      const bottomButton =
+        document.getElementById('goToBottom');
+
+      if (!topButton && !bottomButton) {
+        return;
       }
 
-      if (scrollTop + clientHeight < scrollHeight - 200) {
-        bottomButton.style.display = "flex"; // 顯示滾到底部按鈕
-      } else {
-        bottomButton.style.display = "none"; // 隱藏按鈕
-      }
-    };
+      const root = document.documentElement;
 
-    // 點擊按鈕回到頂部
-    function scrollToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth" // 平滑滾動效果
+      const scrollTop =
+        window.scrollY ||
+        root.scrollTop ||
+        0;
+
+      const clientHeight =
+        window.innerHeight ||
+        root.clientHeight ||
+        0;
+
+      const scrollHeight =
+        Math.max(
+          root.scrollHeight,
+          document.body?.scrollHeight || 0
+        );
+
+      const edgeThreshold =
+        window.matchMedia(
+          '(max-width: 768px)'
+        ).matches
+          ? 120
+          : 200;
+
+      if (topButton) {
+        topButton.style.display =
+          scrollTop > edgeThreshold
+            ? 'flex'
+            : 'none';
+      }
+
+      if (bottomButton) {
+        bottomButton.style.display =
+          scrollTop + clientHeight
+            < scrollHeight - edgeThreshold
+            ? 'flex'
+            : 'none';
+      }
+    }
+
+    function scheduleScrollJumpUpdate() {
+      if (scrollJumpTicking) {
+        return;
+      }
+
+      scrollJumpTicking = true;
+
+      window.requestAnimationFrame(() => {
+        updateScrollJumpButtons();
+        scrollJumpTicking = false;
       });
     }
 
-    // 點擊按鈕滾到底部
+    window.addEventListener(
+      'scroll',
+      scheduleScrollJumpUpdate,
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'resize',
+      scheduleScrollJumpUpdate,
+      { passive: true }
+    );
+
+    if (document.readyState === 'loading') {
+      document.addEventListener(
+        'DOMContentLoaded',
+        updateScrollJumpButtons,
+        { once: true }
+      );
+    } else {
+      updateScrollJumpButtons();
+    }
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
     function scrollToBottom() {
       window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: "smooth" // 平滑滾動效果
+        top: Math.max(
+          document.documentElement.scrollHeight,
+          document.body?.scrollHeight || 0
+        ),
+        behavior: 'smooth'
       });
     }
   </script>

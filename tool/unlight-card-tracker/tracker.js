@@ -15,6 +15,8 @@ const elements = {
     shuffle: $("shuffle"),
     reset: $("reset"),
     clear: $("clear"),
+    confirmPendingField:
+        $("confirm-pending-field"),
     cards: $("cards"),
     types: $("types"),
     history: $("history"),
@@ -92,6 +94,24 @@ function cloneDeck(deck) {
     );
 }
 
+function createAutoSyncState() {
+    return {
+        schema_version: 2,
+        active_session_id: null,
+        active_battle_started_at: null,
+        pending_stage_events: {},
+        stage_status: {
+            stage_code: null,
+            mapped_field: null,
+            status: "missing",
+            source: null,
+            source_sequence: null,
+            last_error: null
+        },
+        processed_events: {}
+    };
+}
+
 function createFreshState(fieldName) {
     const initialDeck = cloneDeck(
         FIELD_DECKS[fieldName]
@@ -109,6 +129,10 @@ function createFreshState(fieldName) {
         enemyCandidates: createZeroDeck(
             initialDeck
         ),
+        autoReserved: createZeroDeck(
+            initialDeck
+        ),
+        autoSync: createAutoSyncState(),
         sortType: null,
         history: []
     };
@@ -146,6 +170,255 @@ function normalizeSavedDeck(
     return normalized;
 }
 
+function normalizeAutoSync(
+    savedAutoSync,
+    initialDeck
+) {
+    const normalized = createAutoSyncState();
+    if (
+        !savedAutoSync ||
+        ![1, 2].includes(
+            savedAutoSync.schema_version
+        ) ||
+        !savedAutoSync.processed_events ||
+        typeof savedAutoSync.processed_events !==
+            "object" ||
+        Array.isArray(
+            savedAutoSync.processed_events
+        )
+    ) {
+        return normalized;
+    }
+    normalized.active_session_id = (
+        typeof savedAutoSync.active_session_id ===
+            "string" &&
+        savedAutoSync.active_session_id.length > 0
+            ? savedAutoSync.active_session_id
+            : null
+    );
+    normalized.active_battle_started_at = (
+        typeof savedAutoSync
+            .active_battle_started_at === "string" &&
+        savedAutoSync
+            .active_battle_started_at.length > 0
+            ? savedAutoSync
+                .active_battle_started_at
+            : null
+    );
+
+    for (
+        const [syncKey, record]
+        of Object.entries(
+            savedAutoSync.processed_events
+        )
+    ) {
+        if (
+            typeof syncKey !== "string" ||
+            !record ||
+            typeof record !== "object" ||
+            !["applied", "reverted"].includes(
+                record.status
+            ) ||
+            !Number.isInteger(record.event_sequence) ||
+            record.event_sequence < 1 ||
+            !record.deductions ||
+            typeof record.deductions !== "object" ||
+            Array.isArray(record.deductions)
+        ) {
+            continue;
+        }
+        const deductions = {};
+        let valid = true;
+        for (
+            const [cardName, count]
+            of Object.entries(record.deductions)
+        ) {
+            if (
+                !Object.hasOwn(
+                    initialDeck,
+                    cardName
+                ) ||
+                !Number.isInteger(count) ||
+                count <= 0 ||
+                count > initialDeck[cardName]
+            ) {
+                valid = false;
+                break;
+            }
+            deductions[cardName] = count;
+        }
+        if (!valid) {
+            continue;
+        }
+        normalized.processed_events[syncKey] = {
+            status: record.status,
+            session_id: (
+                typeof record.session_id === "string"
+                    ? record.session_id
+                    : ""
+            ),
+            event_id: (
+                typeof record.event_id === "string"
+                    ? record.event_id
+                    : ""
+            ),
+            event_sequence:
+                record.event_sequence,
+            projection_sequence: (
+                Number.isInteger(
+                    record.projection_sequence
+                )
+                    ? record.projection_sequence
+                    : record.event_sequence
+            ),
+            battle_started_at: (
+                typeof record.battle_started_at ===
+                    "string"
+                    ? record.battle_started_at
+                    : null
+            ),
+            field: (
+                typeof record.field === "string"
+                    ? record.field
+                    : ""
+            ),
+            deductions
+        };
+    }
+    if (
+        savedAutoSync.schema_version === 2 &&
+        savedAutoSync.pending_stage_events &&
+        typeof savedAutoSync
+            .pending_stage_events === "object" &&
+        !Array.isArray(
+            savedAutoSync.pending_stage_events
+        )
+    ) {
+        for (
+            const [syncKey, record]
+            of Object.entries(
+                savedAutoSync.pending_stage_events
+            )
+        ) {
+            if (
+                typeof syncKey !== "string" ||
+                !record ||
+                typeof record !== "object" ||
+                record.status !== "pending_stage" ||
+                typeof record.session_id !== "string" ||
+                typeof record.event_id !== "string" ||
+                !Number.isInteger(record.event_sequence) ||
+                record.event_sequence < 1 ||
+                typeof record.battle_started_at !==
+                    "string" ||
+                !Array.isArray(record.cards) ||
+                record.cards.length === 0
+            ) {
+                continue;
+            }
+            normalized.pending_stage_events[syncKey] = {
+                status: "pending_stage",
+                session_id: record.session_id,
+                event_id: record.event_id,
+                event_sequence: record.event_sequence,
+                projection_sequence: (
+                    Number.isInteger(
+                        record.projection_sequence
+                    )
+                        ? record.projection_sequence
+                        : record.event_sequence
+                ),
+                battle_started_at:
+                    record.battle_started_at,
+                cards: structuredClone(record.cards),
+                received_at: (
+                    typeof record.received_at === "string"
+                        ? record.received_at
+                        : null
+                ),
+                reason: (
+                    typeof record.reason === "string"
+                        ? record.reason
+                        : "stage_missing"
+                )
+            };
+        }
+    }
+    const pendingRecords = Object.values(
+        normalized.pending_stage_events
+    );
+    if (
+        pendingRecords.length > 0 &&
+        normalized.active_session_id === null &&
+        normalized.active_battle_started_at === null
+    ) {
+        const firstPending = pendingRecords[0];
+        const hasSinglePendingIdentity =
+            pendingRecords.every(
+                record => (
+                    record.session_id ===
+                        firstPending.session_id &&
+                    record.battle_started_at ===
+                        firstPending.battle_started_at
+                )
+            );
+        if (hasSinglePendingIdentity) {
+            normalized.active_session_id =
+                firstPending.session_id;
+            normalized.active_battle_started_at =
+                firstPending.battle_started_at;
+        }
+    }
+    const savedStageStatus =
+        savedAutoSync.schema_version === 2
+            ? savedAutoSync.stage_status
+            : null;
+    if (
+        savedStageStatus &&
+        typeof savedStageStatus === "object" &&
+        !Array.isArray(savedStageStatus)
+    ) {
+        normalized.stage_status = {
+            stage_code: (
+                typeof savedStageStatus.stage_code ===
+                    "string"
+                    ? savedStageStatus.stage_code
+                    : null
+            ),
+            mapped_field: (
+                typeof savedStageStatus.mapped_field ===
+                    "string"
+                    ? savedStageStatus.mapped_field
+                    : null
+            ),
+            status: (
+                typeof savedStageStatus.status === "string"
+                    ? savedStageStatus.status
+                    : "missing"
+            ),
+            source: (
+                typeof savedStageStatus.source === "string"
+                    ? savedStageStatus.source
+                    : null
+            ),
+            source_sequence: (
+                Number.isInteger(
+                    savedStageStatus.source_sequence
+                )
+                    ? savedStageStatus.source_sequence
+                    : null
+            ),
+            last_error: (
+                typeof savedStageStatus.last_error ===
+                    "string"
+                    ? savedStageStatus.last_error
+                    : null
+            )
+        };
+    }
+    return normalized;
+}
+
 function normalizeState(saved) {
     if (
         !saved ||
@@ -178,7 +451,16 @@ function normalizeState(saved) {
             saved.enemyCandidates,
             initialDeck
         ),
-        
+
+        autoReserved: normalizeSavedDeck(
+            saved.autoReserved,
+            initialDeck
+        ),
+
+        autoSync: normalizeAutoSync(
+            saved.autoSync,
+            initialDeck
+        ),
 
         sortType: TYPE_ORDER.includes(
             saved.sortType
@@ -246,6 +528,7 @@ let state =
             FIELD_DECKS
         )[0]
     );
+let pendingFieldSelection = null;
 
 function getTimeText() {
     return new Date()
@@ -266,8 +549,1007 @@ function addHistory(entry) {
     state.history =
         state.history.slice(
             0,
-            100
+        100
+    );
+}
+
+function decksEqual(left, right) {
+    const keys = new Set([
+        ...Object.keys(left || {}),
+        ...Object.keys(right || {})
+    ]);
+    for (const key of keys) {
+        if (
+            Number(left?.[key] || 0) !==
+            Number(right?.[key] || 0)
+        ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function hasDeckValues(deck) {
+    return Object.values(deck || {}).some(
+        count => Number(count || 0) !== 0
+    );
+}
+
+function isTrackerPristineForFieldSwitch(
+    trackerState = state
+) {
+    return (
+        decksEqual(
+            trackerState.remaining,
+            trackerState.initial
+        ) &&
+        !hasDeckValues(trackerState.myHand) &&
+        !hasDeckValues(
+            trackerState.enemyCandidates
+        ) &&
+        !hasDeckValues(
+            trackerState.autoReserved
+        ) &&
+        !trackerState.history.some(
+            action => [
+                "reveal",
+                "add_my_hand",
+                "play_my_hand",
+                "play_enemy_candidate",
+                "shuffle",
+                "auto_cards_dealt"
+            ].includes(action?.action)
+        ) &&
+        Object.keys(
+            trackerState.autoSync.processed_events
+        ).length === 0
+    );
+}
+
+function pendingStageSummary(
+    trackerState = state
+) {
+    const records = Object.values(
+        trackerState.autoSync
+            .pending_stage_events || {}
+    );
+    return {
+        events: records.length,
+        cards: records.reduce(
+            (
+                total,
+                record
+            ) => total + (
+                Array.isArray(record.cards)
+                    ? record.cards.length
+                    : 0
+            ),
+            0
+        )
+    };
+}
+
+function commitTrackerState(nextState) {
+    const previousState = state;
+    state = nextState;
+    try {
+        saveState();
+    } catch (error) {
+        state = previousState;
+        throw error;
+    }
+    render();
+}
+
+function pendingReasonForStage(stageResolution) {
+    const reasons = {
+        missing: "stage_missing",
+        random: "stage_random",
+        unsupported: "stage_unsupported",
+        invalid_stage_code: "stage_unsupported",
+        field_deck_missing: "field_deck_missing",
+        conflict: "stage_conflict"
+    };
+    return (
+        reasons[stageResolution?.status] ||
+        "awaiting_manual_field"
+    );
+}
+
+function stageStatusFromResolution(
+    stageResolution,
+    lastError = null
+) {
+    return {
+        stage_code:
+            stageResolution?.stage_code || null,
+        mapped_field:
+            stageResolution?.field || null,
+        status:
+            stageResolution?.status || "missing",
+        source:
+            stageResolution?.source || null,
+        source_sequence: (
+            Number.isInteger(
+                stageResolution?.source_sequence
+            )
+                ? stageResolution.source_sequence
+                : null
+        ),
+        last_error: lastError
+    };
+}
+
+function pendingRecordToEvent(record) {
+    return {
+        session_id: record.session_id,
+        event_id: record.event_id,
+        sequence: record.event_sequence,
+        payload: {
+            domain_event: {
+                event_type: "hand.cards_dealt",
+                payload: {
+                    cards: structuredClone(
+                        record.cards
+                    )
+                }
+            }
+        }
+    };
+}
+
+function failPendingApply(
+    baseState,
+    stageResolution,
+    failure
+) {
+    const failedState = structuredClone(
+        baseState
+    );
+    failedState.autoSync.stage_status =
+        stageStatusFromResolution(
+            stageResolution,
+            failure.status
         );
+    for (
+        const record
+        of Object.values(
+            failedState.autoSync
+                .pending_stage_events
+        )
+    ) {
+        record.reason = failure.status;
+    }
+    commitTrackerState(failedState);
+    return {
+        ...failure,
+        pending: pendingStageSummary(
+            failedState
+        )
+    };
+}
+
+function processAutoSyncBatch({
+    sessionId,
+    battleStartedAt,
+    battleStatus,
+    projectionSequence,
+    stageResolution,
+    incomingPending = [],
+    forceRebase = false
+}) {
+    if (
+        typeof sessionId !== "string" ||
+        sessionId.length === 0 ||
+        typeof battleStartedAt !== "string" ||
+        battleStartedAt.length === 0 ||
+        !stageResolution ||
+        typeof stageResolution.status !== "string"
+    ) {
+        return { status: "invalid_batch" };
+    }
+
+    const baseState = structuredClone(state);
+    let discardedPendingIdentity = false;
+    for (
+        const [syncKey, record]
+        of Object.entries(
+            baseState.autoSync.pending_stage_events
+        )
+    ) {
+        if (
+            record.session_id !== sessionId ||
+            record.battle_started_at !==
+                battleStartedAt
+        ) {
+            delete baseState.autoSync
+                .pending_stage_events[syncKey];
+            discardedPendingIdentity = true;
+        }
+    }
+    if (discardedPendingIdentity) {
+        pendingFieldSelection = null;
+    }
+
+    if (battleStatus === "ended") {
+        pendingFieldSelection = null;
+        baseState.autoSync.pending_stage_events = {};
+        baseState.autoSync.stage_status =
+            stageStatusFromResolution(
+                stageResolution
+            );
+        commitTrackerState(baseState);
+        return { status: "battle_ended" };
+    }
+
+    const duplicateResults = [];
+    for (const record of incomingPending) {
+        const syncKey = record?.sync_key;
+        if (
+            typeof syncKey !== "string" ||
+            syncKey.length === 0
+        ) {
+            duplicateResults.push({
+                status: "invalid_event"
+            });
+            continue;
+        }
+        if (
+            Object.hasOwn(
+                baseState.autoSync.processed_events,
+                syncKey
+            )
+        ) {
+            duplicateResults.push({
+                status: "duplicate_event",
+                sync_key: syncKey
+            });
+            continue;
+        }
+        if (
+            Object.hasOwn(
+                baseState.autoSync
+                    .pending_stage_events,
+                syncKey
+            )
+        ) {
+            duplicateResults.push({
+                status: "duplicate_pending",
+                sync_key: syncKey
+            });
+            continue;
+        }
+        baseState.autoSync.pending_stage_events[
+            syncKey
+        ] = {
+            status: "pending_stage",
+            session_id: record.session_id,
+            event_id: record.event_id,
+            event_sequence: record.event_sequence,
+            projection_sequence:
+                record.projection_sequence,
+            battle_started_at:
+                record.battle_started_at,
+            cards: structuredClone(record.cards),
+            received_at: record.received_at,
+            reason: pendingReasonForStage(
+                stageResolution
+            )
+        };
+    }
+
+    const sessionTransition = (
+        typeof baseState.autoSync
+            .active_session_id === "string" &&
+        baseState.autoSync.active_session_id.length > 0 &&
+        baseState.autoSync.active_session_id !==
+            sessionId
+    );
+    const battleTransition = (
+        typeof baseState.autoSync
+            .active_battle_started_at === "string" &&
+        baseState.autoSync
+            .active_battle_started_at.length > 0 &&
+        baseState.autoSync
+            .active_battle_started_at !==
+            battleStartedAt
+    );
+    const confirmedManualStage = (
+        !sessionTransition &&
+        !battleTransition &&
+        stageResolution.status !== "ready" &&
+        baseState.autoSync.stage_status.status ===
+            "ready" &&
+        baseState.autoSync.stage_status.source ===
+            "manual" &&
+        typeof baseState.autoSync.stage_status
+            .mapped_field === "string" &&
+        Boolean(
+            FIELD_DECKS[
+                baseState.autoSync.stage_status
+                    .mapped_field
+            ]
+        )
+    );
+    if (confirmedManualStage) {
+        stageResolution = {
+            status: "ready",
+            stage_code:
+                baseState.autoSync.stage_status
+                    .stage_code,
+            field:
+                baseState.autoSync.stage_status
+                    .mapped_field,
+            source: "manual",
+            source_sequence: null
+        };
+    }
+    if (
+        (sessionTransition || battleTransition) &&
+        !forceRebase &&
+        !isTrackerPristineForFieldSwitch(
+            baseState
+        )
+    ) {
+        const transitionStatus = sessionTransition
+            ? "session_transition_blocked"
+            : "battle_transition_blocked";
+        baseState.autoSync.stage_status =
+            stageStatusFromResolution(
+                {
+                    ...stageResolution,
+                    status: "conflict"
+                },
+                transitionStatus
+            );
+        for (
+            const record
+            of Object.values(
+                baseState.autoSync
+                    .pending_stage_events
+            )
+        ) {
+            record.reason = "stage_conflict";
+        }
+        commitTrackerState(baseState);
+        return {
+            status: transitionStatus,
+            pending: pendingStageSummary(
+                baseState
+            )
+        };
+    }
+
+    const ownsIncomingPending = Object.values(
+        baseState.autoSync.pending_stage_events
+    ).some(
+        record => (
+            record.session_id === sessionId &&
+            record.battle_started_at ===
+                battleStartedAt
+        )
+    );
+    if (ownsIncomingPending) {
+        baseState.autoSync.active_session_id =
+            sessionId;
+        baseState.autoSync.active_battle_started_at =
+            battleStartedAt;
+    }
+
+    baseState.autoSync.stage_status =
+        stageStatusFromResolution(
+            stageResolution
+        );
+
+    if (stageResolution.status !== "ready") {
+        commitTrackerState(baseState);
+        return {
+            status: "pending_stage",
+            reason: pendingReasonForStage(
+                stageResolution
+            ),
+            pending: pendingStageSummary(
+                baseState
+            ),
+            duplicates: duplicateResults
+        };
+    }
+
+    const targetField = stageResolution.field;
+    if (
+        typeof targetField !== "string" ||
+        !FIELD_DECKS[targetField]
+    ) {
+        return failPendingApply(
+            baseState,
+            {
+                ...stageResolution,
+                status: "field_deck_missing"
+            },
+            { status: "field_deck_missing" }
+        );
+    }
+
+    const fieldDiffers =
+        baseState.field !== targetField;
+    if (
+        fieldDiffers &&
+        !forceRebase &&
+        !isTrackerPristineForFieldSwitch(
+            baseState
+        )
+    ) {
+        baseState.autoSync.stage_status =
+            stageStatusFromResolution(
+                {
+                    ...stageResolution,
+                    status: "conflict"
+                },
+                "stage_conflict"
+            );
+        for (
+            const record
+            of Object.values(
+                baseState.autoSync
+                    .pending_stage_events
+            )
+        ) {
+            record.reason = "stage_conflict";
+        }
+        commitTrackerState(baseState);
+        return {
+            status: "stage_conflict",
+            current_field: baseState.field,
+            mapped_field: targetField,
+            pending: pendingStageSummary(
+                baseState
+            )
+        };
+    }
+
+    let candidate = baseState;
+    if (
+        fieldDiffers ||
+        (
+            forceRebase &&
+            (sessionTransition || battleTransition)
+        )
+    ) {
+        const carriedAutoSync = structuredClone(
+            baseState.autoSync
+        );
+        candidate = createFreshState(targetField);
+        candidate.autoSync = carriedAutoSync;
+    }
+    candidate.autoSync.stage_status =
+        stageStatusFromResolution(
+            stageResolution
+        );
+
+    const matchingPending = Object.entries(
+        candidate.autoSync.pending_stage_events
+    )
+        .filter(
+            ([
+                _syncKey,
+                record
+            ]) => (
+                record.session_id === sessionId &&
+                record.battle_started_at ===
+                    battleStartedAt
+            )
+        )
+        .sort(
+            (
+                left,
+                right
+            ) => (
+                left[1].event_sequence -
+                right[1].event_sequence
+            )
+        );
+
+    if (matchingPending.length === 0) {
+        pendingFieldSelection = null;
+        candidate.autoSync.active_session_id =
+            sessionId;
+        candidate.autoSync
+            .active_battle_started_at =
+                battleStartedAt;
+        commitTrackerState(candidate);
+        return {
+            status: fieldDiffers
+                ? "field_rebased"
+                : "stage_ready",
+            field: targetField,
+            duplicates: duplicateResults
+        };
+    }
+
+    const validationState = structuredClone(
+        candidate
+    );
+    const plans = [];
+    for (
+        const [
+            syncKey,
+            record
+        ] of matchingPending
+    ) {
+        const plan = window.TrackerAutoCardSync
+            ?.createDeductionPlan({
+                sessionId,
+                event: pendingRecordToEvent(record),
+                projection: {
+                    session_id: sessionId,
+                    battle_status: "active",
+                    battle_started_at:
+                        battleStartedAt,
+                    last_sequence: Math.max(
+                        projectionSequence || 0,
+                        record.projection_sequence,
+                        record.event_sequence
+                    )
+                },
+                currentField: targetField,
+                fieldDeck:
+                    validationState.initial,
+                remaining:
+                    validationState.remaining,
+                processedEvents:
+                    validationState.autoSync
+                        .processed_events,
+                activeSessionId: null,
+                activeBattleStartedAt: null
+            });
+        if (!plan || plan.status !== "ready") {
+            return failPendingApply(
+                baseState,
+                stageResolution,
+                plan || {
+                    status: "invalid_event"
+                }
+            );
+        }
+        plans.push(plan);
+        for (
+            const [cardName, count]
+            of Object.entries(plan.deductions)
+        ) {
+            validationState.remaining[
+                cardName
+            ] -= count;
+        }
+        plan.sync_key = syncKey;
+    }
+
+    const deductions = {};
+    for (const plan of plans) {
+        for (
+            const [cardName, count]
+            of Object.entries(plan.deductions)
+        ) {
+            candidate.remaining[cardName] -= count;
+            candidate.myHand[cardName] += count;
+            deductions[cardName] =
+                Number(deductions[cardName] || 0) +
+                count;
+        }
+        candidate.autoSync.processed_events[
+            plan.sync_key
+        ] = {
+            status: "applied",
+            session_id: plan.session_id,
+            event_id: plan.event_id,
+            event_sequence: plan.event_sequence,
+            projection_sequence:
+                plan.projection_sequence,
+            battle_started_at:
+                plan.battle_started_at,
+            field: targetField,
+            deductions: cloneDeck(
+                plan.deductions
+            )
+        };
+        delete candidate.autoSync
+            .pending_stage_events[
+                plan.sync_key
+            ];
+    }
+    candidate.autoSync.active_session_id =
+        sessionId;
+    candidate.autoSync.active_battle_started_at =
+        battleStartedAt;
+    candidate.autoSync.stage_status =
+        stageStatusFromResolution(
+            stageResolution
+        );
+    candidate.history.unshift({
+        action: "auto_cards_dealt",
+        ownershipZone: "my_hand",
+        deductions: cloneDeck(deductions),
+        source: "pending_stage",
+        syncKeys: plans.map(
+            plan => plan.sync_key
+        ),
+        time: getTimeText()
+    });
+    candidate.history = candidate.history.slice(
+        0,
+        100
+    );
+    pendingFieldSelection = null;
+    commitTrackerState(candidate);
+    return {
+        status: "applied",
+        field: targetField,
+        applied_events: plans.length,
+        applied_cards: Object.values(
+            deductions
+        ).reduce(
+            (sum, count) => sum + count,
+            0
+        ),
+        deductions,
+        duplicates: duplicateResults
+    };
+}
+
+function handleAutoSyncSessionClosed(
+    sessionId
+) {
+    const nextState = structuredClone(state);
+    let changed = false;
+    for (
+        const [syncKey, record]
+        of Object.entries(
+            nextState.autoSync
+                .pending_stage_events
+        )
+    ) {
+        if (
+            !sessionId ||
+            record.session_id === sessionId
+        ) {
+            delete nextState.autoSync
+                .pending_stage_events[syncKey];
+            changed = true;
+        }
+    }
+    if (changed) {
+        pendingFieldSelection = null;
+        nextState.autoSync.stage_status =
+            stageStatusFromResolution({
+                status: "missing"
+            });
+        commitTrackerState(nextState);
+    }
+    return {
+        status: changed
+            ? "pending_cleared"
+            : "no_pending"
+    };
+}
+
+function selectFieldSafely(fieldName) {
+    if (!FIELD_DECKS[fieldName]) {
+        elements.field.value =
+            pendingFieldSelection ||
+            state.field;
+        return {
+            status: "field_deck_missing"
+        };
+    }
+    const pending = Object.values(
+        state.autoSync.pending_stage_events
+    ).sort(
+        (
+            left,
+            right
+        ) => (
+            left.event_sequence -
+            right.event_sequence
+        )
+    );
+    if (pending.length === 0) {
+        pendingFieldSelection = null;
+        if (
+            !isTrackerPristineForFieldSwitch() &&
+            !confirm(
+                "目前已有 Tracker 進度。是否清除目前進度並切換場地？"
+            )
+        ) {
+            elements.field.value = state.field;
+            return { status: "cancelled" };
+        }
+        resetField(fieldName, false);
+        return { status: "field_reset" };
+    }
+
+    /*
+     * Selecting a field only stages the user's choice.
+     * Rebase and pending application remain one atomic
+     * operation behind the explicit confirmation button.
+     */
+    pendingFieldSelection = fieldName;
+    elements.field.value = fieldName;
+    renderStageDiagnostics();
+    return {
+        status: "pending_field_selected",
+        field: fieldName,
+        pending: pendingStageSummary()
+    };
+}
+
+function confirmCurrentFieldAndApplyPending() {
+    const pending = Object.values(
+        state.autoSync.pending_stage_events
+    ).sort(
+        (
+            left,
+            right
+        ) => (
+            left.event_sequence -
+            right.event_sequence
+        )
+    );
+    if (pending.length === 0) {
+        return { status: "no_pending" };
+    }
+    const first = pending[0];
+    const hasSingleIdentity = pending.every(
+        record => (
+            record.session_id === first.session_id &&
+            record.battle_started_at ===
+                first.battle_started_at
+        )
+    );
+    if (!hasSingleIdentity) {
+        return failPendingApply(
+            state,
+            {
+                status:
+                    state.autoSync.stage_status.status,
+                stage_code:
+                    state.autoSync.stage_status
+                        .stage_code,
+                field:
+                    state.autoSync.stage_status
+                        .mapped_field,
+                source:
+                    state.autoSync.stage_status.source,
+                source_sequence:
+                    state.autoSync.stage_status
+                        .source_sequence
+            },
+            {
+                status:
+                    "pending_identity_mismatch"
+            }
+        );
+    }
+    const targetField =
+        pendingFieldSelection ||
+        state.field;
+    const fieldDiffers =
+        targetField !== state.field;
+    const sessionDiffers = (
+        typeof state.autoSync
+            .active_session_id === "string" &&
+        state.autoSync.active_session_id.length > 0 &&
+        state.autoSync.active_session_id !==
+            first.session_id
+    );
+    const battleDiffers = (
+        typeof state.autoSync
+            .active_battle_started_at === "string" &&
+        state.autoSync
+            .active_battle_started_at.length > 0 &&
+        state.autoSync
+            .active_battle_started_at !==
+                first.battle_started_at
+    );
+    const requiresRebase = (
+        fieldDiffers ||
+        sessionDiffers ||
+        battleDiffers
+    );
+    if (
+        requiresRebase &&
+        !isTrackerPristineForFieldSwitch() &&
+        !confirm(
+            "目前已有 Tracker 進度。是否清除目前進度並套用新場次的暫存收牌？"
+        )
+    ) {
+        return { status: "cancelled" };
+    }
+    return processAutoSyncBatch({
+        sessionId: first.session_id,
+        battleStartedAt:
+            first.battle_started_at,
+        battleStatus: "active",
+        projectionSequence: Math.max(
+            ...pending.map(
+                record =>
+                    record.projection_sequence
+            )
+        ),
+        stageResolution: {
+            status: "ready",
+            stage_code:
+                state.autoSync.stage_status
+                    .stage_code,
+            field: targetField,
+            source: "manual",
+            source_sequence: null
+        },
+        forceRebase: requiresRebase
+    });
+}
+
+function getAutoSyncContext() {
+    return {
+        field: state.field,
+        fieldDeck: cloneDeck(
+            state.initial
+        ),
+        remaining: cloneDeck(
+            state.remaining
+        ),
+        processedEvents: structuredClone(
+            state.autoSync.processed_events
+        ),
+        pendingStageEvents: structuredClone(
+            state.autoSync
+                .pending_stage_events
+        ),
+        stageStatus: structuredClone(
+            state.autoSync.stage_status
+        ),
+        activeSessionId:
+            state.autoSync.active_session_id,
+        activeBattleStartedAt:
+            state.autoSync
+                .active_battle_started_at
+    };
+}
+
+function applyAutoCardsDealtPlan(plan) {
+    if (
+        !plan ||
+        plan.status !== "ready" ||
+        typeof plan.sync_key !== "string" ||
+        plan.sync_key.length === 0 ||
+        plan.field !== state.field ||
+        !plan.deductions ||
+        typeof plan.deductions !== "object" ||
+        Array.isArray(plan.deductions)
+    ) {
+        return { status: "invalid_plan" };
+    }
+    if (
+        Object.hasOwn(
+            state.autoSync.processed_events,
+            plan.sync_key
+        )
+    ) {
+        return {
+            status: "duplicate_event",
+            sync_key: plan.sync_key
+        };
+    }
+    if (
+        typeof state.autoSync.active_session_id ===
+            "string" &&
+        state.autoSync.active_session_id.length > 0 &&
+        state.autoSync.active_session_id !==
+            plan.session_id
+    ) {
+        return {
+            status: "session_transition_blocked",
+            active_session_id:
+                state.autoSync.active_session_id,
+            incoming_session_id:
+                plan.session_id
+        };
+    }
+    if (
+        typeof state.autoSync
+            .active_battle_started_at ===
+                "string" &&
+        state.autoSync
+            .active_battle_started_at.length > 0 &&
+        state.autoSync
+            .active_battle_started_at !==
+                plan.battle_started_at
+    ) {
+        return {
+            status: "battle_transition_blocked",
+            active_battle_started_at:
+                state.autoSync
+                    .active_battle_started_at,
+            incoming_battle_started_at:
+                plan.battle_started_at
+        };
+    }
+
+    const deductions = {};
+    for (
+        const [cardName, count]
+        of Object.entries(plan.deductions)
+    ) {
+        if (
+            !Object.hasOwn(
+                state.initial,
+                cardName
+            ) ||
+            !Number.isInteger(count) ||
+            count <= 0 ||
+            state.remaining[cardName] < count
+        ) {
+            return {
+                status: "insufficient_remaining",
+                canonical_card_key: cardName
+            };
+        }
+        deductions[cardName] = count;
+    }
+    if (Object.keys(deductions).length === 0) {
+        return { status: "invalid_plan" };
+    }
+
+    const nextState = structuredClone(state);
+    for (
+        const [cardName, count]
+        of Object.entries(deductions)
+    ) {
+        nextState.remaining[cardName] -= count;
+        nextState.myHand[cardName] += count;
+    }
+    nextState.autoSync.processed_events[
+        plan.sync_key
+    ] = {
+        status: "applied",
+        session_id: plan.session_id,
+        event_id: plan.event_id,
+        event_sequence: plan.event_sequence,
+        projection_sequence:
+            plan.projection_sequence,
+        battle_started_at:
+            plan.battle_started_at,
+        field: plan.field,
+        deductions: cloneDeck(deductions)
+    };
+    nextState.autoSync.active_session_id =
+        plan.session_id;
+    nextState.autoSync.active_battle_started_at =
+        plan.battle_started_at;
+    nextState.history.unshift({
+        action: "auto_cards_dealt",
+        syncKey: plan.sync_key,
+        deductions: cloneDeck(deductions),
+        ownershipZone: "my_hand",
+        time: getTimeText()
+    });
+    nextState.history = nextState.history.slice(
+        0,
+        100
+    );
+
+    const previousState = state;
+    state = nextState;
+    try {
+        saveState();
+    } catch (error) {
+        state = previousState;
+        throw error;
+    }
+    render();
+    return {
+        status: "applied",
+        sync_key: plan.sync_key,
+        deductions: cloneDeck(deductions)
+    };
 }
 
 function resetField(
@@ -286,6 +1568,7 @@ function resetField(
         return;
     }
 
+    pendingFieldSelection = null;
     state = createFreshState(
         fieldName
     );
@@ -321,18 +1604,30 @@ function revealCard(cardName) {
  * 將公牌移至我方手牌。
  */
 function addCardToMyHand(cardName) {
+    const usesAutoReservation = (
+        Number(
+            state.autoReserved?.[cardName] || 0
+        ) > 0
+    );
     if (
+        !usesAutoReservation &&
         state.remaining[cardName] <= 0
     ) {
         return;
     }
 
-    state.remaining[cardName] -= 1;
+    if (usesAutoReservation) {
+        state.autoReserved[cardName] -= 1;
+    } else {
+        state.remaining[cardName] -= 1;
+    }
     state.myHand[cardName] += 1;
 
     addHistory({
         action: "add_my_hand",
-        card: cardName
+        card: cardName,
+        usedAutoReservation:
+            usesAutoReservation
     });
 
     saveState();
@@ -468,6 +1763,11 @@ function shuffleEnemyCandidates() {
                     state.myHand[
                         cardName
                     ] || 0
+                ) -
+                Number(
+                    state.autoReserved?.[
+                        cardName
+                    ] || 0
                 )
             );
 
@@ -508,14 +1808,19 @@ function shuffleEnemyCandidates() {
                     cardName
                 ] || 0
             ) -
-            Number(
-                state.myHand[
-                    cardName
-                ] || 0
-            ) -
-            Number(
-                newEnemyCandidates[
-                    cardName
+                Number(
+                    state.myHand[
+                        cardName
+                    ] || 0
+                ) -
+                Number(
+                    state.autoReserved?.[
+                        cardName
+                    ] || 0
+                ) -
+                Number(
+                    newEnemyCandidates[
+                        cardName
                 ] || 0
             )
         );
@@ -560,9 +1865,18 @@ function undoLastAction() {
                 cardName
             ] -= 1;
 
-            state.remaining[
-                cardName
-            ] += 1;
+            if (
+                lastAction
+                    .usedAutoReservation
+            ) {
+                state.autoReserved[
+                    cardName
+                ] += 1;
+            } else {
+                state.remaining[
+                    cardName
+                ] += 1;
+            }
             break;
 
         case "play_my_hand":
@@ -590,6 +1904,68 @@ function undoLastAction() {
                 )
             );
             break;
+
+        case "auto_cards_dealt": {
+            const isMyHandBatch =
+                lastAction.ownershipZone ===
+                    "my_hand";
+            for (
+                const [dealtCard, count]
+                of Object.entries(
+                    lastAction.deductions || {}
+                )
+            ) {
+                const returnCount = Math.min(
+                    Number(count || 0),
+                    Number(
+                        (
+                            isMyHandBatch
+                                ? state.myHand
+                                : state.autoReserved
+                        )?.[dealtCard] || 0
+                    )
+                );
+                if (isMyHandBatch) {
+                    state.myHand[
+                        dealtCard
+                    ] -= returnCount;
+                } else {
+                    /*
+                     * v0.1 reservation-era history remains
+                     * undoable after loading old localStorage.
+                     */
+                    state.autoReserved[
+                        dealtCard
+                    ] -= returnCount;
+                }
+                state.remaining[
+                    dealtCard
+                ] = Math.min(
+                    state.initial[dealtCard],
+                    state.remaining[
+                        dealtCard
+                    ] + returnCount
+                );
+            }
+            const syncKeys = Array.isArray(
+                lastAction.syncKeys
+            )
+                ? lastAction.syncKeys
+                : [lastAction.syncKey];
+            for (const syncKey of syncKeys) {
+                if (
+                    typeof syncKey === "string" &&
+                    state.autoSync
+                        .processed_events[syncKey]
+                ) {
+                    state.autoSync
+                        .processed_events[
+                            syncKey
+                        ].status = "reverted";
+                }
+            }
+            break;
+        }
 
         default:
             console.warn(
@@ -635,44 +2011,6 @@ function cardContainsType(
             side.type === type
     );
 }
-
-function getDisplayCardName(
-    cardName,
-    preferredType = null
-) {
-    const sides = parseCardName(
-        cardName
-    );
-
-    if (sides.length < 2) {
-        return cardName;
-    }
-
-    let [
-        top,
-        bottom
-    ] = sides;
-
-    if (
-        preferredType &&
-        bottom.type === preferredType &&
-        top.type !== preferredType
-    ) {
-        [
-            top,
-            bottom
-        ] = [
-            bottom,
-            top
-        ];
-    }
-
-    return (
-        `${top.type}${top.value}` +
-        `${bottom.type}${bottom.value}`
-    );
-}
-
 
 function createCardFaceHtml(
     cardName,
@@ -850,34 +2188,25 @@ function sortCardNames(
     );
 }
 
-function createCardButtonHtml({
+function createSingleCardButtonHtml({
     cardName,
-    current,
-    maximum,
     className = "",
-    compact = false,
-    metaText = ""
+    probabilityText
 }) {
-    const displayCardName =
-        getDisplayCardName(
-            cardName,
-            state.sortType
-        );
+    const ariaLabel =
+        `${cardName}，機率 ${probabilityText}`;
 
     return `
         <button
             class="
                 card
                 game-card-button
-                ${
-                    compact
-                        ? "compact-card"
-                        : ""
-                }
+                game-card-single
                 ${className}
             "
             data-card="${cardName}"
-            title="${displayCardName}"
+            title="${cardName}"
+            aria-label="${ariaLabel}"
         >
             <div class="game-card-preview">
                 ${
@@ -888,21 +2217,45 @@ function createCardButtonHtml({
                 }
             </div>
 
-            <div class="game-card-info">
-                <div class="n">
-                    ${displayCardName}
-                </div>
-
-                <div class="c">
-                    ${current} / ${maximum}
-                </div>
-
-                <div class="m">
-                    ${metaText}
-                </div>
+            <div class="game-card-probability">
+                ${probabilityText}
             </div>
         </button>
     `;
+}
+
+function normalizeVisibleCardCount(value) {
+    const count = Number(value);
+    if (
+        !Number.isFinite(count) ||
+        count <= 0
+    ) {
+        return 0;
+    }
+    return Math.floor(count);
+}
+
+function createCardCopiesHtml({
+    cardName,
+    count,
+    className = "",
+    probabilityText
+}) {
+    return Array.from(
+        {
+            length:
+                normalizeVisibleCardCount(
+                    count
+                )
+        },
+        () => {
+            return createSingleCardButtonHtml({
+                cardName,
+                className,
+                probabilityText
+            });
+        }
+    ).join("");
 }
 
 function bindPublicCardActions() {
@@ -1034,8 +2387,16 @@ function renderPublicCards() {
     const cardNames =
         sortCardNames(
             Object.keys(
-                state.initial
-            ),
+                state.remaining
+            ).filter(cardName => {
+                return (
+                    normalizeVisibleCardCount(
+                        state.remaining[
+                            cardName
+                        ]
+                    ) > 0
+                );
+            }),
             state.remaining
         );
 
@@ -1055,12 +2416,6 @@ function renderPublicCards() {
                 let className = "";
 
                 if (
-                    current === 0
-                ) {
-                    className =
-                        "zero";
-
-                } else if (
                     current /
                     maximum
                     <= 0.34
@@ -1078,13 +2433,11 @@ function renderPublicCards() {
                         )
                         : 0;
 
-                return createCardButtonHtml({
+                return createCardCopiesHtml({
                     cardName,
-                    current,
-                    maximum,
+                    count: current,
                     className,
-                    metaText:
-                        "未公開占比 " +
+                    probabilityText:
                         probability
                             .toFixed(1) +
                         "%"
@@ -1096,6 +2449,9 @@ function renderPublicCards() {
 }
 
 function renderMyHand() {
+    const total = getTotal(
+        state.myHand
+    );
     const names =
         sortCardNames(
             Object.keys(
@@ -1112,7 +2468,7 @@ function renderMyHand() {
     if (!names.length) {
         elements.myHand.innerHTML = `
             <div class="zone-empty">
-                尚未加入我方手牌
+                
             </div>
         `;
 
@@ -1122,26 +2478,28 @@ function renderMyHand() {
     elements.myHand.innerHTML =
         names
             .map(cardName => {
-                return createCardButtonHtml({
+                const count =
+                    state.myHand[
+                        cardName
+                    ];
+                const probability =
+                    total > 0
+                        ? (
+                            count /
+                            total *
+                            100
+                        )
+                        : 0;
+
+                return createCardCopiesHtml({
                     cardName,
-
-                    current:
-                        state.myHand[
-                            cardName
-                        ],
-
-                    maximum:
-                        state.initial[
-                            cardName
-                        ],
-
+                    count,
                     className:
                         "in-hand",
-
-                    compact: true,
-
-                    metaText:
-                        ""
+                    probabilityText:
+                        probability
+                            .toFixed(1) +
+                        "%"
                 });
             })
             .join("");
@@ -1187,7 +2545,7 @@ function renderEnemyCandidates() {
     if (!names.length) {
         elements.enemyCandidates.innerHTML = `
             <div class="zone-empty">
-                尚未建立敵方手牌候選，請按洗牌
+                
             </div>
         `;
 
@@ -1215,32 +2573,15 @@ function renderEnemyCandidates() {
                         )
                         : 0;
 
-                return createCardButtonHtml({
+                return createCardCopiesHtml({
                     cardName,
-
-                    current:
-                        count,
-
-                    maximum:
-                        state.initial[
-                            cardName
-                        ],
-
+                    count,
                     className:
                         "enemy-candidate",
-
-                    compact: true,
-
-                    metaText:
-                        `
-                            <span class="meta-label">
-                                候選占比
-                            </span>
-
-                            <span class="meta-value">
-                                ${probability.toFixed(1)}%
-                            </span>
-                        `
+                    probabilityText:
+                        probability
+                            .toFixed(1) +
+                        "%"
                 });
             })
             .join("");
@@ -1399,6 +2740,16 @@ function getHistoryDescription(item) {
                     "洗牌"
             };
 
+        case "auto_cards_dealt":
+            return {
+                title:
+                    "自動加入我方手牌",
+                amount:
+                    `→手牌 ×${getTotal(
+                        item.deductions
+                    )}`
+            };
+
         default:
             return {
                 title:
@@ -1502,8 +2853,15 @@ function renderFieldOptions() {
             })
             .join("");
 
-    elements.field.value =
-        state.field;
+    const hasPending = Object.keys(
+        state.autoSync.pending_stage_events
+    ).length > 0;
+    elements.field.value = (
+        hasPending &&
+        FIELD_DECKS[pendingFieldSelection]
+            ? pendingFieldSelection
+            : state.field
+    );
 }
 
 function renderSummary() {
@@ -1553,6 +2911,91 @@ function renderSummary() {
         seenTotal;
 }
 
+function renderStageDiagnostics() {
+    const stage =
+        state.autoSync.stage_status;
+    const pending = pendingStageSummary();
+    const setText = (
+        id,
+        value
+    ) => {
+        const target = document.getElementById(id);
+        if (target) {
+            target.textContent = value;
+        }
+    };
+    setText(
+        "observation-stage-code",
+        stage.stage_code || "-"
+    );
+    setText(
+        "observation-stage-field",
+        stage.mapped_field || "-"
+    );
+    setText(
+        "observation-stage-status",
+        (() => {
+            const lastAction = state.history[0];
+            if (
+                stage.status === "ready" &&
+                lastAction?.action ===
+                    "auto_cards_dealt" &&
+                lastAction.source ===
+                    "pending_stage"
+            ) {
+                return (
+                    "已套用暫存收牌 " +
+                    `${lastAction.syncKeys?.length || 0}` +
+                    " 筆／" +
+                    `${getTotal(lastAction.deductions)}` +
+                    " 張"
+                );
+            }
+            const messages = {
+                ready:
+                    `已偵測場地：${
+                        stage.mapped_field || "-"
+                    }`,
+                random:
+                    "隨機場地，已暫存收牌，請選擇實際場地",
+                field_deck_missing:
+                    `已偵測${
+                        stage.mapped_field || "場地"
+                    }，但尚無牌庫資料`,
+                missing:
+                    "尚未取得場地，收牌事件已暫存",
+                conflict:
+                    "目前場地與偵測場地不同，已有進度，等待確認",
+                unsupported:
+                    "無法識別場地代碼，收牌事件已暫存",
+                invalid_stage_code:
+                    "場地代碼格式錯誤，收牌事件已暫存"
+            };
+            return (
+                messages[stage.status] ||
+                stage.status ||
+                "missing"
+            );
+        })()
+    );
+    setText(
+        "observation-pending-events",
+        String(pending.events)
+    );
+    setText(
+        "observation-pending-cards",
+        String(pending.cards)
+    );
+    setText(
+        "observation-stage-error",
+        stage.last_error || "-"
+    );
+    if (elements.confirmPendingField) {
+        elements.confirmPendingField.disabled =
+            pending.events === 0;
+    }
+}
+
 function render() {
     renderFieldOptions();
     renderSummary();
@@ -1561,6 +3004,7 @@ function render() {
     renderMyHand();
     renderTypeStats();
     renderHistory();
+    renderStageDiagnostics();
 
     elements.undo.disabled =
         state.history.length === 0;
@@ -1569,7 +3013,7 @@ function render() {
 elements.field.addEventListener(
     "change",
     () => {
-        resetField(
+        selectFieldSafely(
             elements.field.value
         );
     }
@@ -1603,5 +3047,29 @@ elements.clear.addEventListener(
         render();
     }
 );
+
+elements.confirmPendingField?.addEventListener(
+    "click",
+    confirmCurrentFieldAndApplyPending
+);
+
+if (typeof window !== "undefined") {
+    window.TrackerAutoSyncTarget =
+        Object.freeze({
+            getContext: getAutoSyncContext,
+            applyPlan:
+                applyAutoCardsDealtPlan,
+            processBatch:
+                processAutoSyncBatch,
+            sessionClosed:
+                handleAutoSyncSessionClosed,
+            selectField:
+                selectFieldSafely,
+            confirmCurrentField:
+                confirmCurrentFieldAndApplyPending,
+            isPristine:
+                isTrackerPristineForFieldSwitch
+        });
+}
 
 render();
