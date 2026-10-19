@@ -1,0 +1,196 @@
+{
+ "contract_version": "ulgg.quest_public.v1.4",
+ "schema_version": "1.1.0",
+ "as_of_utc": "2026-10-18T14:09:42Z",
+ "generated_at_utc": "2026-10-18T14:09:43Z",
+ "publish_after_snapshot": true,
+ "anchor_in_future": false,
+ "source": {
+  "panel_version": "2.13.32",
+  "data_kind": "quest_history_v4_shadow",
+  "history_exists": true,
+  "records": 4600
+ },
+ "windows": [
+  "today",
+  "7d",
+  "30d",
+  "all"
+ ],
+ "window_definition": {
+  "today": "Asia/Taipei midnight of as_of_utc",
+  "7d": "as_of_utc - 7 days",
+  "30d": "as_of_utc - 30 days",
+  "all": "no lower bound"
+ },
+ "cutoffs_utc": {
+  "today": "2026-10-17T16:00:00Z",
+  "7d": "2026-10-11T14:09:42Z",
+  "30d": "2026-09-18T14:09:42Z",
+  "all": null
+ },
+ "team_rules": {
+  "period": "all",
+  "min_eligible": 5,
+  "min_qph_samples": 5,
+  "min_valh_samples": 5,
+  "min_association_samples": 5
+ },
+ "quest_identity": {
+  "key": "zone_key#quest_id",
+  "name_only_fallback": "zone_key#name:<normalized_name>",
+  "catalog": "quest_catalog.json",
+  "note": "Quest name alone is never a unique key: the same name can exist under several Quest IDs in one region and in several regions."
+ },
+ "quest_duration": {
+  "file": "windows/{window}/quests_duration.json",
+  "min_qp_samples": 5,
+  "min_valh_samples": 5,
+  "note": "per-duration Quest efficiency from trusted completed runs"
+ },
+ "association_rules": {
+  "min_samples": 5,
+  "fields": [
+   "zone_key/zone_name/samples",
+   "quest_key/zone_key/quest_name/samples"
+  ],
+  "note": "association rows carry identities and sample counts only, never per-association QP/VAL/elapsed sums"
+ },
+ "star_matrix": {
+  "durations": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "stars": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "values": "estimated_percent (Bayesian model unchanged)"
+ },
+ "files": [
+  {
+   "path": "overview.json",
+   "bytes": 2174,
+   "sha256": "1bfbc5f4e88f3d0782820d578d0ecf2b8e418a1fc5c7d2e39ced4b85aacf5e99"
+  },
+  {
+   "path": "quality.json",
+   "bytes": 2296,
+   "sha256": "a665f686ea31ae2df4416bf121026e7699f46f9ed4ca569595bc6434e82df769"
+  },
+  {
+   "path": "quest_catalog.json",
+   "bytes": 523342,
+   "sha256": "d7dda743acbad8d6bf8219792c14e76b6b1ea84016377b56a4c5411b1cdade9a"
+  },
+  {
+   "path": "teams_all.json",
+   "bytes": 15082,
+   "sha256": "2ad34a697bbd488a60b03e3cf15c2fdc5481b58adc7cc474a75d4fc410886139"
+  },
+  {
+   "path": "windows/30d/quests.json",
+   "bytes": 101160,
+   "sha256": "bed8f09869501ad748051f94477782d35309e5bc9ba66d5324b3eca4715c939b"
+  },
+  {
+   "path": "windows/30d/quests_duration.json",
+   "bytes": 1266,
+   "sha256": "cdb6f885b995f006aad3e7d171d573002b92a15d6cae830d6c3bad704fbe0865"
+  },
+  {
+   "path": "windows/30d/regions.json",
+   "bytes": 2675,
+   "sha256": "e930195164a35f7e895d6eee61036d6cc79bcf62ee3649dadd27cc15756df5a8"
+  },
+  {
+   "path": "windows/30d/star_matrix.json",
+   "bytes": 9705,
+   "sha256": "0b413bdc6aa3b3b92a11ae9c7a4da8728e72db4d29811b0a19d02915dd1cd30e"
+  },
+  {
+   "path": "windows/7d/quests.json",
+   "bytes": 129,
+   "sha256": "9a8b774a0f489037d69f76c4e9caeaf99cc860c95a4e9caf289c337ec6969552"
+  },
+  {
+   "path": "windows/7d/quests_duration.json",
+   "bytes": 1265,
+   "sha256": "a0c8219aec6fb4a7d38e6fed7387187d74f016a8671c0fd9a2daabcc88c26a29"
+  },
+  {
+   "path": "windows/7d/regions.json",
+   "bytes": 130,
+   "sha256": "87e1c6684bc97c5347989131eca43c1b67dfe70fab3a051aac41425816f0d0d0"
+  },
+  {
+   "path": "windows/7d/star_matrix.json",
+   "bytes": 9704,
+   "sha256": "b54e0221330f358195001fc93231e0b8e0e8d2d072aaa6d44b157eb7a10450ed"
+  },
+  {
+   "path": "windows/all/quests.json",
+   "bytes": 463746,
+   "sha256": "2d68c62c15593a80cbddc23f42983cd887903e5ff16df0747dbb869a8c96d683"
+  },
+  {
+   "path": "windows/all/quests_duration.json",
+   "bytes": 35095,
+   "sha256": "3b9030077bbfc321139db4c3c64235e0d415ab9561277a4cb9637009efc2a648"
+  },
+  {
+   "path": "windows/all/regions.json",
+   "bytes": 14263,
+   "sha256": "aea949d0344fe6b0d4bbccad8b07f9b4bcdceb1fb235e7dc4e246a6494c82d4c"
+  },
+  {
+   "path": "windows/all/star_matrix.json",
+   "bytes": 9705,
+   "sha256": "e81b11c8c45f9bb124d221ed68b59f27685f1b1870f7a2f286adc39079160a9e"
+  },
+  {
+   "path": "windows/today/quests.json",
+   "bytes": 132,
+   "sha256": "8655802f6fba1b079f76b78205208b12d95c5484b349fe524a5e48e8c9bc6ccf"
+  },
+  {
+   "path": "windows/today/quests_duration.json",
+   "bytes": 1268,
+   "sha256": "03ea83373fd0736dc22ce374eb6173b3192823271797cae8a7c2170d95d8a4ec"
+  },
+  {
+   "path": "windows/today/regions.json",
+   "bytes": 133,
+   "sha256": "5ce7c733e05b688faba97bdec9be8b49711f095cb31c0b679a77576c78357115"
+  },
+  {
+   "path": "windows/today/star_matrix.json",
+   "bytes": 9707,
+   "sha256": "98ee77bf4cf4dce9a28f69cbedc047cd76e6b1cc86f882e7a75b9a87014887a4"
+  }
+ ],
+ "notes": [
+  "Public DTO only: internal panel surfaces (absolute paths, process and session diagnostics, raw run and debug timelines) are never exported.",
+  "Team rows exist only in teams_all.json (all-period).",
+  "low_sample is a presentation flag, not a statistical model.",
+  "quest_catalog.json lists every reliably identified known Quest; unobserved efficiency is published as null, never as zero.",
+  "generated_at_utc is never earlier than as_of_utc."
+ ]
+}

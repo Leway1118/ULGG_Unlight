@@ -11,6 +11,9 @@ date_default_timezone_set('Asia/Taipei');
 
 require_once __DIR__ . '/../../config.php';
 
+/* P1_TW_AUTH_AWARE_DASHBOARD_20261019_V1 */
+require_once __DIR__ . '/../../lib/tw_auth_health.php';
+
 /**
  * 使用方式：
  *
@@ -301,9 +304,24 @@ function collectWatcherHeartbeat(PDO $db): void
     ? (int)$pidText
     : null;
 
-  $watcherStatus = $serviceState === 'active'
-    ? 'running'
-    : 'stopped';
+  $serviceActive = $serviceState === 'active';
+
+  /*
+   * P1_TW_AUTH_AWARE_DASHBOARD_20261019_V1
+   * TW auth health is a first-class input for TW rows. Runtime files are
+   * 0600 root:root, so this collector must stay on root cron.
+   */
+  $now = time();
+  $providerFile = getenv('ULGG_TW_AUTH_PROVIDER_FILE')
+    ?: '/run/unlight/tw_auth_provider.json';
+  $healthFile = getenv('ULGG_TW_WATCHER_HEALTH_FILE')
+    ?: '/run/unlight/tw_watcher_health.json';
+
+  $twAuth = ulggTwAuthHealth(
+    ulggTwAuthReadJson($providerFile),
+    ulggTwAuthReadJson($healthFile),
+    $now
+  );
 
   $basePath = '/var/www/html/unlight/watcher';
 
@@ -392,7 +410,10 @@ function collectWatcherHeartbeat(PDO $db): void
             :region,
             :status,
             :pid,
-            NOW(),
+            CASE :hb_mode_i
+                WHEN 1 THEN COALESCE(:hb_at_i, '1970-01-01 00:00:00')
+                ELSE NOW()
+            END,
             :last_message_at,
             :last_data_at,
             :processed_count,
@@ -404,7 +425,11 @@ function collectWatcherHeartbeat(PDO $db): void
             region = VALUES(region),
             status = VALUES(status),
             pid = VALUES(pid),
-            last_heartbeat_at = VALUES(last_heartbeat_at),
+            last_heartbeat_at = CASE :hb_mode_u
+                WHEN 2 THEN last_heartbeat_at
+                WHEN 1 THEN COALESCE(:hb_at_u, last_heartbeat_at)
+                ELSE NOW()
+            END,
             last_message_at = VALUES(last_message_at),
             last_data_at = VALUES(last_data_at),
             processed_count = VALUES(processed_count),
@@ -421,7 +446,7 @@ function collectWatcherHeartbeat(PDO $db): void
     $processedCount = 0;
     $errorCount = 0;
     $lastError = null;
-    $status = $watcherStatus;
+    $status = $serviceActive ? 'running' : 'stopped';
 
     if (!is_file($file)) {
       $status = 'stopped';
@@ -501,6 +526,32 @@ function collectWatcherHeartbeat(PDO $db): void
       }
     }
 
+    /*
+     * P1_TW_AUTH_AWARE_DASHBOARD_20261019_V1
+     * Same canonical predicate for every TW auth-dependent row.
+     * Non-TW rows return auth_ok=null and keep the existing behaviour.
+     */
+    $rowState = ulggWatcherRowState(
+      $watcher,
+      $serviceActive,
+      is_file($file),
+      @filemtime($file),
+      @filesize($file),
+      $twAuth,
+      $now
+    );
+
+    if ($rowState['auth_ok'] === false) {
+      $status = $rowState['status'];
+      $lastError = $rowState['last_error'];
+    }
+
+    $hbMode = match ($rowState['heartbeat_mode']) {
+      'provider' => 1,
+      'keep' => 2,
+      default => 0,
+    };
+
     $stmt->execute([
       ':watcher_key' => $watcher['key'],
       ':watcher_name' => $watcher['name'],
@@ -512,6 +563,10 @@ function collectWatcherHeartbeat(PDO $db): void
       ':processed_count' => $processedCount,
       ':error_count' => $errorCount,
       ':last_error' => $lastError,
+      ':hb_at_i' => $rowState['last_heartbeat_at'],
+      ':hb_at_u' => $rowState['last_heartbeat_at'],
+      ':hb_mode_i' => $hbMode,
+      ':hb_mode_u' => $hbMode,
     ]);
   }
 

@@ -1,0 +1,727 @@
+{
+ "period": "all",
+ "as_of_utc": "2026-10-18T14:09:42Z",
+ "min_eligible": 5,
+ "min_qph_samples": 5,
+ "min_valh_samples": 5,
+ "min_association_samples": 5,
+ "suppression": "rows below threshold are omitted; no counts are published",
+ "association_suppression": "region/Quest associations below min_association_samples are omitted; no count of omitted associations is published",
+ "count": 3,
+ "rows": [
+  {
+   "team": "史普+老馬+渦",
+   "team_mode": "ACT",
+   "eligible_samples": 6,
+   "qph_samples": 6,
+   "valh_samples": 6,
+   "qph": 337.0,
+   "valh": 26057.06,
+   "composite_score": 115.13,
+   "total_qp": 56.0,
+   "total_value": 4330.0,
+   "elapsed_seconds": 598.23,
+   "quest_count": 0,
+   "region_count": 1,
+   "regions": [
+    {
+     "zone_key": "3:6",
+     "zone_name": "死都黑爾頓",
+     "samples": 6
+    }
+   ],
+   "quests": [],
+   "association_complete": false
+  },
+  {
+   "team": "史普+齒輪+康康",
+   "team_mode": "ACT",
+   "eligible_samples": 433,
+   "qph_samples": 433,
+   "valh_samples": 433,
+   "qph": 226.17,
+   "valh": 19879.69,
+   "composite_score": 87.73,
+   "total_qp": 4999.0,
+   "total_value": 439390.0,
+   "elapsed_seconds": 79568.84,
+   "quest_count": 23,
+   "region_count": 3,
+   "regions": [
+    {
+     "zone_key": "3:7",
+     "zone_name": "翼龍的藏寶庫",
+     "samples": 22
+    },
+    {
+     "zone_key": "4:3",
+     "zone_name": "妖婦的魔道",
+     "samples": 12
+    },
+    {
+     "zone_key": "4:6",
+     "zone_name": "幻覺的冥府",
+     "samples": 391
+    }
+   ],
+   "quests": [
+    {
+     "quest_key": "4:6#10",
+     "zone_key": "4:6",
+     "quest_name": "過往的道理2",
+     "samples": 11
+    },
+    {
+     "quest_key": "4:6#11",
+     "zone_key": "4:6",
+     "quest_name": "過往的道理3",
+     "samples": 21
+    },
+    {
+     "quest_key": "4:6#12",
+     "zone_key": "4:6",
+     "quest_name": "窮人的鑰匙1",
+     "samples": 23
+    },
+    {
+     "quest_key": "4:6#13",
+     "zone_key": "4:6",
+     "quest_name": "窮人的鑰匙2",
+     "samples": 17
+    },
+    {
+     "quest_key": "4:6#14",
+     "zone_key": "4:6",
+     "quest_name": "窮人的鑰匙3",
+     "samples": 20
+    },
+    {
+     "quest_key": "4:6#15",
+     "zone_key": "4:6",
+     "quest_name": "謙遜之草1",
+     "samples": 14
+    },
+    {
+     "quest_key": "4:6#16",
+     "zone_key": "4:6",
+     "quest_name": "謙遜之草2",
+     "samples": 10
+    },
+    {
+     "quest_key": "4:6#17",
+     "zone_key": "4:6",
+     "quest_name": "謙遜之草3",
+     "samples": 16
+    },
+    {
+     "quest_key": "4:6#18",
+     "zone_key": "4:6",
+     "quest_name": "咒罵的叫喊聲1",
+     "samples": 12
+    },
+    {
+     "quest_key": "4:6#19",
+     "zone_key": "4:6",
+     "quest_name": "咒罵的叫喊聲2",
+     "samples": 22
+    },
+    {
+     "quest_key": "4:6#20",
+     "zone_key": "4:6",
+     "quest_name": "咒罵的叫喊聲3",
+     "samples": 21
+    },
+    {
+     "quest_key": "4:6#22",
+     "zone_key": "4:6",
+     "quest_name": "洞中獸2",
+     "samples": 12
+    },
+    {
+     "quest_key": "4:6#23",
+     "zone_key": "4:6",
+     "quest_name": "洞中獸3",
+     "samples": 7
+    },
+    {
+     "quest_key": "4:6#24",
+     "zone_key": "4:6",
+     "quest_name": "莫大的恩賜1",
+     "samples": 45
+    },
+    {
+     "quest_key": "4:6#25",
+     "zone_key": "4:6",
+     "quest_name": "莫大的恩賜2",
+     "samples": 19
+    },
+    {
+     "quest_key": "4:6#26",
+     "zone_key": "4:6",
+     "quest_name": "莫大的恩賜3",
+     "samples": 23
+    },
+    {
+     "quest_key": "4:6#27",
+     "zone_key": "4:6",
+     "quest_name": "悲傷的亡魂1",
+     "samples": 17
+    },
+    {
+     "quest_key": "4:6#3",
+     "zone_key": "4:6",
+     "quest_name": "堅硬岩石1",
+     "samples": 17
+    },
+    {
+     "quest_key": "4:6#4",
+     "zone_key": "4:6",
+     "quest_name": "堅硬岩石2",
+     "samples": 15
+    },
+    {
+     "quest_key": "4:6#5",
+     "zone_key": "4:6",
+     "quest_name": "堅硬岩石3",
+     "samples": 18
+    },
+    {
+     "quest_key": "4:6#6",
+     "zone_key": "4:6",
+     "quest_name": "扭曲的黑暗1",
+     "samples": 12
+    },
+    {
+     "quest_key": "4:6#7",
+     "zone_key": "4:6",
+     "quest_name": "扭曲的黑暗2",
+     "samples": 5
+    },
+    {
+     "quest_key": "4:6#9",
+     "zone_key": "4:6",
+     "quest_name": "過往的道理1",
+     "samples": 5
+    }
+   ],
+   "association_complete": false
+  },
+  {
+   "team": "史普+佛羅+齒輪",
+   "team_mode": "MIXED",
+   "eligible_samples": 1626,
+   "qph_samples": 1623,
+   "valh_samples": 1622,
+   "qph": 194.73,
+   "valh": 12853.67,
+   "composite_score": 78.73,
+   "total_qp": 18474.0,
+   "total_value": 1218840.0,
+   "elapsed_seconds": 341529.35,
+   "quest_count": 67,
+   "region_count": 19,
+   "regions": [
+    {
+     "zone_key": "1:7",
+     "zone_name": "斬影森林",
+     "samples": 33
+    },
+    {
+     "zone_key": "2:1",
+     "zone_name": "雷恩高原",
+     "samples": 53
+    },
+    {
+     "zone_key": "2:5",
+     "zone_name": "瑪瑙採掘場",
+     "samples": 70
+    },
+    {
+     "zone_key": "2:6",
+     "zone_name": "忘卻之島",
+     "samples": 56
+    },
+    {
+     "zone_key": "3:4",
+     "zone_name": "植物瞭望塔",
+     "samples": 11
+    },
+    {
+     "zone_key": "3:5",
+     "zone_name": "白魔的圓環列石",
+     "samples": 46
+    },
+    {
+     "zone_key": "3:6",
+     "zone_name": "死都黑爾頓",
+     "samples": 191
+    },
+    {
+     "zone_key": "3:7",
+     "zone_name": "翼龍的藏寶庫",
+     "samples": 85
+    },
+    {
+     "zone_key": "4:0",
+     "zone_name": "忘卻的地獄邊緣",
+     "samples": 60
+    },
+    {
+     "zone_key": "4:1",
+     "zone_name": "魔境的胎藏",
+     "samples": 52
+    },
+    {
+     "zone_key": "4:2",
+     "zone_name": "暗黑塔",
+     "samples": 62
+    },
+    {
+     "zone_key": "4:3",
+     "zone_name": "妖婦的魔道",
+     "samples": 63
+    },
+    {
+     "zone_key": "4:4",
+     "zone_name": "三界的絕頂",
+     "samples": 59
+    },
+    {
+     "zone_key": "4:5",
+     "zone_name": "異端者的墓碑",
+     "samples": 36
+    },
+    {
+     "zone_key": "4:6",
+     "zone_name": "幻覺的冥府",
+     "samples": 700
+    },
+    {
+     "zone_key": "4:7",
+     "zone_name": "通往王座的回廊",
+     "samples": 10
+    },
+    {
+     "zone_key": "7:1",
+     "zone_name": "月之大陸",
+     "samples": 14
+    },
+    {
+     "zone_key": "7:2",
+     "zone_name": "安妮莫娜",
+     "samples": 11
+    },
+    {
+     "zone_key": "7:3",
+     "zone_name": "天使大陸",
+     "samples": 8
+    }
+   ],
+   "quests": [
+    {
+     "quest_key": "1:7#name:妖樹寶石1",
+     "zone_key": "1:7",
+     "quest_name": "妖樹寶石1",
+     "samples": 5
+    },
+    {
+     "quest_key": "2:5#name:不死鳥的祭壇1",
+     "zone_key": "2:5",
+     "quest_name": "不死鳥的祭壇1",
+     "samples": 5
+    },
+    {
+     "quest_key": "2:5#name:不死鳥的祭壇2",
+     "zone_key": "2:5",
+     "quest_name": "不死鳥的祭壇2",
+     "samples": 7
+    },
+    {
+     "quest_key": "2:5#name:不死鳥的祭壇4",
+     "zone_key": "2:5",
+     "quest_name": "不死鳥的祭壇4",
+     "samples": 7
+    },
+    {
+     "quest_key": "2:5#name:不死鳥的祭壇5",
+     "zone_key": "2:5",
+     "quest_name": "不死鳥的祭壇5",
+     "samples": 5
+    },
+    {
+     "quest_key": "2:5#name:光輝的瑪瑙島1",
+     "zone_key": "2:5",
+     "quest_name": "光輝的瑪瑙島1",
+     "samples": 8
+    },
+    {
+     "quest_key": "2:5#name:瑪瑙森林1",
+     "zone_key": "2:5",
+     "quest_name": "瑪瑙森林1",
+     "samples": 5
+    },
+    {
+     "quest_key": "2:6#name:忘卻的財寶2",
+     "zone_key": "2:6",
+     "quest_name": "忘卻的財寶2",
+     "samples": 7
+    },
+    {
+     "quest_key": "3:5#name:塗成白色的小屋2",
+     "zone_key": "3:5",
+     "quest_name": "塗成白色的小屋2",
+     "samples": 8
+    },
+    {
+     "quest_key": "3:6#12",
+     "zone_key": "3:6",
+     "quest_name": "失音的廣場1",
+     "samples": 6
+    },
+    {
+     "quest_key": "3:6#13",
+     "zone_key": "3:6",
+     "quest_name": "失音的廣場2",
+     "samples": 11
+    },
+    {
+     "quest_key": "3:6#14",
+     "zone_key": "3:6",
+     "quest_name": "失音的廣場3",
+     "samples": 7
+    },
+    {
+     "quest_key": "3:6#16",
+     "zone_key": "3:6",
+     "quest_name": "黑暗侵蝕之塔2",
+     "samples": 11
+    },
+    {
+     "quest_key": "3:6#17",
+     "zone_key": "3:6",
+     "quest_name": "黑暗侵蝕之塔3",
+     "samples": 5
+    },
+    {
+     "quest_key": "3:6#18",
+     "zone_key": "3:6",
+     "quest_name": "展開行動的死都1",
+     "samples": 13
+    },
+    {
+     "quest_key": "3:6#19",
+     "zone_key": "3:6",
+     "quest_name": "展開行動的死都2",
+     "samples": 22
+    },
+    {
+     "quest_key": "3:6#20",
+     "zone_key": "3:6",
+     "quest_name": "展開行動的死都3",
+     "samples": 12
+    },
+    {
+     "quest_key": "3:6#21",
+     "zone_key": "3:6",
+     "quest_name": "古代龍人1",
+     "samples": 7
+    },
+    {
+     "quest_key": "3:6#22",
+     "zone_key": "3:6",
+     "quest_name": "古代龍人2",
+     "samples": 5
+    },
+    {
+     "quest_key": "3:6#23",
+     "zone_key": "3:6",
+     "quest_name": "古代龍人3",
+     "samples": 6
+    },
+    {
+     "quest_key": "3:6#26",
+     "zone_key": "3:6",
+     "quest_name": "古代龍人6",
+     "samples": 9
+    },
+    {
+     "quest_key": "3:6#30",
+     "zone_key": "3:6",
+     "quest_name": "飛龍的守護者1",
+     "samples": 6
+    },
+    {
+     "quest_key": "3:6#31",
+     "zone_key": "3:6",
+     "quest_name": "飛龍的守護者2",
+     "samples": 6
+    },
+    {
+     "quest_key": "3:6#32",
+     "zone_key": "3:6",
+     "quest_name": "飛龍的守護者3",
+     "samples": 9
+    },
+    {
+     "quest_key": "3:6#5",
+     "zone_key": "3:6",
+     "quest_name": "死都的入口3",
+     "samples": 9
+    },
+    {
+     "quest_key": "3:6#9",
+     "zone_key": "3:6",
+     "quest_name": "炎之守護者1",
+     "samples": 10
+    },
+    {
+     "quest_key": "3:7#16",
+     "zone_key": "3:7",
+     "quest_name": "翼龍的寶物庫2",
+     "samples": 8
+    },
+    {
+     "quest_key": "3:7#17",
+     "zone_key": "3:7",
+     "quest_name": "翼龍的寶物庫3",
+     "samples": 6
+    },
+    {
+     "quest_key": "3:7#19",
+     "zone_key": "3:7",
+     "quest_name": "暴風之眼2",
+     "samples": 8
+    },
+    {
+     "quest_key": "3:7#20",
+     "zone_key": "3:7",
+     "quest_name": "暴風之眼3",
+     "samples": 9
+    },
+    {
+     "quest_key": "3:7#21",
+     "zone_key": "3:7",
+     "quest_name": "飛龍王的休息地1",
+     "samples": 5
+    },
+    {
+     "quest_key": "4:0#name:苦患之調1",
+     "zone_key": "4:0",
+     "quest_name": "苦患之調1",
+     "samples": 10
+    },
+    {
+     "quest_key": "4:1#name:光芒萬丈1",
+     "zone_key": "4:1",
+     "quest_name": "光芒萬丈1",
+     "samples": 5
+    },
+    {
+     "quest_key": "4:1#name:地獄2",
+     "zone_key": "4:1",
+     "quest_name": "地獄2",
+     "samples": 6
+    },
+    {
+     "quest_key": "4:2#name:至福的房間1",
+     "zone_key": "4:2",
+     "quest_name": "至福的房間1",
+     "samples": 11
+    },
+    {
+     "quest_key": "4:2#name:至福的房間2",
+     "zone_key": "4:2",
+     "quest_name": "至福的房間2",
+     "samples": 5
+    },
+    {
+     "quest_key": "4:3#name:虛幻的光芒1",
+     "zone_key": "4:3",
+     "quest_name": "虛幻的光芒1",
+     "samples": 19
+    },
+    {
+     "quest_key": "4:3#name:虛幻的光芒2",
+     "zone_key": "4:3",
+     "quest_name": "虛幻的光芒2",
+     "samples": 8
+    },
+    {
+     "quest_key": "4:4#name:財欲的權化1",
+     "zone_key": "4:4",
+     "quest_name": "財欲的權化1",
+     "samples": 9
+    },
+    {
+     "quest_key": "4:6#1",
+     "zone_key": "4:6",
+     "quest_name": "高岸2",
+     "samples": 7
+    },
+    {
+     "quest_key": "4:6#10",
+     "zone_key": "4:6",
+     "quest_name": "過往的道理2",
+     "samples": 17
+    },
+    {
+     "quest_key": "4:6#11",
+     "zone_key": "4:6",
+     "quest_name": "過往的道理3",
+     "samples": 14
+    },
+    {
+     "quest_key": "4:6#12",
+     "zone_key": "4:6",
+     "quest_name": "窮人的鑰匙1",
+     "samples": 11
+    },
+    {
+     "quest_key": "4:6#13",
+     "zone_key": "4:6",
+     "quest_name": "窮人的鑰匙2",
+     "samples": 40
+    },
+    {
+     "quest_key": "4:6#14",
+     "zone_key": "4:6",
+     "quest_name": "窮人的鑰匙3",
+     "samples": 14
+    },
+    {
+     "quest_key": "4:6#15",
+     "zone_key": "4:6",
+     "quest_name": "謙遜之草1",
+     "samples": 43
+    },
+    {
+     "quest_key": "4:6#16",
+     "zone_key": "4:6",
+     "quest_name": "謙遜之草2",
+     "samples": 23
+    },
+    {
+     "quest_key": "4:6#17",
+     "zone_key": "4:6",
+     "quest_name": "謙遜之草3",
+     "samples": 9
+    },
+    {
+     "quest_key": "4:6#18",
+     "zone_key": "4:6",
+     "quest_name": "咒罵的叫喊聲1",
+     "samples": 14
+    },
+    {
+     "quest_key": "4:6#19",
+     "zone_key": "4:6",
+     "quest_name": "咒罵的叫喊聲2",
+     "samples": 32
+    },
+    {
+     "quest_key": "4:6#20",
+     "zone_key": "4:6",
+     "quest_name": "咒罵的叫喊聲3",
+     "samples": 13
+    },
+    {
+     "quest_key": "4:6#21",
+     "zone_key": "4:6",
+     "quest_name": "洞中獸1",
+     "samples": 8
+    },
+    {
+     "quest_key": "4:6#22",
+     "zone_key": "4:6",
+     "quest_name": "洞中獸2",
+     "samples": 9
+    },
+    {
+     "quest_key": "4:6#23",
+     "zone_key": "4:6",
+     "quest_name": "洞中獸3",
+     "samples": 15
+    },
+    {
+     "quest_key": "4:6#24",
+     "zone_key": "4:6",
+     "quest_name": "莫大的恩賜1",
+     "samples": 72
+    },
+    {
+     "quest_key": "4:6#25",
+     "zone_key": "4:6",
+     "quest_name": "莫大的恩賜2",
+     "samples": 39
+    },
+    {
+     "quest_key": "4:6#26",
+     "zone_key": "4:6",
+     "quest_name": "莫大的恩賜3",
+     "samples": 39
+    },
+    {
+     "quest_key": "4:6#27",
+     "zone_key": "4:6",
+     "quest_name": "悲傷的亡魂1",
+     "samples": 43
+    },
+    {
+     "quest_key": "4:6#28",
+     "zone_key": "4:6",
+     "quest_name": "悲傷的亡魂2",
+     "samples": 43
+    },
+    {
+     "quest_key": "4:6#29",
+     "zone_key": "4:6",
+     "quest_name": "悲傷的亡魂3",
+     "samples": 16
+    },
+    {
+     "quest_key": "4:6#3",
+     "zone_key": "4:6",
+     "quest_name": "堅硬岩石1",
+     "samples": 36
+    },
+    {
+     "quest_key": "4:6#4",
+     "zone_key": "4:6",
+     "quest_name": "堅硬岩石2",
+     "samples": 7
+    },
+    {
+     "quest_key": "4:6#5",
+     "zone_key": "4:6",
+     "quest_name": "堅硬岩石3",
+     "samples": 46
+    },
+    {
+     "quest_key": "4:6#6",
+     "zone_key": "4:6",
+     "quest_name": "扭曲的黑暗1",
+     "samples": 30
+    },
+    {
+     "quest_key": "4:6#7",
+     "zone_key": "4:6",
+     "quest_name": "扭曲的黑暗2",
+     "samples": 10
+    },
+    {
+     "quest_key": "4:6#8",
+     "zone_key": "4:6",
+     "quest_name": "扭曲的黑暗3",
+     "samples": 22
+    },
+    {
+     "quest_key": "4:6#9",
+     "zone_key": "4:6",
+     "quest_name": "過往的道理1",
+     "samples": 21
+    }
+   ],
+   "association_complete": false
+  }
+ ]
+}

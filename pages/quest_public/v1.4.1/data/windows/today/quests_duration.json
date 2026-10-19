@@ -1,0 +1,76 @@
+{
+ "window": "today",
+ "as_of_utc": "2026-10-18T14:09:42Z",
+ "kind": "quests_duration",
+ "min_qp_samples": 5,
+ "min_valh_samples": 5,
+ "suppression": "cells below min_qp_samples/min_valh_samples are omitted; Quest documents publish ratios only, so an omitted cell cannot be reconstructed by subtracting from the all-duration row",
+ "durations": [
+  {
+   "duration_index": 0,
+   "duration": "0m",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 1,
+   "duration": "3m",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 2,
+   "duration": "10m",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 3,
+   "duration": "30m",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 4,
+   "duration": "1h",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 5,
+   "duration": "2h",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 6,
+   "duration": "4h",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 7,
+   "duration": "8h",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 8,
+   "duration": "16h",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 9,
+   "duration": "1d",
+   "count": 0,
+   "rows": []
+  },
+  {
+   "duration_index": 10,
+   "duration": "3d",
+   "count": 0,
+   "rows": []
+  }
+ ]
+}

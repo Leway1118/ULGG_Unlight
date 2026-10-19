@@ -1,0 +1,112 @@
+{
+ "as_of_utc": "2026-10-18T14:09:42Z",
+ "history_exists": true,
+ "records": 4600,
+ "runs_total": 2387,
+ "json_error_count": 0,
+ "catalog_available": true,
+ "catalog_rows": 1515,
+ "duration_labels": {
+  "0": "0m",
+  "1": "3m",
+  "2": "10m",
+  "3": "30m",
+  "4": "1h",
+  "5": "2h",
+  "6": "4h",
+  "7": "8h",
+  "8": "16h",
+  "9": "1d",
+  "10": "3d"
+ },
+ "value_engine": {
+  "available": true,
+  "mode": "best_complete_route_estimate"
+ },
+ "quest_battle_db": {
+  "available": false,
+  "entries": 0
+ },
+ "by_window": {
+  "today": {
+   "history_exists": true,
+   "diagnostics": {
+    "abnormal_excluded": 0,
+    "duplicate_clear": 0,
+    "eligible": 0,
+    "interrupted": 0,
+    "metadata_conflicts": 0,
+    "orphan_clear": 0,
+    "qpless_eligible": 0,
+    "recovery": 0,
+    "runtime_mismatch": 0,
+    "star_unknown_hidden": 0,
+    "start_only": 0,
+    "synthetic": 0,
+    "total_run_ids": 0,
+    "valueless_eligible": 0
+   },
+   "star_hidden_unknown": 0
+  },
+  "7d": {
+   "history_exists": true,
+   "diagnostics": {
+    "abnormal_excluded": 0,
+    "duplicate_clear": 0,
+    "eligible": 0,
+    "interrupted": 0,
+    "metadata_conflicts": 0,
+    "orphan_clear": 0,
+    "qpless_eligible": 0,
+    "recovery": 0,
+    "runtime_mismatch": 0,
+    "star_unknown_hidden": 0,
+    "start_only": 0,
+    "synthetic": 0,
+    "total_run_ids": 0,
+    "valueless_eligible": 0
+   },
+   "star_hidden_unknown": 0
+  },
+  "30d": {
+   "history_exists": true,
+   "diagnostics": {
+    "abnormal_excluded": 2,
+    "duplicate_clear": 0,
+    "eligible": 20,
+    "interrupted": 0,
+    "metadata_conflicts": 2,
+    "orphan_clear": 0,
+    "qpless_eligible": 0,
+    "recovery": 1,
+    "runtime_mismatch": 0,
+    "star_unknown_hidden": 12,
+    "start_only": 2,
+    "synthetic": 1,
+    "total_run_ids": 24,
+    "valueless_eligible": 0
+   },
+   "star_hidden_unknown": 0
+  },
+  "all": {
+   "history_exists": true,
+   "diagnostics": {
+    "abnormal_excluded": 293,
+    "duplicate_clear": 0,
+    "eligible": 2065,
+    "interrupted": 74,
+    "metadata_conflicts": 605,
+    "orphan_clear": 68,
+    "qpless_eligible": 3,
+    "recovery": 28,
+    "runtime_mismatch": 1,
+    "star_unknown_hidden": 628,
+    "start_only": 29,
+    "synthetic": 16,
+    "total_run_ids": 2387,
+    "valueless_eligible": 4
+   },
+   "star_hidden_unknown": 0
+  }
+ }
+}

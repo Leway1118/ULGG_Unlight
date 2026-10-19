@@ -1,0 +1,17 @@
+# UL.GG Quest Public Analytics - defence in depth for the include directory.
+#
+# Every inc/*.php already refuses a direct execution in PHP (a 404 guard), so
+# this file is a second, server-level layer. It is only an extra: a server that
+# does not read .htaccess (nginx, AllowOverride None) ignores it, and the PHP
+# guard still applies.
+#
+# The entry pages pull these files in through the filesystem, so denying HTTP
+# access here cannot break them.
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
