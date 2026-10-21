@@ -7,7 +7,13 @@ function getUnlightSteamNews($count = 5)
 
     $url = "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=3247080&count=$count&maxlength=5000";
 
-    $json = @file_get_contents($url);
+    $context = stream_context_create([
+        'http' => [
+            'timeout' => 3.0,
+        ],
+    ]);
+
+    $json = @file_get_contents($url, false, $context);
     if (!$json) return [];
     // ⭐ 直接存原始 JSON
     file_put_contents(

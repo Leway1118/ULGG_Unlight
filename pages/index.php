@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../lib/cache.php';
 require_once __DIR__ . '/../api/get_steam_unlight_news.php';
 
 $pdo = $db;
@@ -92,39 +93,6 @@ function ulggNoticeUrl(mixed $value): ?string
     && strtolower((string)parse_url($url, PHP_URL_SCHEME)) === 'https'
     ? $url
     : null;
-}
-
-function ulggCacheRemember(string $key, int $ttl, callable $callback)
-{
-  $cacheDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
-    . DIRECTORY_SEPARATOR
-    . 'ulgg-cache';
-
-  if (!is_dir($cacheDir) && !@mkdir($cacheDir, 0775, true) && !is_dir($cacheDir)) {
-    return $callback();
-  }
-
-  $safeKey = preg_replace('/[^a-zA-Z0-9_-]/', '_', $key);
-  $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . $safeKey . '.json';
-
-  if (is_file($cacheFile) && (time() - filemtime($cacheFile) < $ttl)) {
-    $json = @file_get_contents($cacheFile);
-    $data = is_string($json) ? json_decode($json, true) : null;
-    if (is_array($data)) {
-      return $data;
-    }
-  }
-
-  $data = $callback();
-  $json = json_encode(
-    $data,
-    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-  );
-  if (is_string($json)) {
-    @file_put_contents($cacheFile, $json, LOCK_EX);
-  }
-
-  return $data;
 }
 
 function classifySteamCategory($title)
