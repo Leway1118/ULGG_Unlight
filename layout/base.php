@@ -5868,6 +5868,12 @@ if (
               </span>
             </a>
 
+            <!-- QUEST_PUBLIC_MAIN_MENU_20261026 -->
+            <a href="/pages/quest_public/v1.4.1/index.php"
+              class="sidebar-link <?= $activeMenu === 'quest_public' ? 'is-active' : '' ?>">
+              <span class="sidebar-text">任務公開分析 <small>Quest Analytics</small></span>
+            </a>
+
 
 
 

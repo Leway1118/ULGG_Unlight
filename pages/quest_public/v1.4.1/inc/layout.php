@@ -47,15 +47,62 @@ function qpub_render_head(string $activeTab, string $pageTitle, array $opts = []
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title><?= qpub_h($seoTitle) ?></title>
   <meta name="description"
-    content="UL.GG 任務公開分析：地域排行、Quest 效率、星數機率、隊伍比較。資料為公開匿名彙總，不含玩家識別資訊。">
+    content="UL.GG 任務公開分析：地域排行與星數機率。資料為公開匿名彙總，不含玩家識別資訊。">
   <meta name="robots" content="index,follow">
   <?php if ($canonical !== null): ?>
   <link rel="canonical" href="<?= qpub_hu($canonical) ?>">
   <?php endif; ?>
   <link rel="icon" href="<?= qpub_h($shared) ?>/favicon/favicon.ico" sizes="48x48" type="image/x-icon">
-  <link rel="stylesheet" href="<?= qpub_h($shared) ?>/css/theme.css">
-  <link rel="stylesheet" href="<?= qpub_h($shared) ?>/css/layout.css">
+  <link rel="stylesheet" href="<?= qpub_h($shared) ?>/css/theme.css?v=86">
+  <link rel="stylesheet" href="<?= qpub_h($shared) ?>/css/layout.css?v=10">
   <link rel="stylesheet" href="<?= qpub_h($self) ?>/quest_public.css">
+  <!-- QUEST_SIDEBAR_BEHAVIOR_FIX_20261026 : main-site sidebar-only presentation -->
+  <style>
+    .un-sidebar .sidebar-group-toggle {
+      appearance: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 14px;
+      margin: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      color: #e5e7eb;
+      font: inherit;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+    .un-sidebar .sidebar-group-toggle:hover { background: rgba(255,255,255,.05); }
+    .un-sidebar .sidebar-group-toggle:focus-visible { outline: 2px solid #9ba5ea; outline-offset: -2px; }
+    .un-sidebar .sidebar-group-items { display: none; padding-left: 8px; }
+    .un-sidebar .sidebar-group-items.open { display: block; }
+    .un-sidebar .sidebar-group-items .sidebar-link { padding-left: 28px; }
+    .un-sidebar .sidebar-group-toggle .chevron { margin-left: auto; font-size: .75rem; opacity: .6; }
+    .un-sidebar {
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #3b4252 transparent;
+    }
+    .un-sidebar::-webkit-scrollbar { width: 6px; }
+    .un-sidebar::-webkit-scrollbar-track { background: transparent; }
+    .un-sidebar::-webkit-scrollbar-thumb { background: #3b4252; border-radius: 6px; }
+    .un-sidebar nav, .un-sidebar .sidebar-nav,
+    .un-sidebar .sidebar-group, .un-sidebar .sidebar-group-items { overflow: visible !important; }
+
+    /* Match main UL.GG footer layout without requiring the DB-backed support modal. */
+    .un-footer .footer-support { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-bottom:14px; }
+    .un-footer .report-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:8px 16px;
+      border:1px solid rgba(180,200,255,.35); border-radius:999px; font-size:13px; font-weight:600;
+      color:#fff; background:linear-gradient(180deg,#3a3f52,#2b2f40); text-decoration:none; }
+    .un-footer .report-btn:hover { color:#fff; text-decoration:none; border-color:rgba(180,200,255,.7); }
+    .un-footer .report-btn span { font-size:11px; opacity:.85; }
+    .un-footer .footer-report { text-align:center; }
+    .un-footer .footer-copy { text-align:center; margin-top:12px; font-size:11px; color:#777; }
+  </style>
 </head>
 
 <body class="un-body">
@@ -84,59 +131,218 @@ function qpub_render_head(string $activeTab, string $pageTitle, array $opts = []
         <span class="sidebar-game">UNLIGHT</span>
       </div>
 
-      <nav class="sidebar-nav" aria-label="網站選單">
-        <a href="/pages/index.php" class="sidebar-link">
-          <span class="sidebar-icon">📰</span>
+      <nav class="sidebar-nav">
+        <!-- 系統 -->
+        <a href="/pages/index.php"
+          class="sidebar-link ">
+          <span class="sidebar-icon">📢</span>
           <span class="sidebar-text">首頁情報 <small>Bulletin</small></span>
         </a>
 
-        <a href="/pages/queue.php" class="sidebar-link">
+        <!-- ⭐ 新增：ULGG 杯 -->
+        <a href="/pages/tournament/ulgg_cup.php"
+          class="sidebar-link ">
+          <span class="sidebar-icon">🏟️</span>
+          <span class="sidebar-text">ULGG 杯 <small>Cup</small></span>
+        </a>
+
+        <!-- 排行 -->
+        <div class="sidebar-group">
+
+          <button class="sidebar-group-toggle" data-target="group-team">
+            <span class="sidebar-icon">🏆</span>
+            <span class="sidebar-text">對戰組合 <small>Team</small></span>
+            <span class="chevron">▾</span>
+          </button>
+
+          <div class="sidebar-group-items" id="group-team">
+
+            <a href="/pages/ranking_team.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">🏆</span>
+              <span class="sidebar-text">組合排行 <small>Ranking</small></span>
+            </a>
+
+            <a href="/pages/strength_rank.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">🔥</span>
+              <span class="sidebar-text">強度排行 <small>Strength</small></span>
+            </a>
+
+          </div>
+        </div>
+
+
+
+        <div class="sidebar-group">
+          <button class="sidebar-group-toggle" data-target="group-character">
+            <span class="sidebar-icon">🧙</span>
+            <span class="sidebar-text">角色 <small>Character</small></span>
+            <span class="chevron">▾</span>
+          </button>
+
+          <div class="sidebar-group-items" id="group-character">
+            <a href="/pages/ranking_char.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">🧙</span>
+              <span class="sidebar-text">角色排行 <small>Ranking</small></span>
+            </a>
+
+            <a href="/pages/character_analysis.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">🧠</span>
+              <span class="sidebar-text">角色分析 <small>Analysis</small></span>
+            </a>
+
+            <a href="/pages/character_intro.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">🃏</span>
+              <span class="sidebar-text">集卡冊 <small>Intro</small></span>
+            </a>
+
+
+
+
+            <!-- ⭐ 新增：自製卡面 Fan ART -->
+            <a href="/pages/upload_card_art.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">🎨</span>
+              <span class="sidebar-text">自製卡面 <small>Fan Art</small></span>
+            </a>
+          </div>
+        </div>
+
+
+        <div class="sidebar-group">
+          <button class="sidebar-group-toggle" data-target="group-rank">
+            <span class="sidebar-icon">📊</span>
+            <span class="sidebar-text">排行榜 <small>Rank</small></span>
+            <span class="chevron">▾</span>
+          </button>
+
+          <div class="sidebar-group-items" id="group-rank">
+
+            <a href="/pages/bp_rank.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">📈</span>
+              <span class="sidebar-text">BP 排行</span>
+            </a>
+
+            <a href="/pages/qp_rank.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">📊</span>
+              <span class="sidebar-text">QP 排行</span>
+            </a>
+
+            <!-- 🏆 歷史名人堂 -->
+            <a href="/pages/hall_of_fame.php"
+              class="sidebar-link ">
+              <span class="sidebar-icon">🏆</span>
+              <span class="sidebar-text">歷史名人堂</span>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- ⭐ 新增：ULGG 杯 -->
+        
+
+        <!-- 工具 -->
+        <div class="sidebar-group">
+
+          <button
+            class="sidebar-group-toggle"
+            type="button"
+            data-target="group-tools">
+            <span class="sidebar-icon">🧰</span>
+            <span class="sidebar-text">
+              實用工具 <small>Tools</small>
+            </span>
+            <span class="chevron">▾</span>
+          </button>
+
+          <div class="sidebar-group-items open" id="group-tools">
+
+            <a href="/pages/quest_map.php"
+              class="sidebar-link ">
+              <span class="sidebar-text">
+                地圖任務查詢 <small>Map</small>
+              </span>
+            </a>
+
+            <a href="/pages/skills.php"
+              class="sidebar-link ">
+              <span class="sidebar-text">
+                技能戰術搜尋 <small>Skills</small>
+              </span>
+            </a>
+
+            <a href="/pages/calculator.php"
+              class="sidebar-link ">
+              <span class="sidebar-text">
+                計算 Cost <small>Calculator</small>
+              </span>
+            </a>
+
+            <!-- QUEST_PUBLIC_SINGLE_ENTRY_20261027 -->
+            <a href="<?= qpub_hu(qpub_url('index.php', [])) ?>"
+              class="sidebar-link is-active" aria-current="page">
+              <span class="sidebar-text">任務公開分析 <small>Quest Analytics</small></span>
+            </a>
+
+
+
+
+
+          </div>
+        </div>
+        <a href="/pages/queue.php"
+          class="sidebar-link ">
           <span class="sidebar-icon">👀</span>
           <span class="sidebar-text">觀察大廳 <small>Lobby</small></span>
         </a>
 
-        <div class="sidebar-group is-open">
-          <button class="sidebar-group-toggle" type="button" data-target="group-tools">
-            <span class="sidebar-icon">🧰</span>
-            <span class="sidebar-text">工具 <small>Tools</small></span>
+        <!-- RAID_PUBLIC_NAV_GROUP_V1 -->
+        <div class="sidebar-group ">
+
+          <button
+            class="sidebar-group-toggle"
+            type="button"
+            data-target="group-raid">
+            <span class="sidebar-icon">🌀</span>
+            <span class="sidebar-text">
+              公開渦 <small>Raid</small>
+            </span>
             <span class="chevron">▾</span>
           </button>
 
-          <div class="sidebar-group-items is-open" id="group-tools">
-            <a href="/pages/quest_map.php"
-              class="sidebar-link <?= $activeTab === 'quest_map' ? 'is-active' : '' ?>">
-              <span class="sidebar-text">地域任務查詢 <small>Map</small></span>
-            </a>
-            <a href="/pages/skills.php" class="sidebar-link">
-              <span class="sidebar-text">技能戰術搜尋 <small>Skills</small></span>
-            </a>
-            <a href="/pages/calculator.php" class="sidebar-link">
-              <span class="sidebar-text">計算 Cost <small>Calculator</small></span>
-            </a>
+          <div
+            class="sidebar-group-items"
+            id="group-raid">
 
-            <!-- QUEST_PUBLIC_NAV_GROUP_V1 : staging preview of the Tools menu entry -->
-            <a href="<?= qpub_hu(qpub_url(QPUB_TABS['regions']['file'], [])) ?>"
-              class="sidebar-link sidebar-sub-link sidebar-sub-group-title
-                <?= $activeTab === 'regions' ? 'is-active' : '' ?>">
-              <span class="sidebar-text">任務公開分析 <small>Public</small></span>
-            </a>
-            <?php foreach (['regions', 'quests', 'stars', 'teams'] as $key): ?>
-            <a href="<?= qpub_hu(qpub_url(QPUB_TABS[$key]['file'], [])) ?>"
-              class="sidebar-link sidebar-sub-link sidebar-sub-link--deep
-                <?= $activeTab === $key ? 'is-active' : '' ?>"
-              <?= $activeTab === $key ? 'aria-current="page"' : '' ?>>
+            <a href="/pages/raid_observer.php"
+              class="sidebar-link sidebar-sub-link ">
+              <span class="sidebar-icon">👁</span>
               <span class="sidebar-text">
-                <?= qpub_h(QPUB_TABS[$key]['label']) ?>
-                <small><?= qpub_h(QPUB_TABS[$key]['en']) ?></small>
+                觀察渦 <small>Live</small>
               </span>
             </a>
-            <?php endforeach; ?>
+
+            <a href="/pages/raid_stats.php"
+              class="sidebar-link sidebar-sub-link ">
+              <span class="sidebar-icon">📊</span>
+              <span class="sidebar-text">
+                Raid 統計 <small>Stats</small>
+              </span>
+            </a>
+
           </div>
         </div>
 
-        <a href="/pages/raid_stats.php" class="sidebar-link">
-          <span class="sidebar-icon">🌀</span>
-          <span class="sidebar-text">公開渦 <small>Raid</small></span>
+        <a href="/pages/raising/index.php"
+          class="sidebar-link ">
+          <span class="sidebar-icon">⚔️</span>
+          <span class="sidebar-text">暗房育成 <small>Prototype</small></span>
         </a>
       </nav>
     </aside>
@@ -161,8 +367,14 @@ function qpub_render_foot(): void
 
       <footer class="un-footer">
         <div class="footer-inner container">
+          <div class="footer-support">
+            <a class="report-btn" href="https://www.buymeacoffee.com/ulgg"
+              target="_blank" rel="noopener noreferrer">
+              ☕ Buy Me a Coffee <span>信用卡</span>
+            </a>
+          </div>
           <div class="footer-report">
-            <a href="mailto:ulgg.online@gmail.com?subject=UL.GG 問題回報">回報問題</a>
+            <a href="mailto:ulgg.online@gmail.com?subject=UL.GG%20%E5%95%8F%E9%A1%8C%E5%9B%9E%E5%A0%B1">回報問題</a>
             -
             <a href="/pages/about.php" class="footer-link">關於本站</a>
             -
@@ -178,6 +390,18 @@ function qpub_render_foot(): void
 
   <script src="<?= qpub_h($shared) ?>/js/main.js"></script>
   <script src="<?= qpub_h($self) ?>/quest_public.js"></script>
+  <script>
+    // The main site's sidebar-group JS lives in layout/base.php, not /assets/js/main.js.
+    document.querySelectorAll('.un-sidebar .sidebar-group-toggle').forEach(btn => {
+      const target = document.getElementById(btn.dataset.target);
+      if (!target) return;
+      btn.setAttribute('aria-expanded', String(target.classList.contains('open')));
+      btn.addEventListener('click', () => {
+        const expanded = target.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(expanded));
+      });
+    });
+  </script>
 </body>
 
 </html>
@@ -185,20 +409,10 @@ function qpub_render_foot(): void
 }
 
 /** Four-tab switcher. `$carry` holds the parameters the tab may keep. */
+/** Navigation is now a single merged page; keep call compatibility for legacy endpoints. */
 function qpub_render_tabs(string $activeTab, array $carry = []): void
 {
-    ?>
-  <nav class="qpub-tabs" aria-label="分析分頁">
-    <?php foreach (QPUB_TABS as $key => $tab): ?>
-    <a class="qpub-tab <?= $key === $activeTab ? 'is-active' : '' ?>"
-      href="<?= qpub_hu(qpub_url($tab['file'], qpub_tab_params($key, $carry))) ?>"
-      <?= $key === $activeTab ? 'aria-current="page"' : '' ?>>
-      <?= qpub_h($tab['label']) ?>
-      <small><?= qpub_h($tab['en']) ?></small>
-    </a>
-    <?php endforeach; ?>
-  </nav>
-    <?php
+    // No standalone tabs. The stars matrix lives below the Regions table.
 }
 
 /**
