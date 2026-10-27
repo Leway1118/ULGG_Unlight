@@ -46,9 +46,10 @@ The live VPS `api/support_event.php` was read-only checked with `php -l` and its
 
 ## Outstanding verification before Ready for Review / merge
 
-- [ ] Verify the fight-page UI order and BP output (newest-first, correct calculations), card geometry, focus anchor, support CTA and payment modal in a separately authorized browser test.
-- [ ] Confirm CTA placement: the current VPS-equivalent include prints its section before `echo $outPutString`, although it is invoked after result fragments are assembled; expected visual ordering must be checked without silently changing production parity.
-- [ ] Verify event API via live/sandbox HTTP using low-volume controlled requests only; check 204/400/403/405 where appropriate and confirm existing Nginx logs are protected and retention is acceptable.
+- [x] Chrome read-only DOM audit of the live page: 7 fight rows; five sampled timestamps 10-27 23:56, 23:34, 23:28, 23:24, 23:15; `newestFirst=PASS`, `flexDirection=column`, 13 event images correct measured geometry, zero broken, support CTA above fights, shared modal/button present, BMC URL present.
+- [ ] **Still unverified**: per-match BP numerical correctness against authoritative inputs, focus-anchor/scroll behavior, payment modal actual open/close, and link navigation. DOM existence alone does not validate click behavior.
+- [x] **Support CTA above fight results — PASS, intentionally preserved per existing V1.2 monetization design.** Chrome DOM audit confirmed `ABOVE_FIGHTS`; future changes must not move it below the list without a separate product decision.
+- [ ] Verify event API routing and exact HTTP status via approved low-volume real HTTP requests; confirm existing Nginx access-log access controls/retention. The 13 CLI tests are not a substitute for a live HTTP response.
 - [ ] Re-audit live production drift and confirm final PR CI success before proposing readiness.
 - [ ] If operational metrics are important, explicitly decide on rate control and trusted aggregation; these are out of scope for source parity.
 
