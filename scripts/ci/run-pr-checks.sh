@@ -43,6 +43,14 @@ else
   echo "[SKIP] fight source parity regression not present"
 fi
 
+echo "=== P1: isolated support event HTTP matrix ==="
+if [[ -f tests/fight/support_event_http_test.php ]]; then
+  php tests/fight/support_event_http_test.php
+else
+  echo "[FAIL] support event regression missing" >&2
+  exit 1
+fi
+
 echo "=== P0: raising test syntax ==="
 node --check tests/raising/engine.test.mjs
 node --check tests/raising/viewer-smoke.mjs
