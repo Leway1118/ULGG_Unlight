@@ -81,6 +81,11 @@ requireSource(
     strpos($source, $call) > strpos($source, '$outPutString .= implode('),
     'support CTA must be rendered after the fight rows are assembled'
 );
+// Monetization placement is intentional: users see the support CTA above the fight list.
+requireSource(
+    strpos($source, $call) < strpos($source, 'echo $outPutString;'),
+    'support CTA must stay above fight records (existing V1.2 design)'
+);
 $layout = file_get_contents(dirname(__DIR__, 2) . '/layout/base.php');
 requireSource(is_string($layout), 'layout base source unavailable');
 requireSource(strpos($layout, 'id="supportModal"') !== false, 'shared payment modal missing');
