@@ -16,9 +16,10 @@
 2. `ULGG_CLS_FIGHT_V1`: explicitly size both event images and matching empty slots to 44×68 to reduce layout shifting.
 3. Offline source-contract assertions run inside the existing PR-only CI script.
 
-## Missing dependency / must not merge yet
+## Support prompt restored, original source audited
 
-The VPS version includes an additional call after the counter section:
+The original VPS file `includes/support_prompt_fight.php` was transferred read-only and verified as SHA256
+`75d7de377989d654e73595abef9f1485adbefe18b595e11299a023df464cf22b` (3,816 bytes, UTF-8). The source matches the user-uploaded file byte-for-byte. No hardcoded password, token or private key was detected. The caller is restored verbatim after fight search results:
 
 ```php
 if (!empty($index)) {
@@ -26,13 +27,19 @@ if (!empty($index)) {
 }
 ```
 
-`includes/support_prompt_fight.php` **does not exist in the audited GitHub master or server-sync snapshot**. Its actual source was not available to this run. We intentionally **did not invent the file or introduce the include** in this branch. Thus the branch is only a partial parity recovery, and merging or deploying it as a complete VPS-sync patch would risk dropping the live support prompt.
+- Shared `layout/base.php` on master includes `#supportModal`, the `.open-support-modal` click-handler and the same Buy Me a Coffee URL.
+- CTA uses `IntersectionObserver` and same-origin `POST /api/support_event.php?e=...&src=fight` for `impression`, `click_tw`, `click_bmc`. Client opts out of cookies and referrer propagation. **HTTP server access logs can still contain metadata such as IP address, timestamp and User-Agent; do not describe these logs as necessarily unidentifiable.**
+- Existing PHP lint on the original VPS component passed; this branch's PR CI checks static integration and includes the component under output buffering, without a DB.
+- The component is a presentation and interaction element, not a new payment processor.
 
-Before marking ready:
-- Obtain the unmodified VPS include source through an authorized read-only transfer.
-- Inspect for credentials, tokens, unsafe external URLs, data exposure, and dependencies before publishing.
-- Add the vetted include source plus its exact caller to this branch; add an offline contract test.
-- Validate `php -l`, PR CI, a no-DB rendering sanity check, and real fight page ordering/BP/event images/support prompt in an isolated or production-approved UI test.
-- Re-audit live source drift before any separately authorized deployment.
+## Remaining dependency / do not merge yet
+
+**BLOCKED: `api/support_event.php` is referenced by the verified support component but absent in the GitHub master and server-sync snapshots.** The live VPS endpoint has **not** yet been checked. The UI can still render without the endpoint, but telemetry requests will fail if the file is not present; client-side catch suppresses errors.
+
+Before ready:
+- Perform a *read-only* VPS existence / SHA256 / `php -l` audit for `api/support_event.php`.
+- If live file exists, obtain the exact source, review it for secrets, IP/UA/session handling, log volume, caching and rate controls, then add the vetted source with tests. If it does not exist, explicitly decide to drop telemetry or implement and separately review a minimal event endpoint instead of assuming it works.
+- Confirm the production QR modal and Buy Me a Coffee link render and respond correctly, and run real fight-page BP/order/event-card/UI smoke tests under separately authorized access.
+- Recheck VPS source drift before any separately authorized deployment.
 
 **Scope safety:** `master` and `server-sync` are unchanged by this draft; no VPS writes, service restarts, or timer edits.
