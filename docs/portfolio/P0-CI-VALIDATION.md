@@ -1,7 +1,7 @@
 # UL.GG P0 — PR-only CI 隔離驗證
 
-日期：2026-10-27（台灣時間）  
-範圍：ULGG_Unlight 的獨立 Draft PR #5（以 master 為基準）  
+日期：2026-10-27（台灣時間）
+範圍：ULGG_Unlight 的獨立 Draft PR #5（以 master 為基準）
 狀態：**品質閘門測試 PASS；整站回歸 / E2E 未執行**
 
 ## 可重查證據
