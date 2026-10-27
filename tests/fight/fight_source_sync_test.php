@@ -66,6 +66,45 @@ requireSource(
     'empty event slot must reserve the same dimensions'
 );
 
+// Verify the exact VPS support component is included only after fight search results.
+$ctaPath = dirname(__DIR__, 2) . '/includes/support_prompt_fight.php';
+requireSource(is_file($ctaPath), 'fight support component must be tracked in Git');
+$cta = file_get_contents($ctaPath);
+requireSource(is_string($cta), 'cannot read fight support component');
+$call = 'include __DIR__ . ' . "'/../includes/support_prompt_fight.php';";
+requireSource(substr_count($source, $call) === 1, 'fight support component caller must exist exactly once');
+requireSource(
+    strpos($source, "if (!empty(" . '$index' . ")) {\n            " . $call) !== false,
+    'support CTA must only render when the fight search returned rows'
+);
+requireSource(
+    strpos($source, $call) > strpos($source, '$outPutString .= implode('),
+    'support CTA must be rendered after the fight rows are assembled'
+);
+$layout = file_get_contents(dirname(__DIR__, 2) . '/layout/base.php');
+requireSource(is_string($layout), 'layout base source unavailable');
+requireSource(strpos($layout, 'id="supportModal"') !== false, 'shared payment modal missing');
+requireSource(
+    strpos($layout, "document.querySelectorAll('.open-support-modal')") !== false,
+    'shared modal click handler missing'
+);
+ob_start();
+include $ctaPath;
+$ctaMarkup = (string) ob_get_clean();
+requireSource(strpos($ctaMarkup, 'id="ulgg-fight-support-cta"') !== false, 'support CTA markup missing');
+requireSource(strpos($ctaMarkup, 'class="open-support-modal ulgg-support-cta__button"') !== false, 'payment button not bound to modal');
+requireSource(strpos($ctaMarkup, 'https://www.buymeacoffee.com/ulgg') !== false, 'external payment link mismatch');
+requireSource(strpos($ctaMarkup, 'rel="noopener noreferrer"') !== false, 'external link missing isolation');
+requireSource(strpos($ctaMarkup, "const endpoint = '/api/support_event.php';") !== false, 'support event endpoint reference changed');
+requireSource(strpos($ctaMarkup, "credentials: 'omit'") !== false, 'support telemetry request must omit cookies');
+requireSource(strpos($ctaMarkup, "referrerPolicy: 'no-referrer'") !== false, 'support telemetry referrer policy changed');
+requireSource(strpos($ctaMarkup, "new Set(['impression', 'click_tw', 'click_bmc'])") !== false, 'support event allowlist changed');
+
+echo "[PASS] verified fight support CTA, caller, and shared modal integration\n";
+if (!is_file(dirname(__DIR__, 2) . '/api/support_event.php')) {
+    echo "[LIMIT] api/support_event.php absent: telemetry parity NOT confirmed\n";
+}
+
 echo "[PASS] BP computation remains forward; presentation is reversed only once\n";
 echo "[PASS] two event images and empty slots reserve 44x68 dimensions\n";
 echo "[LIMIT] static source regression only; DB-backed live UI not tested\n";
