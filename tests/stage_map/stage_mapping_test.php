@@ -47,4 +47,4 @@ foreach (['pages/fight.php', 'pages/fight_detail.php'] as $relativePath) {
 }
 
 echo "[PASS] stage ID 13/14 agree in canonical, fight list, and fight detail\n";
-echo "[LIMIT] this is a source-level regression check, not a live UI or authoritative game-data check\n
+echo "[LIMIT] this is a source-level regression check, not a live UI or authoritative game-data check\n";
