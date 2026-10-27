@@ -29,6 +29,13 @@ fi
 echo "=== P0: CI guard unit tests ==="
 python3 -m unittest discover -s tests/ci -p 'test_*.py' -v
 
+echo "=== P0: offline stage map regression ==="
+if [[ -f tests/stage_map/stage_mapping_test.php ]]; then
+  php tests/stage_map/stage_mapping_test.php
+else
+  echo "[SKIP] stage mapping regression not present"
+fi
+
 echo "=== P0: raising test syntax ==="
 node --check tests/raising/engine.test.mjs
 node --check tests/raising/viewer-smoke.mjs
