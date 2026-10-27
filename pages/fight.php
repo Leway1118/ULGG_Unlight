@@ -4158,6 +4158,9 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
             echo '</div>'; //container
             echo '</div>'; //wrapper
           }
+          if (!empty($index)) {
+            include __DIR__ . '/../includes/support_prompt_fight.php';
+          }
           echo $outPutString;
 
           // FIGHT_PLAYER_LIMIT_50_100_V1
