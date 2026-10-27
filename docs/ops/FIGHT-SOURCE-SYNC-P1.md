@@ -1,6 +1,6 @@
 # ULGG-FIGHT-SOURCE-SYNC-P1 — production source reconciliation
 
-**Status: BLOCKED / DRAFT ONLY. Do not merge or deploy.**
+**Status: source dependencies recovered; DRAFT ONLY pending UI/runtime review. Do not merge or deploy.**
 
 ## Grounding (2026-10-27, Asia/Taipei)
 
@@ -32,14 +32,24 @@ if (!empty($index)) {
 - Existing PHP lint on the original VPS component passed; this branch's PR CI checks static integration and includes the component under output buffering, without a DB.
 - The component is a presentation and interaction element, not a new payment processor.
 
-## Remaining dependency / do not merge yet
+## Support telemetry endpoint recovered verbatim
 
-**BLOCKED: `api/support_event.php` is referenced by the verified support component but absent in the GitHub master and server-sync snapshots.** The live VPS endpoint has **not** yet been checked. The UI can still render without the endpoint, but telemetry requests will fail if the file is not present; client-side catch suppresses errors.
+The live VPS `api/support_event.php` was read-only checked with `php -l` and its 968-byte original source was verified by SHA256:
+`31aec2a3d286416f20f252885ce954806b1b01ce1287fd5d70da100508832c44`.
 
-Before ready:
-- Perform a *read-only* VPS existence / SHA256 / `php -l` audit for `api/support_event.php`.
-- If live file exists, obtain the exact source, review it for secrets, IP/UA/session handling, log volume, caching and rate controls, then add the vetted source with tests. If it does not exist, explicitly decide to drop telemetry or implement and separately review a minimal event endpoint instead of assuming it works.
-- Confirm the production QR modal and Buy Me a Coffee link render and respond correctly, and run real fight-page BP/order/event-card/UI smoke tests under separately authorized access.
-- Recheck VPS source drift before any separately authorized deployment.
+- Script does not connect to a DB, set cookies, read sessions, or create an app log. Existing HTTP access logs may still capture IP, User-Agent, URL with `e` and `src`, timestamp and other request metadata. Treat logs as potentially personal data.
+- Only `POST` is accepted; other methods return **405**.
+- Event must be one of `impression`, `click_tw`, `click_bmc`; `src` must be `fight`; invalid queries return **400**.
+- Explicit `Sec-Fetch-Site` values other than `same-origin` return **403**. **Absent header is accepted** (204 for a valid POST). Do not mistake Fetch Metadata for authentication, strong CSRF protection or request rate limiting.
+- Accepted event returns **204** and no response body. No backend event counter is maintained here: any event counting based on HTTP access logs needs to account for rejected or spoofed requests, bots and log retention.
+- The PR-only CI includes a **13-case isolated PHP HTTP-decision regression**. This tests original code with simulated superglobals; it does not prove Nginx routing, actual network responses or log semantics.
 
-**Scope safety:** `master` and `server-sync` are unchanged by this draft; no VPS writes, service restarts, or timer edits.
+## Outstanding verification before Ready for Review / merge
+
+- [ ] Verify the fight-page UI order and BP output (newest-first, correct calculations), card geometry, focus anchor, support CTA and payment modal in a separately authorized browser test.
+- [ ] Confirm CTA placement: the current VPS-equivalent include prints its section before `echo $outPutString`, although it is invoked after result fragments are assembled; expected visual ordering must be checked without silently changing production parity.
+- [ ] Verify event API via live/sandbox HTTP using low-volume controlled requests only; check 204/400/403/405 where appropriate and confirm existing Nginx logs are protected and retention is acceptable.
+- [ ] Re-audit live production drift and confirm final PR CI success before proposing readiness.
+- [ ] If operational metrics are important, explicitly decide on rate control and trusted aggregation; these are out of scope for source parity.
+
+**Scope safety:** `master` and `server-sync` are unchanged by this draft; no VPS writes, service restarts, timer edits, auto merge or auto deployment.
