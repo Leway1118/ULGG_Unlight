@@ -8,6 +8,8 @@
 
 正式網站：**https://ulgg.online/**
 
+**技術作品集與品質證據：** [作品集索引](docs/portfolio/README.md) · [P0 PR-only CI 隔離驗證](docs/portfolio/P0-CI-VALIDATION.md)
+
 目前專案同時包含網站前後端、遊戲資料 Watcher、Raid Bot、本機 Card Tracker、排程工具與維運腳本。
 
 ---
