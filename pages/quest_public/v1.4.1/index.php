@@ -304,8 +304,9 @@ function qpub_render_region_list(array $rows, array $carry, string $sort, string
         <tr class="<?= $low ? 'is-low-sample' : '' ?>">
           <td class="qpub-col-rank"><?= qpub_int($index + 1) ?></td>
           <td class="qpub-col-name">
-            <span><?= qpub_text($row['zone_name'] ?? null) ?></span>
-            
+            <a class="qpub-link" href="<?= qpub_hu(qpub_url('quest.php', ['region' => (string)($row['zone_key'] ?? '')])) ?>">
+              <?= qpub_text($row['zone_name'] ?? null) ?>
+            </a>
             <?php if ($low): ?> <?= qpub_badge('低樣本', 'warn') ?><?php endif; ?>
           </td>
           <td class="qpub-col-num"><?= qpub_int($row['eligible_samples'] ?? null) ?></td>

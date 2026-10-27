@@ -2537,12 +2537,35 @@ ob_start();
     }
   }
 
+
+  /* ULGG_RAID_CLS_STALE_TOAST_V1 */
+  .raid-observer-page .raid-stale-notice {
+    position: fixed;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: min(440px, calc(100vw - 32px));
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    z-index: 900;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .45);
+    pointer-events: none;
+  }
+  /* ULGG_RAID_CLS_STATS_SKELETON_V2 */
+  .raid-observer-page {
+    min-height: 100vh;
+  }
+
+  .raid-stats-loading-row {
+    opacity: .4;
+  }
 </style>
 
 <div class="content-wrapper">
   <section class="content ul-container-nopad">
     <div class="container raid-observer-page"
       data-raid-observer
+      data-raid-stats-authenticated="<?= trim((string)($_SESSION['username'] ?? '')) !== '' ? '1' : '0' ?>"
       data-endpoint="/api/observed_raids.php"
       data-raid-stats-admin="<?= $isRaidStatsAdmin ? '1' : '0' ?>">
       <header class="raid-observer__hero">
@@ -3133,6 +3156,115 @@ ob_start();
           </div>
         </div>
       </section>
+
+      <!-- ULGG_RAID_CLS_STATS_SSR_R1 -->
+      <?php if (trim((string)($_SESSION['username'] ?? '')) !== ''): ?>
+      <section class="raid-stats-section"
+               data-role="raid-stats-section">
+
+      <div class="raid-stats-head">
+        <div>
+          <h2
+            class="raid-stats-title"
+            data-role="raid-stats-title"
+          >
+            我的渦・玩家 POINT 統計
+          </h2>
+
+          <div
+            class="raid-stats-summary"
+            data-role="raid-stats-summary"
+          >
+            讀取中...
+          </div>
+        </div>
+
+        <div class="raid-stats-controls">
+          <div class="raid-stats-ranges">
+            <button
+              type="button"
+              data-stats-range="all"
+              class="is-active"
+            >全部</button>
+
+            <button
+              type="button"
+              data-stats-range="30"
+            >30天</button>
+
+            <button
+              type="button"
+              data-stats-range="7"
+            >7天</button>
+          </div>
+
+          <input
+            type="search"
+            class="raid-stats-search"
+            data-role="raid-stats-search"
+            placeholder="搜尋玩家"
+            autocomplete="off"
+          >
+        </div>
+      </div>
+
+      <div class="raid-stats-table-wrap">
+        <table class="raid-stats-table">
+          <thead>
+            <tr>
+              <th data-sort="player_name">
+                玩家名稱
+              </th>
+
+              <th data-sort="raids_joined">
+                參加渦
+              </th>
+
+              <th data-sort="participation_percent">
+                參加率
+              </th>
+
+              <th data-sort="total_point">
+                總分數
+              </th>
+
+              <th data-sort="avg_point">
+                平均分數
+              </th>
+            </tr>
+          </thead>
+
+                    <tbody data-role="raid-stats-body">
+            <?php for ($raidSkeletonRowIndex = 0; $raidSkeletonRowIndex < 20; $raidSkeletonRowIndex++): ?>
+              <tr class="raid-stats-loading-row" aria-hidden="true">
+                <td>載入中…</td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+            <?php endfor; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <div
+        class="raid-stats-pagination"
+        data-role="raid-stats-pagination"
+      >
+        <div
+          class="raid-stats-page-summary"
+          data-role="raid-stats-page-summary"
+        ></div>
+
+        <div
+          class="raid-stats-page-buttons"
+          data-role="raid-stats-page-buttons"
+        ></div>
+      </div>
+    
+      </section>
+      <?php endif; ?>
     </div>
   </section>
 </div>

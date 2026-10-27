@@ -56,296 +56,19 @@ function qpub_render_head(string $activeTab, string $pageTitle, array $opts = []
   <link rel="stylesheet" href="<?= qpub_h($shared) ?>/css/theme.css?v=86">
   <link rel="stylesheet" href="<?= qpub_h($shared) ?>/css/layout.css?v=10">
   <link rel="stylesheet" href="<?= qpub_h($self) ?>/quest_public.css">
-  <!-- QUEST_SIDEBAR_BEHAVIOR_FIX_20261026 : main-site sidebar-only presentation -->
-  <style>
-    .un-sidebar .sidebar-group-toggle {
-      appearance: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      padding: 10px 14px;
-      margin: 0;
-      background: transparent;
-      border: 0;
-      border-radius: 0;
-      color: #e5e7eb;
-      font: inherit;
-      font-weight: 600;
-      text-align: left;
-      cursor: pointer;
-    }
-    .un-sidebar .sidebar-group-toggle:hover { background: rgba(255,255,255,.05); }
-    .un-sidebar .sidebar-group-toggle:focus-visible { outline: 2px solid #9ba5ea; outline-offset: -2px; }
-    .un-sidebar .sidebar-group-items { display: none; padding-left: 8px; }
-    .un-sidebar .sidebar-group-items.open { display: block; }
-    .un-sidebar .sidebar-group-items .sidebar-link { padding-left: 28px; }
-    .un-sidebar .sidebar-group-toggle .chevron { margin-left: auto; font-size: .75rem; opacity: .6; }
-    .un-sidebar {
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-width: thin;
-      scrollbar-color: #3b4252 transparent;
-    }
-    .un-sidebar::-webkit-scrollbar { width: 6px; }
-    .un-sidebar::-webkit-scrollbar-track { background: transparent; }
-    .un-sidebar::-webkit-scrollbar-thumb { background: #3b4252; border-radius: 6px; }
-    .un-sidebar nav, .un-sidebar .sidebar-nav,
-    .un-sidebar .sidebar-group, .un-sidebar .sidebar-group-items { overflow: visible !important; }
 
-    /* Match main UL.GG footer layout without requiring the DB-backed support modal. */
-    .un-footer .footer-support { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-bottom:14px; }
-    .un-footer .report-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:8px 16px;
-      border:1px solid rgba(180,200,255,.35); border-radius:999px; font-size:13px; font-weight:600;
-      color:#fff; background:linear-gradient(180deg,#3a3f52,#2b2f40); text-decoration:none; }
-    .un-footer .report-btn:hover { color:#fff; text-decoration:none; border-color:rgba(180,200,255,.7); }
-    .un-footer .report-btn span { font-size:11px; opacity:.85; }
-    .un-footer .footer-report { text-align:center; }
-    .un-footer .footer-copy { text-align:center; margin-top:12px; font-size:11px; color:#777; }
-  </style>
+  <!-- UL.GG public footer: single stylesheet for main site and Quest. -->
+  <link rel="stylesheet" href="/assets/css/footer_public.css?v=<?= (int)(@filemtime(dirname(__DIR__, 4) . '/assets/css/footer_public.css') ?: 1) ?>">
+  <link rel="stylesheet" href="/assets/css/shell_public.css?v=9c9260a447f2">
 </head>
 
 <body class="un-body">
-  <header class="un-navbar">
-    <button class="nav-toggle" type="button" data-toggle="sidebar" aria-label="開啟選單" aria-expanded="false">
-      ☰
-    </button>
-    <div class="nav-brand">
-      <span class="nav-logo">UL.GG</span>
-      <span class="nav-subtitle">Unlight Analytics</span>
-    </div>
-    <div class="nav-right">
-      <!--
-        Deliberately NO authentication control and NO session read on the public
-        pages. See README.md ("Public-page boundary").
-      -->
-      <a href="/pages/index.php" class="nav-login-btn" rel="nofollow">UL.GG 首頁</a>
-    </div>
-  </header>
+  <?php $ulggShellMode = 'quest'; $activeMenu = 'quest_public'; require dirname(__DIR__, 4) . '/layout/header_public.php'; ?>
 
   <div class="un-overlay"></div>
 
   <div class="un-layout">
-    <aside class="un-sidebar" id="unSidebar">
-      <div class="sidebar-section sidebar-title">
-        <span class="sidebar-game">UNLIGHT</span>
-      </div>
-
-      <nav class="sidebar-nav">
-        <!-- 系統 -->
-        <a href="/pages/index.php"
-          class="sidebar-link ">
-          <span class="sidebar-icon">📢</span>
-          <span class="sidebar-text">首頁情報 <small>Bulletin</small></span>
-        </a>
-
-        <!-- ⭐ 新增：ULGG 杯 -->
-        <a href="/pages/tournament/ulgg_cup.php"
-          class="sidebar-link ">
-          <span class="sidebar-icon">🏟️</span>
-          <span class="sidebar-text">ULGG 杯 <small>Cup</small></span>
-        </a>
-
-        <!-- 排行 -->
-        <div class="sidebar-group">
-
-          <button class="sidebar-group-toggle" data-target="group-team">
-            <span class="sidebar-icon">🏆</span>
-            <span class="sidebar-text">對戰組合 <small>Team</small></span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div class="sidebar-group-items" id="group-team">
-
-            <a href="/pages/ranking_team.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">🏆</span>
-              <span class="sidebar-text">組合排行 <small>Ranking</small></span>
-            </a>
-
-            <a href="/pages/strength_rank.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">🔥</span>
-              <span class="sidebar-text">強度排行 <small>Strength</small></span>
-            </a>
-
-          </div>
-        </div>
-
-
-
-        <div class="sidebar-group">
-          <button class="sidebar-group-toggle" data-target="group-character">
-            <span class="sidebar-icon">🧙</span>
-            <span class="sidebar-text">角色 <small>Character</small></span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div class="sidebar-group-items" id="group-character">
-            <a href="/pages/ranking_char.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">🧙</span>
-              <span class="sidebar-text">角色排行 <small>Ranking</small></span>
-            </a>
-
-            <a href="/pages/character_analysis.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">🧠</span>
-              <span class="sidebar-text">角色分析 <small>Analysis</small></span>
-            </a>
-
-            <a href="/pages/character_intro.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">🃏</span>
-              <span class="sidebar-text">集卡冊 <small>Intro</small></span>
-            </a>
-
-
-
-
-            <!-- ⭐ 新增：自製卡面 Fan ART -->
-            <a href="/pages/upload_card_art.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">🎨</span>
-              <span class="sidebar-text">自製卡面 <small>Fan Art</small></span>
-            </a>
-          </div>
-        </div>
-
-
-        <div class="sidebar-group">
-          <button class="sidebar-group-toggle" data-target="group-rank">
-            <span class="sidebar-icon">📊</span>
-            <span class="sidebar-text">排行榜 <small>Rank</small></span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div class="sidebar-group-items" id="group-rank">
-
-            <a href="/pages/bp_rank.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">📈</span>
-              <span class="sidebar-text">BP 排行</span>
-            </a>
-
-            <a href="/pages/qp_rank.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">📊</span>
-              <span class="sidebar-text">QP 排行</span>
-            </a>
-
-            <!-- 🏆 歷史名人堂 -->
-            <a href="/pages/hall_of_fame.php"
-              class="sidebar-link ">
-              <span class="sidebar-icon">🏆</span>
-              <span class="sidebar-text">歷史名人堂</span>
-            </a>
-
-          </div>
-        </div>
-
-        <!-- ⭐ 新增：ULGG 杯 -->
-        
-
-        <!-- 工具 -->
-        <div class="sidebar-group">
-
-          <button
-            class="sidebar-group-toggle"
-            type="button"
-            data-target="group-tools">
-            <span class="sidebar-icon">🧰</span>
-            <span class="sidebar-text">
-              實用工具 <small>Tools</small>
-            </span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div class="sidebar-group-items open" id="group-tools">
-
-            <a href="/pages/quest_map.php"
-              class="sidebar-link ">
-              <span class="sidebar-text">
-                地圖任務查詢 <small>Map</small>
-              </span>
-            </a>
-
-            <a href="/pages/skills.php"
-              class="sidebar-link ">
-              <span class="sidebar-text">
-                技能戰術搜尋 <small>Skills</small>
-              </span>
-            </a>
-
-            <a href="/pages/calculator.php"
-              class="sidebar-link ">
-              <span class="sidebar-text">
-                計算 Cost <small>Calculator</small>
-              </span>
-            </a>
-
-            <!-- QUEST_PUBLIC_SINGLE_ENTRY_20261027 -->
-            <a href="<?= qpub_hu(qpub_url('index.php', [])) ?>"
-              class="sidebar-link is-active" aria-current="page">
-              <span class="sidebar-text">任務公開分析 <small>Quest Analytics</small></span>
-            </a>
-
-
-
-
-
-          </div>
-        </div>
-        <a href="/pages/queue.php"
-          class="sidebar-link ">
-          <span class="sidebar-icon">👀</span>
-          <span class="sidebar-text">觀察大廳 <small>Lobby</small></span>
-        </a>
-
-        <!-- RAID_PUBLIC_NAV_GROUP_V1 -->
-        <div class="sidebar-group ">
-
-          <button
-            class="sidebar-group-toggle"
-            type="button"
-            data-target="group-raid">
-            <span class="sidebar-icon">🌀</span>
-            <span class="sidebar-text">
-              公開渦 <small>Raid</small>
-            </span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div
-            class="sidebar-group-items"
-            id="group-raid">
-
-            <a href="/pages/raid_observer.php"
-              class="sidebar-link sidebar-sub-link ">
-              <span class="sidebar-icon">👁</span>
-              <span class="sidebar-text">
-                觀察渦 <small>Live</small>
-              </span>
-            </a>
-
-            <a href="/pages/raid_stats.php"
-              class="sidebar-link sidebar-sub-link ">
-              <span class="sidebar-icon">📊</span>
-              <span class="sidebar-text">
-                Raid 統計 <small>Stats</small>
-              </span>
-            </a>
-
-          </div>
-        </div>
-
-        <a href="/pages/raising/index.php"
-          class="sidebar-link ">
-          <span class="sidebar-icon">⚔️</span>
-          <span class="sidebar-text">暗房育成 <small>Prototype</small></span>
-        </a>
-      </nav>
-    </aside>
+    <?php require dirname(__DIR__, 4) . '/layout/sidebar_public.php'; ?>
 
     <main class="un-main">
       <div class="un-main-inner">
@@ -365,43 +88,16 @@ function qpub_render_foot(): void
     ?>
       </div>
 
-      <footer class="un-footer">
-        <div class="footer-inner container">
-          <div class="footer-support">
-            <a class="report-btn" href="https://www.buymeacoffee.com/ulgg"
-              target="_blank" rel="noopener noreferrer">
-              ☕ Buy Me a Coffee <span>信用卡</span>
-            </a>
-          </div>
-          <div class="footer-report">
-            <a href="mailto:ulgg.online@gmail.com?subject=UL.GG%20%E5%95%8F%E9%A1%8C%E5%9B%9E%E5%A0%B1">回報問題</a>
-            -
-            <a href="/pages/about.php" class="footer-link">關於本站</a>
-            -
-            <a href="/pages/privacy.php" class="footer-link">隱私權政策</a>
-          </div>
-          <div class="footer-copy">
-            © <?= qpub_h((string)date('Y')) ?> UL.GG • Unlight Fan-made Statistics
-          </div>
-        </div>
-      </footer>
+<?php
+      $supportUrl = '/pages/index.php#supportModal';
+      require_once dirname(__DIR__, 4) . '/layout/footer_public.php';
+?>
     </main>
   </div>
 
   <script src="<?= qpub_h($shared) ?>/js/main.js"></script>
   <script src="<?= qpub_h($self) ?>/quest_public.js"></script>
-  <script>
-    // The main site's sidebar-group JS lives in layout/base.php, not /assets/js/main.js.
-    document.querySelectorAll('.un-sidebar .sidebar-group-toggle').forEach(btn => {
-      const target = document.getElementById(btn.dataset.target);
-      if (!target) return;
-      btn.setAttribute('aria-expanded', String(target.classList.contains('open')));
-      btn.addEventListener('click', () => {
-        const expanded = target.classList.toggle('open');
-        btn.setAttribute('aria-expanded', String(expanded));
-      });
-    });
-  </script>
+  <script defer src="/assets/js/shell_public.js?v=82e916307a00"></script>
 </body>
 
 </html>

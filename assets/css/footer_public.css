@@ -1,0 +1,85 @@
+/* UL.GG global public footer – single source used by main and Quest.
+   Deliberately scoped to .un-footer so unrelated .report-btn controls are unaffected. */
+.un-footer {
+  width: 100%;
+  padding: 28px 0 18px;
+  background: #242424;
+  color: #aeb6c3;
+  text-align: center;
+  opacity: 1;
+  transform: none;
+  font-size: 13px;
+}
+.un-footer .footer-inner {
+  width: 100%;
+  max-width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin: 0 auto;
+  text-align: center;
+}
+.un-footer .footer-support {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+.un-footer .report-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 6px 14px;
+  border: 1px solid rgba(180, 200, 255, .35);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3a3f52, #2b2f40);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.un-footer .report-btn:hover,
+.un-footer .report-btn:focus-visible {
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px rgba(120, 170, 255, .4), 0 4px 10px rgba(0, 0, 0, .6);
+}
+.un-footer .report-btn span {
+  font-size: 11px;
+  opacity: .85;
+}
+.un-footer .footer-report {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(180, 200, 255, .25);
+  text-align: center;
+  color: #aeb6c3;
+}
+.un-footer .footer-report a {
+  color: #398fc0;
+  text-decoration: none;
+}
+.un-footer .footer-report a:hover,
+.un-footer .footer-report a:focus-visible {
+  color: #79bbec;
+  text-decoration: underline;
+}
+.un-footer .footer-copy {
+  margin-top: 12px;
+  font-size: 11px;
+  color: #777;
+  text-align: center;
+}
+@media (max-width: 768px) {
+  .un-footer { padding: 20px 12px 14px; }
+  .un-footer .report-btn { padding: 6px 14px; }
+}

@@ -1,0 +1,2846 @@
+{
+  "schema": "ULGG_QUEST_VAL_PANEL_V1",
+  "definition": "latest_eligible_route_value_estimate",
+  "source_records": 4600,
+  "total_value_samples": 2061,
+  "rows": [
+    {
+      "quest_key": "0:1#2",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "1:7#10",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 3118.6442228445535
+    },
+    {
+      "quest_key": "1:7#11",
+      "val": 720.0,
+      "value_samples": 1,
+      "valh": 11349.549707614451
+    },
+    {
+      "quest_key": "1:7#14",
+      "val": 370.0,
+      "value_samples": 2,
+      "valh": 4201.475203732732
+    },
+    {
+      "quest_key": "1:7#15",
+      "val": 840.0,
+      "value_samples": 2,
+      "valh": 10575.391139204308
+    },
+    {
+      "quest_key": "1:7#18",
+      "val": 340.0,
+      "value_samples": 2,
+      "valh": 3911.3418321693484
+    },
+    {
+      "quest_key": "1:7#20",
+      "val": 270.0,
+      "value_samples": 2,
+      "valh": 3099.288942027818
+    },
+    {
+      "quest_key": "1:7#21",
+      "val": 340.0,
+      "value_samples": 2,
+      "valh": 3590.585054506362
+    },
+    {
+      "quest_key": "1:7#22",
+      "val": 200.0,
+      "value_samples": 2,
+      "valh": 3075.99722090235
+    },
+    {
+      "quest_key": "1:7#23",
+      "val": 250.0,
+      "value_samples": 2,
+      "valh": 2500.91328875446
+    },
+    {
+      "quest_key": "1:7#25",
+      "val": 580.0,
+      "value_samples": 1,
+      "valh": 8808.360089916352
+    },
+    {
+      "quest_key": "1:7#26",
+      "val": 330.0,
+      "value_samples": 1,
+      "valh": 3924.892685800043
+    },
+    {
+      "quest_key": "1:7#27",
+      "val": 1500.0,
+      "value_samples": 5,
+      "valh": 345605.72704802814
+    },
+    {
+      "quest_key": "1:7#28",
+      "val": 1630.0,
+      "value_samples": 4,
+      "valh": 391867.8929343748
+    },
+    {
+      "quest_key": "1:7#29",
+      "val": 700.0,
+      "value_samples": 1,
+      "valh": 170178.44814051923
+    },
+    {
+      "quest_key": "1:7#30",
+      "val": 490.0,
+      "value_samples": 1,
+      "valh": 3533.9619312437135
+    },
+    {
+      "quest_key": "1:7#5",
+      "val": 370.0,
+      "value_samples": 2,
+      "valh": 5504.020851911298
+    },
+    {
+      "quest_key": "1:7#7",
+      "val": 670.0,
+      "value_samples": 1,
+      "valh": 9779.320062335863
+    },
+    {
+      "quest_key": "1:7#9",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 2596.843756236821
+    },
+    {
+      "quest_key": "2:1#0",
+      "val": 0.0,
+      "value_samples": 2,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "2:1#1",
+      "val": 30.0,
+      "value_samples": 1,
+      "valh": 472.2478023861629
+    },
+    {
+      "quest_key": "2:1#10",
+      "val": 720.0,
+      "value_samples": 1,
+      "valh": 16361.69448266678
+    },
+    {
+      "quest_key": "2:1#11",
+      "val": 420.0,
+      "value_samples": 1,
+      "valh": 6410.592142418456
+    },
+    {
+      "quest_key": "2:1#12",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 1792.8660288893298
+    },
+    {
+      "quest_key": "2:1#13",
+      "val": 80.0,
+      "value_samples": 1,
+      "valh": 1313.6121860505702
+    },
+    {
+      "quest_key": "2:1#14",
+      "val": 720.0,
+      "value_samples": 1,
+      "valh": 15653.043522137383
+    },
+    {
+      "quest_key": "2:1#15",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 5808.161969264679
+    },
+    {
+      "quest_key": "2:1#16",
+      "val": 80.0,
+      "value_samples": 1,
+      "valh": 1179.7651343178134
+    },
+    {
+      "quest_key": "2:1#17",
+      "val": 450.0,
+      "value_samples": 2,
+      "valh": 6471.481530778068
+    },
+    {
+      "quest_key": "2:1#18",
+      "val": 390.0,
+      "value_samples": 1,
+      "valh": 6093.958418590854
+    },
+    {
+      "quest_key": "2:1#19",
+      "val": 320.0,
+      "value_samples": 2,
+      "valh": 4537.817872565169
+    },
+    {
+      "quest_key": "2:1#2",
+      "val": 170.0,
+      "value_samples": 1,
+      "valh": 2642.9651263581645
+    },
+    {
+      "quest_key": "2:1#20",
+      "val": 200.0,
+      "value_samples": 2,
+      "valh": 3055.6186634171104
+    },
+    {
+      "quest_key": "2:1#21",
+      "val": 220.0,
+      "value_samples": 2,
+      "valh": 3345.1570869313114
+    },
+    {
+      "quest_key": "2:1#22",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 3967.10302631582
+    },
+    {
+      "quest_key": "2:1#23",
+      "val": 170.0,
+      "value_samples": 1,
+      "valh": 2587.6171458269323
+    },
+    {
+      "quest_key": "2:1#24",
+      "val": 50.0,
+      "value_samples": 1,
+      "valh": 786.2524772651025
+    },
+    {
+      "quest_key": "2:1#25",
+      "val": 600.0,
+      "value_samples": 2,
+      "valh": 9205.013280477204
+    },
+    {
+      "quest_key": "2:1#26",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3085.110391648131
+    },
+    {
+      "quest_key": "2:1#27",
+      "val": 1370.0,
+      "value_samples": 4,
+      "valh": 309192.8699234414
+    },
+    {
+      "quest_key": "2:1#28",
+      "val": 1900.0,
+      "value_samples": 3,
+      "valh": 432873.0663425159
+    },
+    {
+      "quest_key": "2:1#29",
+      "val": 2420.0,
+      "value_samples": 4,
+      "valh": 737827.3717810258
+    },
+    {
+      "quest_key": "2:1#3",
+      "val": 180.0,
+      "value_samples": 1,
+      "valh": 2843.5092346242777
+    },
+    {
+      "quest_key": "2:1#30",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 2935.37155895068
+    },
+    {
+      "quest_key": "2:1#31",
+      "val": 320.0,
+      "value_samples": 3,
+      "valh": 3656.2073376092876
+    },
+    {
+      "quest_key": "2:1#32",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 3234.5360327831686
+    },
+    {
+      "quest_key": "2:1#4",
+      "val": 50.0,
+      "value_samples": 2,
+      "valh": 786.4942317657209
+    },
+    {
+      "quest_key": "2:1#5",
+      "val": 100.0,
+      "value_samples": 2,
+      "valh": 1323.3935617303982
+    },
+    {
+      "quest_key": "2:1#6",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3112.5126879206255
+    },
+    {
+      "quest_key": "2:1#7",
+      "val": 80.0,
+      "value_samples": 1,
+      "valh": 970.0955161124765
+    },
+    {
+      "quest_key": "2:1#8",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 3068.744524591459
+    },
+    {
+      "quest_key": "2:1#9",
+      "val": 130.0,
+      "value_samples": 3,
+      "valh": 1972.661458418369
+    },
+    {
+      "quest_key": "2:5#0",
+      "val": 60.0,
+      "value_samples": 1,
+      "valh": 863.4870089571792
+    },
+    {
+      "quest_key": "2:5#10",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 2333.9244398410015
+    },
+    {
+      "quest_key": "2:5#14",
+      "val": 320.0,
+      "value_samples": 1,
+      "valh": 3403.9054289297987
+    },
+    {
+      "quest_key": "2:5#15",
+      "val": 370.0,
+      "value_samples": 2,
+      "valh": 5243.775947050713
+    },
+    {
+      "quest_key": "2:5#17",
+      "val": 470.0,
+      "value_samples": 1,
+      "valh": 7263.866089234834
+    },
+    {
+      "quest_key": "2:5#18",
+      "val": 960.0,
+      "value_samples": 5,
+      "valh": 21550.11546466032
+    },
+    {
+      "quest_key": "2:5#19",
+      "val": 370.0,
+      "value_samples": 1,
+      "valh": 5829.111665042841
+    },
+    {
+      "quest_key": "2:5#20",
+      "val": 270.0,
+      "value_samples": 4,
+      "valh": 2945.215708479402
+    },
+    {
+      "quest_key": "2:5#21",
+      "val": 640.0,
+      "value_samples": 5,
+      "valh": 13986.29564072452
+    },
+    {
+      "quest_key": "2:5#22",
+      "val": 50.0,
+      "value_samples": 7,
+      "valh": 779.798242771895
+    },
+    {
+      "quest_key": "2:5#23",
+      "val": 270.0,
+      "value_samples": 2,
+      "valh": 2942.0751134574534
+    },
+    {
+      "quest_key": "2:5#24",
+      "val": 150.0,
+      "value_samples": 7,
+      "valh": 2118.1972255331493
+    },
+    {
+      "quest_key": "2:5#25",
+      "val": 550.0,
+      "value_samples": 5,
+      "valh": 7226.561621973003
+    },
+    {
+      "quest_key": "2:5#26",
+      "val": 300.0,
+      "value_samples": 3,
+      "valh": 2771.9967995105503
+    },
+    {
+      "quest_key": "2:5#27",
+      "val": 1460.0,
+      "value_samples": 4,
+      "valh": 317926.7777970882
+    },
+    {
+      "quest_key": "2:5#28",
+      "val": 1350.0,
+      "value_samples": 3,
+      "valh": 314073.46680908836
+    },
+    {
+      "quest_key": "2:5#29",
+      "val": 2500.0,
+      "value_samples": 3,
+      "valh": 386363.6831196271
+    },
+    {
+      "quest_key": "2:5#30",
+      "val": 220.0,
+      "value_samples": 8,
+      "valh": 1523.8785250817477
+    },
+    {
+      "quest_key": "2:5#31",
+      "val": 220.0,
+      "value_samples": 3,
+      "valh": 1573.5760585644985
+    },
+    {
+      "quest_key": "2:5#4",
+      "val": 50.0,
+      "value_samples": 1,
+      "valh": 556.7575452124296
+    },
+    {
+      "quest_key": "2:5#5",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 4087.479919541928
+    },
+    {
+      "quest_key": "2:5#8",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 3508.192432192182
+    },
+    {
+      "quest_key": "2:5#9",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 2400.3081106864784
+    },
+    {
+      "quest_key": "2:6#0",
+      "val": 30.0,
+      "value_samples": 1,
+      "valh": 315.86551053034333
+    },
+    {
+      "quest_key": "2:6#1",
+      "val": 30.0,
+      "value_samples": 1,
+      "valh": 467.77359042256916
+    },
+    {
+      "quest_key": "2:6#10",
+      "val": 350.0,
+      "value_samples": 3,
+      "valh": 7842.722437855833
+    },
+    {
+      "quest_key": "2:6#12",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 2224.750800836363
+    },
+    {
+      "quest_key": "2:6#13",
+      "val": 470.0,
+      "value_samples": 1,
+      "valh": 10742.74843114026
+    },
+    {
+      "quest_key": "2:6#14",
+      "val": 250.0,
+      "value_samples": 2,
+      "valh": 3888.1657047633753
+    },
+    {
+      "quest_key": "2:6#15",
+      "val": 350.0,
+      "value_samples": 3,
+      "valh": 8015.146522527637
+    },
+    {
+      "quest_key": "2:6#16",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 7073.466155260529
+    },
+    {
+      "quest_key": "2:6#17",
+      "val": 350.0,
+      "value_samples": 1,
+      "valh": 5563.251048512664
+    },
+    {
+      "quest_key": "2:6#18",
+      "val": 500.0,
+      "value_samples": 1,
+      "valh": 7332.069202782506
+    },
+    {
+      "quest_key": "2:6#19",
+      "val": 420.0,
+      "value_samples": 4,
+      "valh": 9575.017545954126
+    },
+    {
+      "quest_key": "2:6#20",
+      "val": 220.0,
+      "value_samples": 2,
+      "valh": 3474.192165569671
+    },
+    {
+      "quest_key": "2:6#21",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3145.257810167862
+    },
+    {
+      "quest_key": "2:6#22",
+      "val": 220.0,
+      "value_samples": 2,
+      "valh": 3313.0899366342655
+    },
+    {
+      "quest_key": "2:6#23",
+      "val": 520.0,
+      "value_samples": 4,
+      "valh": 11306.38161289328
+    },
+    {
+      "quest_key": "2:6#24",
+      "val": 30.0,
+      "value_samples": 2,
+      "valh": 448.0165336098311
+    },
+    {
+      "quest_key": "2:6#25",
+      "val": 550.0,
+      "value_samples": 1,
+      "valh": 8615.20752039913
+    },
+    {
+      "quest_key": "2:6#26",
+      "val": 350.0,
+      "value_samples": 1,
+      "valh": 5588.710716517368
+    },
+    {
+      "quest_key": "2:6#27",
+      "val": 1900.0,
+      "value_samples": 1,
+      "valh": 435234.5359321351
+    },
+    {
+      "quest_key": "2:6#28",
+      "val": 3170.0,
+      "value_samples": 7,
+      "valh": 709651.8229224107
+    },
+    {
+      "quest_key": "2:6#29",
+      "val": 400.0,
+      "value_samples": 3,
+      "valh": 117661.3264666516
+    },
+    {
+      "quest_key": "2:6#3",
+      "val": 200.0,
+      "value_samples": 3,
+      "valh": 4601.276942003283
+    },
+    {
+      "quest_key": "2:6#30",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 2567.283509287951
+    },
+    {
+      "quest_key": "2:6#31",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 2091.8671683269804
+    },
+    {
+      "quest_key": "2:6#32",
+      "val": 170.0,
+      "value_samples": 1,
+      "valh": 1546.6185857800663
+    },
+    {
+      "quest_key": "2:6#4",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3165.1858448011026
+    },
+    {
+      "quest_key": "2:6#6",
+      "val": 500.0,
+      "value_samples": 2,
+      "valh": 11360.289678488463
+    },
+    {
+      "quest_key": "2:6#7",
+      "val": 200.0,
+      "value_samples": 2,
+      "valh": 3660.3112056065693
+    },
+    {
+      "quest_key": "2:6#8",
+      "val": 670.0,
+      "value_samples": 1,
+      "valh": 15570.24555262567
+    },
+    {
+      "quest_key": "2:6#9",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 5630.839323692879
+    },
+    {
+      "quest_key": "3:4#1",
+      "val": 80.0,
+      "value_samples": 1,
+      "valh": 827.1826468799961
+    },
+    {
+      "quest_key": "3:4#10",
+      "val": 130.0,
+      "value_samples": 1,
+      "valh": 1976.4137895634426
+    },
+    {
+      "quest_key": "3:4#11",
+      "val": 280.0,
+      "value_samples": 1,
+      "valh": 3227.9343073705413
+    },
+    {
+      "quest_key": "3:4#12",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 3187.2732704207006
+    },
+    {
+      "quest_key": "3:4#15",
+      "val": 550.0,
+      "value_samples": 1,
+      "valh": 12088.680088356377
+    },
+    {
+      "quest_key": "3:4#28",
+      "val": 1260.0,
+      "value_samples": 1,
+      "valh": 269020.19107549294
+    },
+    {
+      "quest_key": "3:4#3",
+      "val": 80.0,
+      "value_samples": 1,
+      "valh": 1113.5761103464913
+    },
+    {
+      "quest_key": "3:4#31",
+      "val": 370.0,
+      "value_samples": 1,
+      "valh": 4354.769433342013
+    },
+    {
+      "quest_key": "3:4#5",
+      "val": 130.0,
+      "value_samples": 1,
+      "valh": 1966.1643831907606
+    },
+    {
+      "quest_key": "3:4#6",
+      "val": 180.0,
+      "value_samples": 1,
+      "valh": 2670.7079440437765
+    },
+    {
+      "quest_key": "3:4#7",
+      "val": 180.0,
+      "value_samples": 1,
+      "valh": 2060.561882411327
+    },
+    {
+      "quest_key": "3:5#0",
+      "val": 110.0,
+      "value_samples": 1,
+      "valh": 1750.7535135471355
+    },
+    {
+      "quest_key": "3:5#1",
+      "val": 50.0,
+      "value_samples": 1,
+      "valh": 784.7537713618689
+    },
+    {
+      "quest_key": "3:5#10",
+      "val": 130.0,
+      "value_samples": 1,
+      "valh": 1972.602704044289
+    },
+    {
+      "quest_key": "3:5#11",
+      "val": 230.0,
+      "value_samples": 1,
+      "valh": 2285.8571718510116
+    },
+    {
+      "quest_key": "3:5#12",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 2712.419065575983
+    },
+    {
+      "quest_key": "3:5#13",
+      "val": 350.0,
+      "value_samples": 8,
+      "valh": 7532.001732632901
+    },
+    {
+      "quest_key": "3:5#14",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 2978.765375822643
+    },
+    {
+      "quest_key": "3:5#15",
+      "val": 400.0,
+      "value_samples": 1,
+      "valh": 6092.497596136688
+    },
+    {
+      "quest_key": "3:5#16",
+      "val": 180.0,
+      "value_samples": 1,
+      "valh": 2122.155920604953
+    },
+    {
+      "quest_key": "3:5#17",
+      "val": 430.0,
+      "value_samples": 1,
+      "valh": 4330.446366017734
+    },
+    {
+      "quest_key": "3:5#18",
+      "val": 450.0,
+      "value_samples": 1,
+      "valh": 4970.492366167918
+    },
+    {
+      "quest_key": "3:5#19",
+      "val": 350.0,
+      "value_samples": 1,
+      "valh": 4935.2057460403785
+    },
+    {
+      "quest_key": "3:5#2",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 3481.9414895099158
+    },
+    {
+      "quest_key": "3:5#20",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 2935.339539434175
+    },
+    {
+      "quest_key": "3:5#21",
+      "val": 80.0,
+      "value_samples": 3,
+      "valh": 1225.804907280946
+    },
+    {
+      "quest_key": "3:5#22",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 1673.0693212344831
+    },
+    {
+      "quest_key": "3:5#23",
+      "val": 230.0,
+      "value_samples": 1,
+      "valh": 2696.655967699226
+    },
+    {
+      "quest_key": "3:5#24",
+      "val": 80.0,
+      "value_samples": 1,
+      "valh": 1268.6687438116064
+    },
+    {
+      "quest_key": "3:5#25",
+      "val": 650.0,
+      "value_samples": 1,
+      "valh": 9364.253992363454
+    },
+    {
+      "quest_key": "3:5#26",
+      "val": 330.0,
+      "value_samples": 1,
+      "valh": 3835.59495605284
+    },
+    {
+      "quest_key": "3:5#27",
+      "val": 3250.0,
+      "value_samples": 2,
+      "valh": 761298.7112716549
+    },
+    {
+      "quest_key": "3:5#28",
+      "val": 2840.0,
+      "value_samples": 2,
+      "valh": 635194.6783941162
+    },
+    {
+      "quest_key": "3:5#29",
+      "val": 3140.0,
+      "value_samples": 2,
+      "valh": 752832.1572828185
+    },
+    {
+      "quest_key": "3:5#3",
+      "val": 110.0,
+      "value_samples": 1,
+      "valh": 1714.932820357759
+    },
+    {
+      "quest_key": "3:5#30",
+      "val": 400.0,
+      "value_samples": 1,
+      "valh": 3695.288445281495
+    },
+    {
+      "quest_key": "3:5#31",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 1687.176444311658
+    },
+    {
+      "quest_key": "3:5#32",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 3276.6842852386826
+    },
+    {
+      "quest_key": "3:5#4",
+      "val": 80.0,
+      "value_samples": 1,
+      "valh": 1108.8001021745777
+    },
+    {
+      "quest_key": "3:5#5",
+      "val": 100.0,
+      "value_samples": 2,
+      "valh": 1540.8529839039327
+    },
+    {
+      "quest_key": "3:5#6",
+      "val": 210.0,
+      "value_samples": 1,
+      "valh": 2473.0577109032815
+    },
+    {
+      "quest_key": "3:5#7",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 1746.8814788382904
+    },
+    {
+      "quest_key": "3:5#8",
+      "val": 160.0,
+      "value_samples": 1,
+      "valh": 1872.6683870037498
+    },
+    {
+      "quest_key": "3:5#9",
+      "val": 180.0,
+      "value_samples": 1,
+      "valh": 2103.5619704655414
+    },
+    {
+      "quest_key": "3:6#0",
+      "val": 80.0,
+      "value_samples": 4,
+      "valh": 1210.588873252369
+    },
+    {
+      "quest_key": "3:6#1",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 2301.129758230722
+    },
+    {
+      "quest_key": "3:6#10",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 2917.5790016265905
+    },
+    {
+      "quest_key": "3:6#11",
+      "val": 220.0,
+      "value_samples": 3,
+      "valh": 2317.5211806936345
+    },
+    {
+      "quest_key": "3:6#12",
+      "val": 440.0,
+      "value_samples": 6,
+      "valh": 4793.993655624605
+    },
+    {
+      "quest_key": "3:6#13",
+      "val": 670.0,
+      "value_samples": 12,
+      "valh": 13568.05196936311
+    },
+    {
+      "quest_key": "3:6#14",
+      "val": 250.0,
+      "value_samples": 7,
+      "valh": 3433.339580522825
+    },
+    {
+      "quest_key": "3:6#15",
+      "val": 250.0,
+      "value_samples": 4,
+      "valh": 2992.7068492893786
+    },
+    {
+      "quest_key": "3:6#16",
+      "val": 470.0,
+      "value_samples": 11,
+      "valh": 10202.582270813946
+    },
+    {
+      "quest_key": "3:6#17",
+      "val": 320.0,
+      "value_samples": 5,
+      "valh": 3588.7858143998933
+    },
+    {
+      "quest_key": "3:6#18",
+      "val": 650.0,
+      "value_samples": 13,
+      "valh": 13090.7561858839
+    },
+    {
+      "quest_key": "3:6#19",
+      "val": 350.0,
+      "value_samples": 25,
+      "valh": 7295.536019990249
+    },
+    {
+      "quest_key": "3:6#2",
+      "val": 50.0,
+      "value_samples": 2,
+      "valh": 634.9675604143588
+    },
+    {
+      "quest_key": "3:6#20",
+      "val": 170.0,
+      "value_samples": 12,
+      "valh": 2484.0116644248897
+    },
+    {
+      "quest_key": "3:6#21",
+      "val": 150.0,
+      "value_samples": 7,
+      "valh": 2039.7157365767853
+    },
+    {
+      "quest_key": "3:6#22",
+      "val": 150.0,
+      "value_samples": 5,
+      "valh": 2162.847972046297
+    },
+    {
+      "quest_key": "3:6#23",
+      "val": 50.0,
+      "value_samples": 6,
+      "valh": 601.9091846494567
+    },
+    {
+      "quest_key": "3:6#24",
+      "val": 50.0,
+      "value_samples": 3,
+      "valh": 692.9735548719445
+    },
+    {
+      "quest_key": "3:6#25",
+      "val": 650.0,
+      "value_samples": 3,
+      "valh": 8548.83687180867
+    },
+    {
+      "quest_key": "3:6#26",
+      "val": 250.0,
+      "value_samples": 9,
+      "valh": 3706.9064293883366
+    },
+    {
+      "quest_key": "3:6#27",
+      "val": 1590.0,
+      "value_samples": 3,
+      "valh": 342148.5554196396
+    },
+    {
+      "quest_key": "3:6#28",
+      "val": 1690.0,
+      "value_samples": 2,
+      "valh": 399202.4246989596
+    },
+    {
+      "quest_key": "3:6#29",
+      "val": 920.0,
+      "value_samples": 2,
+      "valh": 245006.569083813
+    },
+    {
+      "quest_key": "3:6#3",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 5694.428408371962
+    },
+    {
+      "quest_key": "3:6#30",
+      "val": 420.0,
+      "value_samples": 6,
+      "valh": 4199.758765381363
+    },
+    {
+      "quest_key": "3:6#31",
+      "val": 510.0,
+      "value_samples": 6,
+      "valh": 5045.193266750144
+    },
+    {
+      "quest_key": "3:6#32",
+      "val": 320.0,
+      "value_samples": 9,
+      "valh": 3054.28362539022
+    },
+    {
+      "quest_key": "3:6#4",
+      "val": 50.0,
+      "value_samples": 1,
+      "valh": 779.0033003739827
+    },
+    {
+      "quest_key": "3:6#5",
+      "val": 370.0,
+      "value_samples": 9,
+      "valh": 8012.710447186877
+    },
+    {
+      "quest_key": "3:6#6",
+      "val": 30.0,
+      "value_samples": 3,
+      "valh": 445.70265952181404
+    },
+    {
+      "quest_key": "3:6#7",
+      "val": 100.0,
+      "value_samples": 3,
+      "valh": 1392.5881434939697
+    },
+    {
+      "quest_key": "3:6#8",
+      "val": 150.0,
+      "value_samples": 3,
+      "valh": 2269.829966204257
+    },
+    {
+      "quest_key": "3:6#9",
+      "val": 230.0,
+      "value_samples": 10,
+      "valh": 4523.962498449166
+    },
+    {
+      "quest_key": "3:7#0",
+      "val": 30.0,
+      "value_samples": 1,
+      "valh": 461.35816387585555
+    },
+    {
+      "quest_key": "3:7#10",
+      "val": 180.0,
+      "value_samples": 4,
+      "valh": 3987.4625431791605
+    },
+    {
+      "quest_key": "3:7#11",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3122.745306917361
+    },
+    {
+      "quest_key": "3:7#12",
+      "val": 0.0,
+      "value_samples": 3,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "3:7#13",
+      "val": 130.0,
+      "value_samples": 4,
+      "valh": 1518.7597051755426
+    },
+    {
+      "quest_key": "3:7#14",
+      "val": 30.0,
+      "value_samples": 3,
+      "valh": 241.301078510828
+    },
+    {
+      "quest_key": "3:7#15",
+      "val": 0.0,
+      "value_samples": 3,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "3:7#16",
+      "val": 50.0,
+      "value_samples": 10,
+      "valh": 726.4928670438032
+    },
+    {
+      "quest_key": "3:7#17",
+      "val": 0.0,
+      "value_samples": 7,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "3:7#18",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "3:7#19",
+      "val": 150.0,
+      "value_samples": 8,
+      "valh": 2012.5774461026317
+    },
+    {
+      "quest_key": "3:7#2",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "3:7#20",
+      "val": 180.0,
+      "value_samples": 9,
+      "valh": 2361.8797869127916
+    },
+    {
+      "quest_key": "3:7#21",
+      "val": 0.0,
+      "value_samples": 5,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "3:7#22",
+      "val": 130.0,
+      "value_samples": 5,
+      "valh": 1990.787062431381
+    },
+    {
+      "quest_key": "3:7#23",
+      "val": 180.0,
+      "value_samples": 4,
+      "valh": 1822.200954580569
+    },
+    {
+      "quest_key": "3:7#24",
+      "val": 0.0,
+      "value_samples": 2,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "3:7#25",
+      "val": 530.0,
+      "value_samples": 5,
+      "valh": 8298.875768978833
+    },
+    {
+      "quest_key": "3:7#26",
+      "val": 480.0,
+      "value_samples": 1,
+      "valh": 5511.2209074460025
+    },
+    {
+      "quest_key": "3:7#28",
+      "val": 1340.0,
+      "value_samples": 2,
+      "valh": 315711.7453375117
+    },
+    {
+      "quest_key": "3:7#29",
+      "val": 920.0,
+      "value_samples": 3,
+      "valh": 283948.4205780487
+    },
+    {
+      "quest_key": "3:7#3",
+      "val": 0.0,
+      "value_samples": 4,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "3:7#30",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 1609.8164992952286
+    },
+    {
+      "quest_key": "3:7#31",
+      "val": 260.0,
+      "value_samples": 3,
+      "valh": 1764.6601278917187
+    },
+    {
+      "quest_key": "3:7#32",
+      "val": 260.0,
+      "value_samples": 1,
+      "valh": 2602.096834668893
+    },
+    {
+      "quest_key": "3:7#4",
+      "val": 30.0,
+      "value_samples": 1,
+      "valh": 361.46717977573684
+    },
+    {
+      "quest_key": "3:7#5",
+      "val": 170.0,
+      "value_samples": 1,
+      "valh": 2000.4468868991316
+    },
+    {
+      "quest_key": "3:7#6",
+      "val": 100.0,
+      "value_samples": 1,
+      "valh": 2244.7811717387426
+    },
+    {
+      "quest_key": "3:7#7",
+      "val": 100.0,
+      "value_samples": 4,
+      "valh": 1918.0388935687395
+    },
+    {
+      "quest_key": "3:7#8",
+      "val": 100.0,
+      "value_samples": 5,
+      "valh": 1924.0309553368102
+    },
+    {
+      "quest_key": "3:7#9",
+      "val": 0.0,
+      "value_samples": 4,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:0#0",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 1799.3908884107484
+    },
+    {
+      "quest_key": "4:0#1",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 1515.0669604558136
+    },
+    {
+      "quest_key": "4:0#10",
+      "val": 340.0,
+      "value_samples": 2,
+      "valh": 4594.590505625752
+    },
+    {
+      "quest_key": "4:0#11",
+      "val": 670.0,
+      "value_samples": 2,
+      "valh": 10239.886050190094
+    },
+    {
+      "quest_key": "4:0#12",
+      "val": 230.0,
+      "value_samples": 3,
+      "valh": 2893.482011017827
+    },
+    {
+      "quest_key": "4:0#13",
+      "val": 150.0,
+      "value_samples": 2,
+      "valh": 2299.962646543549
+    },
+    {
+      "quest_key": "4:0#14",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 3954.9582331425054
+    },
+    {
+      "quest_key": "4:0#15",
+      "val": 600.0,
+      "value_samples": 10,
+      "valh": 13142.405906222992
+    },
+    {
+      "quest_key": "4:0#16",
+      "val": 100.0,
+      "value_samples": 1,
+      "valh": 1611.5165707541355
+    },
+    {
+      "quest_key": "4:0#17",
+      "val": 320.0,
+      "value_samples": 1,
+      "valh": 5128.283437294383
+    },
+    {
+      "quest_key": "4:0#18",
+      "val": 670.0,
+      "value_samples": 1,
+      "valh": 9286.985377570962
+    },
+    {
+      "quest_key": "4:0#19",
+      "val": 370.0,
+      "value_samples": 1,
+      "valh": 5635.124632170986
+    },
+    {
+      "quest_key": "4:0#2",
+      "val": 230.0,
+      "value_samples": 2,
+      "valh": 5059.31533779159
+    },
+    {
+      "quest_key": "4:0#20",
+      "val": 80.0,
+      "value_samples": 1,
+      "valh": 1254.102381779116
+    },
+    {
+      "quest_key": "4:0#21",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 4275.945843753118
+    },
+    {
+      "quest_key": "4:0#22",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 3114.9571291408633
+    },
+    {
+      "quest_key": "4:0#23",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 4534.529108077194
+    },
+    {
+      "quest_key": "4:0#24",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 4484.3555395400535
+    },
+    {
+      "quest_key": "4:0#25",
+      "val": 600.0,
+      "value_samples": 1,
+      "valh": 6445.85945030521
+    },
+    {
+      "quest_key": "4:0#26",
+      "val": 400.0,
+      "value_samples": 2,
+      "valh": 9348.739584523659
+    },
+    {
+      "quest_key": "4:0#27",
+      "val": 1450.0,
+      "value_samples": 2,
+      "valh": 443847.66309725447
+    },
+    {
+      "quest_key": "4:0#28",
+      "val": 1120.0,
+      "value_samples": 2,
+      "valh": 346379.02497450385
+    },
+    {
+      "quest_key": "4:0#29",
+      "val": 2640.0,
+      "value_samples": 2,
+      "valh": 792816.1501723306
+    },
+    {
+      "quest_key": "4:0#3",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 3484.074195179365
+    },
+    {
+      "quest_key": "4:0#30",
+      "val": 520.0,
+      "value_samples": 1,
+      "valh": 5764.283291446874
+    },
+    {
+      "quest_key": "4:0#31",
+      "val": 520.0,
+      "value_samples": 1,
+      "valh": 5055.660294282622
+    },
+    {
+      "quest_key": "4:0#32",
+      "val": 860.0,
+      "value_samples": 1,
+      "valh": 9968.59948302629
+    },
+    {
+      "quest_key": "4:0#4",
+      "val": 270.0,
+      "value_samples": 4,
+      "valh": 4235.912085360798
+    },
+    {
+      "quest_key": "4:0#5",
+      "val": 370.0,
+      "value_samples": 3,
+      "valh": 5719.503329054352
+    },
+    {
+      "quest_key": "4:0#6",
+      "val": 170.0,
+      "value_samples": 3,
+      "valh": 2472.026945029059
+    },
+    {
+      "quest_key": "4:0#7",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 3973.2369835905574
+    },
+    {
+      "quest_key": "4:0#8",
+      "val": 340.0,
+      "value_samples": 2,
+      "valh": 5271.551552748611
+    },
+    {
+      "quest_key": "4:0#9",
+      "val": 170.0,
+      "value_samples": 1,
+      "valh": 2599.994787884234
+    },
+    {
+      "quest_key": "4:1#0",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:1#1",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:1#10",
+      "val": 130.0,
+      "value_samples": 1,
+      "valh": 1976.1103593295775
+    },
+    {
+      "quest_key": "4:1#11",
+      "val": 350.0,
+      "value_samples": 2,
+      "valh": 3944.681042791324
+    },
+    {
+      "quest_key": "4:1#12",
+      "val": 340.0,
+      "value_samples": 1,
+      "valh": 4000.412054680242
+    },
+    {
+      "quest_key": "4:1#13",
+      "val": 170.0,
+      "value_samples": 1,
+      "valh": 2677.83100522696
+    },
+    {
+      "quest_key": "4:1#14",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 3944.905240029076
+    },
+    {
+      "quest_key": "4:1#15",
+      "val": 170.0,
+      "value_samples": 2,
+      "valh": 2669.4340469724807
+    },
+    {
+      "quest_key": "4:1#16",
+      "val": 200.0,
+      "value_samples": 2,
+      "valh": 2277.5111244372265
+    },
+    {
+      "quest_key": "4:1#17",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 3158.7588503084658
+    },
+    {
+      "quest_key": "4:1#18",
+      "val": 170.0,
+      "value_samples": 1,
+      "valh": 2690.8296966055436
+    },
+    {
+      "quest_key": "4:1#19",
+      "val": 820.0,
+      "value_samples": 1,
+      "valh": 12425.515046063425
+    },
+    {
+      "quest_key": "4:1#2",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:1#20",
+      "val": 320.0,
+      "value_samples": 3,
+      "valh": 4285.199523328313
+    },
+    {
+      "quest_key": "4:1#21",
+      "val": 670.0,
+      "value_samples": 1,
+      "valh": 8256.558538421603
+    },
+    {
+      "quest_key": "4:1#22",
+      "val": 170.0,
+      "value_samples": 1,
+      "valh": 2543.3716437576413
+    },
+    {
+      "quest_key": "4:1#23",
+      "val": 320.0,
+      "value_samples": 2,
+      "valh": 5102.605038430759
+    },
+    {
+      "quest_key": "4:1#24",
+      "val": 500.0,
+      "value_samples": 1,
+      "valh": 7813.772688201332
+    },
+    {
+      "quest_key": "4:1#25",
+      "val": 500.0,
+      "value_samples": 1,
+      "valh": 7087.592395739553
+    },
+    {
+      "quest_key": "4:1#26",
+      "val": 350.0,
+      "value_samples": 2,
+      "valh": 3944.0935358182883
+    },
+    {
+      "quest_key": "4:1#27",
+      "val": 1590.0,
+      "value_samples": 5,
+      "valh": 352649.83717722434
+    },
+    {
+      "quest_key": "4:1#28",
+      "val": 1670.0,
+      "value_samples": 1,
+      "valh": 411772.38566197676
+    },
+    {
+      "quest_key": "4:1#29",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:1#3",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3239.5335012100786
+    },
+    {
+      "quest_key": "4:1#30",
+      "val": 890.0,
+      "value_samples": 2,
+      "valh": 10214.499166169027
+    },
+    {
+      "quest_key": "4:1#31",
+      "val": 710.0,
+      "value_samples": 6,
+      "valh": 6064.096101116702
+    },
+    {
+      "quest_key": "4:1#32",
+      "val": 2470.0,
+      "value_samples": 1,
+      "valh": 28890.591683823022
+    },
+    {
+      "quest_key": "4:1#4",
+      "val": 150.0,
+      "value_samples": 2,
+      "valh": 2345.411952815864
+    },
+    {
+      "quest_key": "4:1#5",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 1883.2987759094726
+    },
+    {
+      "quest_key": "4:1#6",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:1#7",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 3891.0101640062308
+    },
+    {
+      "quest_key": "4:1#8",
+      "val": 50.0,
+      "value_samples": 1,
+      "valh": 769.1574911060436
+    },
+    {
+      "quest_key": "4:1#9",
+      "val": 300.0,
+      "value_samples": 2,
+      "valh": 4125.195555672018
+    },
+    {
+      "quest_key": "4:2#0",
+      "val": 350.0,
+      "value_samples": 1,
+      "valh": 4937.470323968879
+    },
+    {
+      "quest_key": "4:2#1",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 3778.190809971056
+    },
+    {
+      "quest_key": "4:2#10",
+      "val": 330.0,
+      "value_samples": 3,
+      "valh": 4336.326460215274
+    },
+    {
+      "quest_key": "4:2#11",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 2021.4725681432544
+    },
+    {
+      "quest_key": "4:2#12",
+      "val": 230.0,
+      "value_samples": 1,
+      "valh": 3567.9096002264446
+    },
+    {
+      "quest_key": "4:2#13",
+      "val": 280.0,
+      "value_samples": 2,
+      "valh": 4204.972120645862
+    },
+    {
+      "quest_key": "4:2#14",
+      "val": 330.0,
+      "value_samples": 1,
+      "valh": 3903.657181546601
+    },
+    {
+      "quest_key": "4:2#15",
+      "val": 0.0,
+      "value_samples": 2,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:2#16",
+      "val": 420.0,
+      "value_samples": 2,
+      "valh": 4940.538442294221
+    },
+    {
+      "quest_key": "4:2#17",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 2297.913450136411
+    },
+    {
+      "quest_key": "4:2#18",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 2408.9992232813743
+    },
+    {
+      "quest_key": "4:2#19",
+      "val": 230.0,
+      "value_samples": 2,
+      "valh": 2683.8603324356404
+    },
+    {
+      "quest_key": "4:2#2",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 2315.633050945028
+    },
+    {
+      "quest_key": "4:2#20",
+      "val": 370.0,
+      "value_samples": 1,
+      "valh": 4245.898310643977
+    },
+    {
+      "quest_key": "4:2#21",
+      "val": 150.0,
+      "value_samples": 3,
+      "valh": 2115.421279603851
+    },
+    {
+      "quest_key": "4:2#22",
+      "val": 0.0,
+      "value_samples": 2,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:2#23",
+      "val": 270.0,
+      "value_samples": 2,
+      "valh": 2460.693556592375
+    },
+    {
+      "quest_key": "4:2#24",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 2325.799092848217
+    },
+    {
+      "quest_key": "4:2#25",
+      "val": 500.0,
+      "value_samples": 3,
+      "valh": 7432.153806906065
+    },
+    {
+      "quest_key": "4:2#26",
+      "val": 270.0,
+      "value_samples": 1,
+      "valh": 2135.005721734609
+    },
+    {
+      "quest_key": "4:2#27",
+      "val": 1420.0,
+      "value_samples": 11,
+      "valh": 322465.90658515634
+    },
+    {
+      "quest_key": "4:2#28",
+      "val": 1920.0,
+      "value_samples": 5,
+      "valh": 446575.5806618893
+    },
+    {
+      "quest_key": "4:2#29",
+      "val": 3000.0,
+      "value_samples": 1,
+      "valh": 728900.0693781627
+    },
+    {
+      "quest_key": "4:2#3",
+      "val": 30.0,
+      "value_samples": 1,
+      "valh": 479.78877656295066
+    },
+    {
+      "quest_key": "4:2#30",
+      "val": 320.0,
+      "value_samples": 2,
+      "valh": 2215.827686828669
+    },
+    {
+      "quest_key": "4:2#31",
+      "val": 520.0,
+      "value_samples": 2,
+      "valh": 2578.828656419375
+    },
+    {
+      "quest_key": "4:2#32",
+      "val": 470.0,
+      "value_samples": 1,
+      "valh": 3083.084747084574
+    },
+    {
+      "quest_key": "4:2#4",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:2#5",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 3083.1018462957304
+    },
+    {
+      "quest_key": "4:2#6",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 1716.9173568830379
+    },
+    {
+      "quest_key": "4:2#7",
+      "val": 550.0,
+      "value_samples": 2,
+      "valh": 6199.089065722538
+    },
+    {
+      "quest_key": "4:2#8",
+      "val": 370.0,
+      "value_samples": 1,
+      "valh": 3272.2720346443566
+    },
+    {
+      "quest_key": "4:2#9",
+      "val": 280.0,
+      "value_samples": 1,
+      "valh": 3151.3685628407193
+    },
+    {
+      "quest_key": "4:3#0",
+      "val": 150.0,
+      "value_samples": 3,
+      "valh": 2282.991201406051
+    },
+    {
+      "quest_key": "4:3#1",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3215.678284611686
+    },
+    {
+      "quest_key": "4:3#10",
+      "val": 320.0,
+      "value_samples": 1,
+      "valh": 4973.366302462536
+    },
+    {
+      "quest_key": "4:3#11",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 2541.723744889679
+    },
+    {
+      "quest_key": "4:3#12",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3073.182511261337
+    },
+    {
+      "quest_key": "4:3#13",
+      "val": 270.0,
+      "value_samples": 2,
+      "valh": 3334.799577462083
+    },
+    {
+      "quest_key": "4:3#14",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 4651.57048146339
+    },
+    {
+      "quest_key": "4:3#15",
+      "val": 320.0,
+      "value_samples": 2,
+      "valh": 3943.8574722761164
+    },
+    {
+      "quest_key": "4:3#16",
+      "val": 170.0,
+      "value_samples": 2,
+      "valh": 2741.4284806634855
+    },
+    {
+      "quest_key": "4:3#17",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 3532.3949159921203
+    },
+    {
+      "quest_key": "4:3#18",
+      "val": 300.0,
+      "value_samples": 3,
+      "valh": 4594.5484138300035
+    },
+    {
+      "quest_key": "4:3#19",
+      "val": 370.0,
+      "value_samples": 1,
+      "valh": 4215.599591892451
+    },
+    {
+      "quest_key": "4:3#2",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 3467.5908440989615
+    },
+    {
+      "quest_key": "4:3#20",
+      "val": 300.0,
+      "value_samples": 2,
+      "valh": 3650.597272298753
+    },
+    {
+      "quest_key": "4:3#21",
+      "val": 270.0,
+      "value_samples": 3,
+      "valh": 3709.886346078402
+    },
+    {
+      "quest_key": "4:3#22",
+      "val": 350.0,
+      "value_samples": 1,
+      "valh": 3894.732834563852
+    },
+    {
+      "quest_key": "4:3#23",
+      "val": 300.0,
+      "value_samples": 2,
+      "valh": 4686.77994652711
+    },
+    {
+      "quest_key": "4:3#24",
+      "val": 1420.0,
+      "value_samples": 21,
+      "valh": 334677.31694909517
+    },
+    {
+      "quest_key": "4:3#25",
+      "val": 1260.0,
+      "value_samples": 10,
+      "valh": 290142.0838406663
+    },
+    {
+      "quest_key": "4:3#26",
+      "val": 1590.0,
+      "value_samples": 2,
+      "valh": 203570.96660128786
+    },
+    {
+      "quest_key": "4:3#27",
+      "val": 470.0,
+      "value_samples": 3,
+      "valh": 5316.864325516618
+    },
+    {
+      "quest_key": "4:3#28",
+      "val": 370.0,
+      "value_samples": 1,
+      "valh": 4276.2071228190425
+    },
+    {
+      "quest_key": "4:3#29",
+      "val": 470.0,
+      "value_samples": 1,
+      "valh": 5093.222735136646
+    },
+    {
+      "quest_key": "4:3#3",
+      "val": 180.0,
+      "value_samples": 1,
+      "valh": 2772.443985453252
+    },
+    {
+      "quest_key": "4:3#4",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3015.0557657728814
+    },
+    {
+      "quest_key": "4:3#5",
+      "val": 220.0,
+      "value_samples": 2,
+      "valh": 3058.8056814299107
+    },
+    {
+      "quest_key": "4:3#6",
+      "val": 230.0,
+      "value_samples": 1,
+      "valh": 3594.430977038176
+    },
+    {
+      "quest_key": "4:3#7",
+      "val": 100.0,
+      "value_samples": 1,
+      "valh": 1146.0481600438347
+    },
+    {
+      "quest_key": "4:3#8",
+      "val": 220.0,
+      "value_samples": 2,
+      "valh": 3469.335448224146
+    },
+    {
+      "quest_key": "4:3#9",
+      "val": 30.0,
+      "value_samples": 1,
+      "valh": 450.61051876375035
+    },
+    {
+      "quest_key": "4:4#0",
+      "val": 100.0,
+      "value_samples": 1,
+      "valh": 1588.325302830065
+    },
+    {
+      "quest_key": "4:4#1",
+      "val": 280.0,
+      "value_samples": 1,
+      "valh": 4191.715079498682
+    },
+    {
+      "quest_key": "4:4#10",
+      "val": 220.0,
+      "value_samples": 1,
+      "valh": 3452.389347725619
+    },
+    {
+      "quest_key": "4:4#11",
+      "val": 670.0,
+      "value_samples": 3,
+      "valh": 9911.631689648708
+    },
+    {
+      "quest_key": "4:4#12",
+      "val": 600.0,
+      "value_samples": 1,
+      "valh": 8873.240869330682
+    },
+    {
+      "quest_key": "4:4#13",
+      "val": 50.0,
+      "value_samples": 2,
+      "valh": 747.8501979546513
+    },
+    {
+      "quest_key": "4:4#14",
+      "val": 590.0,
+      "value_samples": 1,
+      "valh": 13083.037745883563
+    },
+    {
+      "quest_key": "4:4#15",
+      "val": 0.0,
+      "value_samples": 2,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:4#16",
+      "val": 100.0,
+      "value_samples": 1,
+      "valh": 1525.0009107640692
+    },
+    {
+      "quest_key": "4:4#17",
+      "val": 230.0,
+      "value_samples": 2,
+      "valh": 2365.7402652323694
+    },
+    {
+      "quest_key": "4:4#18",
+      "val": 30.0,
+      "value_samples": 2,
+      "valh": 456.1158736231768
+    },
+    {
+      "quest_key": "4:4#19",
+      "val": 300.0,
+      "value_samples": 3,
+      "valh": 4610.8890555147555
+    },
+    {
+      "quest_key": "4:4#2",
+      "val": 50.0,
+      "value_samples": 1,
+      "valh": 742.4812858799746
+    },
+    {
+      "quest_key": "4:4#20",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 2048.5693415656233
+    },
+    {
+      "quest_key": "4:4#21",
+      "val": 0.0,
+      "value_samples": 3,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:4#22",
+      "val": 250.0,
+      "value_samples": 2,
+      "valh": 3830.6792474776125
+    },
+    {
+      "quest_key": "4:4#23",
+      "val": 200.0,
+      "value_samples": 2,
+      "valh": 2986.075064281225
+    },
+    {
+      "quest_key": "4:4#24",
+      "val": 1320.0,
+      "value_samples": 9,
+      "valh": 289100.4183656238
+    },
+    {
+      "quest_key": "4:4#25",
+      "val": 1240.0,
+      "value_samples": 4,
+      "valh": 268792.3544418914
+    },
+    {
+      "quest_key": "4:4#26",
+      "val": 2040.0,
+      "value_samples": 3,
+      "valh": 361202.4769769782
+    },
+    {
+      "quest_key": "4:4#27",
+      "val": 520.0,
+      "value_samples": 2,
+      "valh": 5841.557731172698
+    },
+    {
+      "quest_key": "4:4#28",
+      "val": 320.0,
+      "value_samples": 2,
+      "valh": 3596.864483082007
+    },
+    {
+      "quest_key": "4:4#29",
+      "val": 440.0,
+      "value_samples": 1,
+      "valh": 4929.958834481931
+    },
+    {
+      "quest_key": "4:4#3",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 3726.948453051591
+    },
+    {
+      "quest_key": "4:4#4",
+      "val": 350.0,
+      "value_samples": 1,
+      "valh": 5558.937201898059
+    },
+    {
+      "quest_key": "4:4#5",
+      "val": 200.0,
+      "value_samples": 2,
+      "valh": 2999.1489217829444
+    },
+    {
+      "quest_key": "4:4#6",
+      "val": 400.0,
+      "value_samples": 1,
+      "valh": 6105.11010580975
+    },
+    {
+      "quest_key": "4:4#7",
+      "val": 590.0,
+      "value_samples": 1,
+      "valh": 13673.777312444821
+    },
+    {
+      "quest_key": "4:4#8",
+      "val": 400.0,
+      "value_samples": 1,
+      "valh": 6130.856415263111
+    },
+    {
+      "quest_key": "4:4#9",
+      "val": 370.0,
+      "value_samples": 2,
+      "valh": 5693.453234312595
+    },
+    {
+      "quest_key": "4:5#0",
+      "val": 450.0,
+      "value_samples": 1,
+      "valh": 6898.685909536564
+    },
+    {
+      "quest_key": "4:5#1",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 2313.1392885323726
+    },
+    {
+      "quest_key": "4:5#10",
+      "val": 500.0,
+      "value_samples": 1,
+      "valh": 7849.556603000805
+    },
+    {
+      "quest_key": "4:5#11",
+      "val": 800.0,
+      "value_samples": 1,
+      "valh": 9305.292614462098
+    },
+    {
+      "quest_key": "4:5#12",
+      "val": 650.0,
+      "value_samples": 2,
+      "valh": 8215.932097868354
+    },
+    {
+      "quest_key": "4:5#13",
+      "val": 400.0,
+      "value_samples": 2,
+      "valh": 9346.145843843668
+    },
+    {
+      "quest_key": "4:5#14",
+      "val": 500.0,
+      "value_samples": 1,
+      "valh": 6463.304748857557
+    },
+    {
+      "quest_key": "4:5#15",
+      "val": 400.0,
+      "value_samples": 1,
+      "valh": 6001.006140123102
+    },
+    {
+      "quest_key": "4:5#16",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 3541.954196185269
+    },
+    {
+      "quest_key": "4:5#17",
+      "val": 550.0,
+      "value_samples": 1,
+      "valh": 8499.956903110211
+    },
+    {
+      "quest_key": "4:5#18",
+      "val": 700.0,
+      "value_samples": 1,
+      "valh": 7338.4285584561085
+    },
+    {
+      "quest_key": "4:5#19",
+      "val": 400.0,
+      "value_samples": 2,
+      "valh": 4681.447430246244
+    },
+    {
+      "quest_key": "4:5#2",
+      "val": 400.0,
+      "value_samples": 1,
+      "valh": 3861.633513882552
+    },
+    {
+      "quest_key": "4:5#20",
+      "val": 400.0,
+      "value_samples": 2,
+      "valh": 4194.647025999399
+    },
+    {
+      "quest_key": "4:5#21",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 4644.197766700085
+    },
+    {
+      "quest_key": "4:5#22",
+      "val": 550.0,
+      "value_samples": 1,
+      "valh": 6228.417791892891
+    },
+    {
+      "quest_key": "4:5#23",
+      "val": 550.0,
+      "value_samples": 1,
+      "valh": 6519.5802570799515
+    },
+    {
+      "quest_key": "4:5#24",
+      "val": 1750.0,
+      "value_samples": 2,
+      "valh": 344246.0761423951
+    },
+    {
+      "quest_key": "4:5#25",
+      "val": 1750.0,
+      "value_samples": 1,
+      "valh": 312387.1350638974
+    },
+    {
+      "quest_key": "4:5#26",
+      "val": 1430.0,
+      "value_samples": 2,
+      "valh": 282202.7046400962
+    },
+    {
+      "quest_key": "4:5#27",
+      "val": 970.0,
+      "value_samples": 1,
+      "valh": 6345.678363307797
+    },
+    {
+      "quest_key": "4:5#28",
+      "val": 470.0,
+      "value_samples": 1,
+      "valh": 2265.308889217181
+    },
+    {
+      "quest_key": "4:5#29",
+      "val": 370.0,
+      "value_samples": 1,
+      "valh": 2541.7084682219174
+    },
+    {
+      "quest_key": "4:5#3",
+      "val": 280.0,
+      "value_samples": 1,
+      "valh": 3523.543454748789
+    },
+    {
+      "quest_key": "4:5#4",
+      "val": 150.0,
+      "value_samples": 1,
+      "valh": 2384.388248825833
+    },
+    {
+      "quest_key": "4:5#5",
+      "val": 200.0,
+      "value_samples": 1,
+      "valh": 3072.031206567005
+    },
+    {
+      "quest_key": "4:5#6",
+      "val": 550.0,
+      "value_samples": 1,
+      "valh": 4334.686995715126
+    },
+    {
+      "quest_key": "4:5#7",
+      "val": 450.0,
+      "value_samples": 1,
+      "valh": 5079.585525463119
+    },
+    {
+      "quest_key": "4:5#8",
+      "val": 600.0,
+      "value_samples": 1,
+      "valh": 6871.892822904851
+    },
+    {
+      "quest_key": "4:5#9",
+      "val": 500.0,
+      "value_samples": 1,
+      "valh": 5008.218792081579
+    },
+    {
+      "quest_key": "4:6#0",
+      "val": 150.0,
+      "value_samples": 3,
+      "valh": 2143.8678592899037
+    },
+    {
+      "quest_key": "4:6#1",
+      "val": 150.0,
+      "value_samples": 8,
+      "valh": 2170.3353172938146
+    },
+    {
+      "quest_key": "4:6#10",
+      "val": 350.0,
+      "value_samples": 28,
+      "valh": 7831.7822056806035
+    },
+    {
+      "quest_key": "4:6#11",
+      "val": 700.0,
+      "value_samples": 35,
+      "valh": 9821.315483351926
+    },
+    {
+      "quest_key": "4:6#12",
+      "val": 700.0,
+      "value_samples": 34,
+      "valh": 7149.423031023598
+    },
+    {
+      "quest_key": "4:6#13",
+      "val": 470.0,
+      "value_samples": 57,
+      "valh": 10165.057626452883
+    },
+    {
+      "quest_key": "4:6#14",
+      "val": 520.0,
+      "value_samples": 34,
+      "valh": 7383.369660882114
+    },
+    {
+      "quest_key": "4:6#15",
+      "val": 500.0,
+      "value_samples": 57,
+      "valh": 10125.471614237398
+    },
+    {
+      "quest_key": "4:6#16",
+      "val": 1150.0,
+      "value_samples": 33,
+      "valh": 22853.20266709014
+    },
+    {
+      "quest_key": "4:6#17",
+      "val": 500.0,
+      "value_samples": 25,
+      "valh": 6997.73606226292
+    },
+    {
+      "quest_key": "4:6#18",
+      "val": 620.0,
+      "value_samples": 26,
+      "valh": 12668.352625006968
+    },
+    {
+      "quest_key": "4:6#19",
+      "val": 1070.0,
+      "value_samples": 54,
+      "valh": 19040.411154401663
+    },
+    {
+      "quest_key": "4:6#2",
+      "val": 400.0,
+      "value_samples": 4,
+      "valh": 5882.881347950855
+    },
+    {
+      "quest_key": "4:6#20",
+      "val": 370.0,
+      "value_samples": 34,
+      "valh": 5241.767167031717
+    },
+    {
+      "quest_key": "4:6#21",
+      "val": 300.0,
+      "value_samples": 12,
+      "valh": 4174.608113559797
+    },
+    {
+      "quest_key": "4:6#22",
+      "val": 350.0,
+      "value_samples": 21,
+      "valh": 5084.419057154302
+    },
+    {
+      "quest_key": "4:6#23",
+      "val": 700.0,
+      "value_samples": 22,
+      "valh": 11004.21729146226
+    },
+    {
+      "quest_key": "4:6#24",
+      "val": 3050.0,
+      "value_samples": 117,
+      "valh": 691997.9060927215
+    },
+    {
+      "quest_key": "4:6#25",
+      "val": 2570.0,
+      "value_samples": 58,
+      "valh": 588088.9304028854
+    },
+    {
+      "quest_key": "4:6#26",
+      "val": 2250.0,
+      "value_samples": 62,
+      "valh": 459577.9470124027
+    },
+    {
+      "quest_key": "4:6#27",
+      "val": 470.0,
+      "value_samples": 60,
+      "valh": 5117.892383163603
+    },
+    {
+      "quest_key": "4:6#28",
+      "val": 570.0,
+      "value_samples": 43,
+      "valh": 6045.520780982657
+    },
+    {
+      "quest_key": "4:6#29",
+      "val": 770.0,
+      "value_samples": 16,
+      "valh": 5792.715439639184
+    },
+    {
+      "quest_key": "4:6#3",
+      "val": 540.0,
+      "value_samples": 53,
+      "valh": 11081.501492259855
+    },
+    {
+      "quest_key": "4:6#4",
+      "val": 320.0,
+      "value_samples": 22,
+      "valh": 4705.25368478714
+    },
+    {
+      "quest_key": "4:6#5",
+      "val": 710.0,
+      "value_samples": 64,
+      "valh": 14103.64302739457
+    },
+    {
+      "quest_key": "4:6#6",
+      "val": 540.0,
+      "value_samples": 42,
+      "valh": 10978.4668940147
+    },
+    {
+      "quest_key": "4:6#7",
+      "val": 540.0,
+      "value_samples": 15,
+      "valh": 8507.614416206203
+    },
+    {
+      "quest_key": "4:6#8",
+      "val": 710.0,
+      "value_samples": 26,
+      "valh": 14310.234210634542
+    },
+    {
+      "quest_key": "4:6#9",
+      "val": 950.0,
+      "value_samples": 26,
+      "valh": 19592.46431732066
+    },
+    {
+      "quest_key": "4:7#0",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    },
+    {
+      "quest_key": "4:7#1",
+      "val": 740.0,
+      "value_samples": 1,
+      "valh": 11413.231762588086
+    },
+    {
+      "quest_key": "4:7#11",
+      "val": 100.0,
+      "value_samples": 1,
+      "valh": 996.9866061225948
+    },
+    {
+      "quest_key": "4:7#14",
+      "val": 450.0,
+      "value_samples": 1,
+      "valh": 5247.734052769374
+    },
+    {
+      "quest_key": "4:7#15",
+      "val": 250.0,
+      "value_samples": 1,
+      "valh": 2936.981409942374
+    },
+    {
+      "quest_key": "4:7#20",
+      "val": 500.0,
+      "value_samples": 3,
+      "valh": 5009.505835706046
+    },
+    {
+      "quest_key": "4:7#21",
+      "val": 170.0,
+      "value_samples": 2,
+      "valh": 1997.8304842460554
+    },
+    {
+      "quest_key": "4:7#26",
+      "val": 1430.0,
+      "value_samples": 1,
+      "valh": 278246.4312182924
+    },
+    {
+      "quest_key": "4:7#5",
+      "val": 100.0,
+      "value_samples": 1,
+      "valh": 1563.3181351980222
+    },
+    {
+      "quest_key": "4:7#7",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 2061.0345441952586
+    },
+    {
+      "quest_key": "7:0#17",
+      "val": 1290.0,
+      "value_samples": 1,
+      "valh": 18458.164489384926
+    },
+    {
+      "quest_key": "7:0#32",
+      "val": 680.0,
+      "value_samples": 1,
+      "valh": 7518.193226936798
+    },
+    {
+      "quest_key": "7:0#43",
+      "val": 680.0,
+      "value_samples": 1,
+      "valh": 7523.337541424145
+    },
+    {
+      "quest_key": "7:1#13",
+      "val": 2480.0,
+      "value_samples": 1,
+      "valh": 63653.26588250055
+    },
+    {
+      "quest_key": "7:1#20",
+      "val": 1680.0,
+      "value_samples": 1,
+      "valh": 37914.74140727505
+    },
+    {
+      "quest_key": "7:1#27",
+      "val": 570.0,
+      "value_samples": 1,
+      "valh": 23867.889561432326
+    },
+    {
+      "quest_key": "7:1#28",
+      "val": 850.0,
+      "value_samples": 1,
+      "valh": 35517.06194398509
+    },
+    {
+      "quest_key": "7:1#29",
+      "val": 1150.0,
+      "value_samples": 1,
+      "valh": 25536.583437323578
+    },
+    {
+      "quest_key": "7:1#32",
+      "val": 510.0,
+      "value_samples": 2,
+      "valh": 7574.988044168971
+    },
+    {
+      "quest_key": "7:1#34",
+      "val": 250.0,
+      "value_samples": 2,
+      "valh": 2037.057755062795
+    },
+    {
+      "quest_key": "7:1#4",
+      "val": 510.0,
+      "value_samples": 2,
+      "valh": 7581.845433231584
+    },
+    {
+      "quest_key": "7:1#42",
+      "val": 540.0,
+      "value_samples": 2,
+      "valh": 4479.226532949231
+    },
+    {
+      "quest_key": "7:1#46",
+      "val": 420.0,
+      "value_samples": 1,
+      "valh": 9770.980542640838
+    },
+    {
+      "quest_key": "7:1#51",
+      "val": 610.0,
+      "value_samples": 1,
+      "valh": 6740.677261485328
+    },
+    {
+      "quest_key": "7:1#55",
+      "val": 750.0,
+      "value_samples": 2,
+      "valh": 4650.949148848309
+    },
+    {
+      "quest_key": "7:2#0",
+      "val": 510.0,
+      "value_samples": 4,
+      "valh": 5806.278460900476
+    },
+    {
+      "quest_key": "7:2#10",
+      "val": 340.0,
+      "value_samples": 1,
+      "valh": 5028.2208462196095
+    },
+    {
+      "quest_key": "7:2#23",
+      "val": 1670.0,
+      "value_samples": 1,
+      "valh": 20285.096248458955
+    },
+    {
+      "quest_key": "7:2#27",
+      "val": 1500.0,
+      "value_samples": 1,
+      "valh": 63404.05125198612
+    },
+    {
+      "quest_key": "7:2#29",
+      "val": 1600.0,
+      "value_samples": 1,
+      "valh": 66107.94906817247
+    },
+    {
+      "quest_key": "7:2#34",
+      "val": 510.0,
+      "value_samples": 1,
+      "valh": 7992.122602232211
+    },
+    {
+      "quest_key": "7:2#7",
+      "val": 510.0,
+      "value_samples": 1,
+      "valh": 7312.281524209324
+    },
+    {
+      "quest_key": "7:3#1",
+      "val": 450.0,
+      "value_samples": 1,
+      "valh": 5324.97281316392
+    },
+    {
+      "quest_key": "7:3#12",
+      "val": 520.0,
+      "value_samples": 1,
+      "valh": 8262.030662603069
+    },
+    {
+      "quest_key": "7:3#17",
+      "val": 300.0,
+      "value_samples": 1,
+      "valh": 6888.820353561033
+    },
+    {
+      "quest_key": "7:3#18",
+      "val": 470.0,
+      "value_samples": 1,
+      "valh": 7213.715869080865
+    },
+    {
+      "quest_key": "7:3#27",
+      "val": 320.0,
+      "value_samples": 1,
+      "valh": 4043.408934546589
+    },
+    {
+      "quest_key": "7:3#3",
+      "val": 750.0,
+      "value_samples": 1,
+      "valh": 8817.86383214411
+    },
+    {
+      "quest_key": "7:3#40",
+      "val": 1420.0,
+      "value_samples": 1,
+      "valh": 3823.4952837600113
+    },
+    {
+      "quest_key": "7:3#9",
+      "val": 470.0,
+      "value_samples": 1,
+      "valh": 7357.897932881714
+    },
+    {
+      "quest_key": "8:0#2",
+      "val": 0.0,
+      "value_samples": 1,
+      "valh": 0.0
+    }
+  ]
+}

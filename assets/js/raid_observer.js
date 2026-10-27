@@ -3041,7 +3041,7 @@
       '[data-role="raid-stats-section"]'
     );
 
-    if (section) {
+    if (section && section.dataset.raidStatsHydrated === '1') {
       return section;
     }
 
@@ -3053,11 +3053,15 @@
       return null;
     }
 
-    section = document.createElement('section');
-    section.className = 'raid-stats-section';
-    section.dataset.role = 'raid-stats-section';
+    if (!section) {
+      section = document.createElement('section');
+      section.className = 'raid-stats-section';
+      section.dataset.role = 'raid-stats-section';
+    }
 
-    section.innerHTML = `
+    // ULGG_RAID_CLS_SSR_REUSE_R2
+    if (!section.querySelector('[data-role="raid-stats-body"]')) {
+      section.innerHTML = `
       <div class="raid-stats-head">
         <div>
           <h2
@@ -3151,12 +3155,41 @@
         ></div>
       </div>
     `;
+    }
+
+    // ULGG_RAID_CLS_STATS_SKELETON_V2
+    // 已登入才預留 20 列，實際資料由原渲染函式替換。
+    if (root.dataset.raidStatsAuthenticated === '1') {
+      const placeholderBody = section.querySelector(
+        '[data-role="raid-stats-body"]'
+      );
+
+      if (placeholderBody && placeholderBody.children.length === 0) {
+        const skeleton = document.createDocumentFragment();
+
+        for (let i = 0; i < RAID_STATS_PAGE_SIZE; i++) {
+          const tr = document.createElement('tr');
+          tr.className = 'raid-stats-loading-row';
+          tr.setAttribute('aria-hidden', 'true');
+
+          for (let j = 0; j < 5; j++) {
+            const td = document.createElement('td');
+            td.textContent = j === 0 ? '載入中…' : '—';
+            tr.appendChild(td);
+          }
+
+          skeleton.appendChild(tr);
+        }
+
+        placeholderBody.appendChild(skeleton);
+      }
+    }
 
     const endedSection =
       endedGrid.closest('section')
       || endedGrid.parentElement;
 
-    if (endedSection) {
+    if (endedSection && !section.isConnected) {
       endedSection.insertAdjacentElement(
         'afterend',
         section
@@ -3227,6 +3260,7 @@
         });
       });
 
+    section.dataset.raidStatsHydrated = '1';
     return section;
   }
 

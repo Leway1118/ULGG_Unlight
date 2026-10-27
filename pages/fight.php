@@ -63,7 +63,7 @@ if ($currentServer === 'ALL') {
 ====================================================== */
   .fight-all {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     align-items: center;
     gap: 6px;
   }
@@ -536,6 +536,12 @@ if ($currentServer === 'ALL') {
    Event 卡
 ====================================================== */
   .event {
+    /* ULGG_CLS_FIGHT_V1 */
+    display: block;
+    width: 44px;
+    height: 68px;
+    object-fit: contain;
+    box-sizing: border-box;
     max-width: 44px;
     border-radius: 5px;
     border: 1px solid var(--ul-border);
@@ -549,6 +555,8 @@ if ($currentServer === 'ALL') {
   }
 
   .event-slot-empty {
+    display: block;
+    box-sizing: border-box;
     width: 44px;
     height: 68px;
     border-radius: 5px;
@@ -2429,6 +2437,8 @@ $stages = [
   10   => '魔女山谷',
   11   => '隨機',
   12   => '烏波斯黑湖',
+  13   => '白魔的圓環石陣',
+  14   => '聖域的凱旋門',
 ];
 /* print ";e1=$e1";
 print ";e2=$e2";
@@ -3133,7 +3143,9 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
             SQL
             );
             $outPutString .= '<div class="fight-all">';
+            $fightRowFragments = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+              $fightRowStart = strlen($outPutString);
               $use_flag = 0;
               $flag = 0;
               $bg_class = ($index % 2 == 0) ? "gray-bg" : "white-bg"; // 設定背景顏色
@@ -3598,7 +3610,7 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                   if (!empty($ico1)) {
                     $outPutString .=
                       '<img src="' . IMG_BASE . htmlspecialchars($ico1, ENT_QUOTES, 'UTF-8') . '" ' .
-                      'class="event" title="' . htmlspecialchars($name1 ?? '', ENT_QUOTES, 'UTF-8') . '" />';
+                      'class="event" width="44" height="68" title="' . htmlspecialchars($name1 ?? '', ENT_QUOTES, 'UTF-8') . '" />';
                   } else {
                     $outPutString .= '<span class="event-slot-empty"></span>';
                   }
@@ -3957,7 +3969,7 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                   if (!empty($ico2)) {
                     $outPutString .=
                       '<img src="' . IMG_BASE . htmlspecialchars($ico2, ENT_QUOTES, 'UTF-8') . '" ' .
-                      'class="event" title="' . htmlspecialchars($name2 ?? '', ENT_QUOTES, 'UTF-8') . '" />';
+                      'class="event" width="44" height="68" title="' . htmlspecialchars($name2 ?? '', ENT_QUOTES, 'UTF-8') . '" />';
                   } else {
                     $outPutString .= '<span class="event-slot-empty"></span>';
                   }
@@ -4057,8 +4069,15 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
                 $unknown_pre = $unknown;
                 $opponent_bp = $bp2;
               }
+              // ULGG_CLS_BP_V3: BP 正序計算後才收集 HTML
+              $rowHtml = substr($outPutString, $fightRowStart);
+              $outPutString = substr($outPutString, 0, $fightRowStart);
+              if ($rowHtml !== '') {
+                $fightRowFragments[] = $rowHtml;
+              }
             }
 
+            $outPutString .= implode('', array_reverse($fightRowFragments));
             $outPutString .= '</div>'; //fight-all
           }
           // 1. 先將關聯陣列轉為索引陣列，並計算每個角色的勝率（0～1 之間）
@@ -4138,6 +4157,9 @@ $isPlayerMode = ($combined == 2 && !empty($player_name));
             }
             echo '</div>'; //container
             echo '</div>'; //wrapper
+          }
+          if (!empty($index)) {
+            include __DIR__ . '/../includes/support_prompt_fight.php';
           }
           echo $outPutString;
 

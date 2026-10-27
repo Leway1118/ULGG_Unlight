@@ -1,0 +1,31 @@
+/* ULGG_SHELL_SINGLE_SOURCE_20261027: main + Quest public navigation.
+   Shared rules only. Main-only account/admin differences stay in PHP. */
+.un-sidebar .sidebar-group { margin-bottom: 4px; }
+.un-sidebar .sidebar-group-toggle {
+  appearance: none; display: flex; align-items: center; gap: 8px;
+  width: 100%; margin: 0; padding: 10px 14px; border: 0;
+  background: transparent; border-radius: 0; text-align: left;
+  color: #e5e7eb; font: inherit; font-weight: 600; cursor: pointer;
+}
+.un-sidebar .sidebar-group-toggle:hover { background: rgba(255,255,255,.05); }
+.un-sidebar .sidebar-group-toggle:focus-visible { outline: 2px solid #9ba5ea; outline-offset: -2px; }
+.un-sidebar .sidebar-group-items { display: none; padding-left: 8px; }
+.un-sidebar .sidebar-group-items.open { display: block; }
+.un-sidebar .sidebar-group-items .sidebar-link { padding-left: 28px; }
+.un-sidebar .sidebar-group-toggle .chevron { margin-left: auto; font-size: .75rem; opacity: .6; }
+.un-sidebar { overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #3b4252 transparent; }
+.un-sidebar::-webkit-scrollbar { width: 6px; }
+.un-sidebar::-webkit-scrollbar-track { background: transparent; }
+.un-sidebar::-webkit-scrollbar-thumb { background: #3b4252; border-radius: 6px; }
+.un-sidebar nav, .un-sidebar .sidebar-nav,
+.un-sidebar .sidebar-group, .un-sidebar .sidebar-group-items { overflow: visible !important; }
+/* Quest uses the same header action style as the main site. */
+.un-navbar .nav-login-btn {
+  padding: 8px 18px; background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15); border-radius: 6px;
+  color: #fff; font-size: 14px; font-weight: 500;
+  text-decoration: none; transition: .15s;
+}
+.un-navbar .nav-login-btn:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.25); }
+/* Both pages use the same fixed mobile navbar, even if legacy main styles say relative. */
+@media (max-width: 768px) { body.un-body .un-navbar { position: fixed; z-index: 20000; } }

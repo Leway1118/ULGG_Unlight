@@ -576,6 +576,7 @@ function qpub_quest_view_row(?array $cat, ?array $src, string $source): array
         'qph' => $pick('qph'),
         'qp_samples' => $pick('qp_samples'),
         'valh' => $pick('valh'),
+        'average_value' => $pick('average_value'),
         'value_samples' => $pick('value_samples'),
         'search_ap' => $pick('search_ap'),
         'execute_ap' => $pick('execute_ap'),
@@ -593,7 +594,7 @@ function qpub_quest_view_row(?array $cat, ?array $src, string $source): array
         /* "未觀測效率為 null": never present an unobserved cell as a number. */
         foreach ([
             'occurrences', 'completed_count', 'qp', 'qph', 'qp_samples',
-            'valh', 'value_samples', 'median_text', 'mean_text',
+            'valh', 'value_samples', 'average_value', 'median_text', 'mean_text',
         ] as $key) {
             $row[$key] = null;
         }

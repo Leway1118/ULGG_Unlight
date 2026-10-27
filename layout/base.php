@@ -3189,31 +3189,9 @@ if (
    Compact / Flat Version
 ========================= */
 
-    /* Footer 淡入動畫 */
-    .un-footer {
-      padding: 28px 0 18px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity .6s ease, transform .6s ease;
-    }
-
-    .un-footer.footer-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Footer 容器 */
-    .footer-inner {
-      text-align: center;
-    }
-
     /* =========================
    Support 區塊
 ========================= */
-
-    .footer-support {
-      margin-bottom: 14px;
-    }
 
     .footer-title {
       font-size: 14px;
@@ -3285,32 +3263,15 @@ if (
    問題回報區
 ========================= */
 
-    .footer-report {
-      margin-top: 14px;
-      padding-top: 10px;
-      border-top: 1px dashed rgba(180, 200, 255, 0.25);
-      text-align: center;
-    }
-
     /* =========================
    Footer Copy
 ========================= */
-
-    .footer-copy {
-      margin-top: 12px;
-      font-size: 11px;
-      color: #777;
-    }
 
     /* =========================
    Mobile Adjust
 ========================= */
 
     @media (max-width: 768px) {
-      .un-footer {
-        padding: 20px 12px 14px;
-      }
-
       .footer-title {
         font-size: 14px;
       }
@@ -3998,19 +3959,6 @@ if (
     .un-sidebar {
       scrollbar-width: thin;
       scrollbar-color: #3b4252 transparent;
-    }
-
-    .footer-support {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .footer-support .kofi-btn span {
-      font-size: 11px;
-      opacity: .85;
     }
 
     /* =========================
@@ -5517,6 +5465,8 @@ if (
       text-align: left;
     }
   </style>
+  <!-- UL.GG public footer: single stylesheet for main site and Quest. -->
+  <link rel="stylesheet" href="/assets/css/footer_public.css?v=<?= (int)(@filemtime(dirname(__DIR__) . '/assets/css/footer_public.css') ?: 1) ?>">
   <?php
 
   $isSteamLogin = !empty($_SESSION['steam_id']);
@@ -5611,443 +5561,14 @@ if (
   $topChar = $db->query($sql)->fetchAll();
 
   ?>
+  <link rel="stylesheet" href="/assets/css/shell_public.css?v=9c9260a447f2">
 </head>
 
 <body class="un-body">
-  <header class="un-navbar">
-
-    <button class="nav-toggle" type="button" data-toggle="sidebar">
-      ☰
-    </button>
-    <div class="nav-brand">
-      <span class="nav-logo">UL.GG</span>
-      <span class="nav-subtitle">Unlight Analytics</span>
-    </div>
-    <div class="nav-right">
-
-      <?php if (!empty($_SESSION['steam_id'])): ?>
-
-        <?php
-        // 決定顯示名稱：UL 名優先，其次 Steam 名，再其次是 Steam ID
-        $displayName = $_SESSION['username']
-          ?? $_SESSION['steam_name']
-          ?? $_SESSION['steam_id'];
-
-        // 頭像 fallback
-        $avatar = $_SESSION['steam_avatar_full']
-          ?? "/assets/favicon/android-chrome-192x192.png";
-        if (empty($avatar)) {
-          $avatar = "/assets/favicon/android-chrome-192x192.png";
-        }
-        ?>
-
-        <div class="nav-user-info">
-          <div class="user-box" onclick="toggleUserMenu()">
-
-            <img src="<?= htmlspecialchars($avatar) ?>" class="avatar">
-
-            <span class="username"><?= htmlspecialchars($displayName) ?></span>
-
-            <i class="fa fa-caret-down caret"></i>
-
-            <div class="user-dropdown" id="userDropdown">
-
-              <!-- UL.GG 個人頁面（有 UL ID 才顯示） -->
-              <?php if ($isVerifiedUL): ?>
-                <!-- ack = 1，已綁定 -->
-                <a href="/pages/profile.php">
-                  <i class="fa fa-user"></i> 我的 UL.GG
-                </a>
-
-              <?php elseif ($isApplyingUL): ?>
-                <!-- apply = 1，審核中 -->
-                <a href="/pages/bind_ulid.php" style="opacity:.7;">
-                  <i class="fa fa-clock-o"></i> UL ID 審核中
-                </a>
-
-              <?php elseif ($isGuestSteam): ?>
-                <!-- ack = 0 & apply = 0 -->
-                <a href="/pages/bind_ulid.php">
-                  <i class="fa fa-link"></i> 綁定 UL ID
-                </a>
-              <?php endif; ?>
-
-
-
-              <!-- Steam Profile -->
-              <a href="https://steamcommunity.com/profiles/<?= $_SESSION['steam_id'] ?>" target="_blank">
-                <i class="fab fa-steam"></i> 我的 Steam
-              </a>
-
-              <!-- 登出 -->
-              <a href="/pages/logout.php" class="logout">
-                <i class="fa fa-sign-out"></i> 登出
-              </a>
-              <!-- 登出所有裝置 -->
-              <a href="/pages/logout_all.php"
-                class="logout-all"
-                onclick="return confirm('這會讓所有裝置都登出，確定嗎？');">
-                <i class="fa fa-power-off"></i> 登出所有裝置
-              </a>
-
-            </div>
-          </div>
-        </div>
-      <?php else: ?>
-        <div class="nav-login-area">
-          <a href="/api/auth/steam_start.php"
-            class="nav-login-btn">
-            登入
-          </a>
-        </div>
-      <?php endif; ?>
-    </div>
-  </header>
+  <?php $ulggShellMode = 'main'; require __DIR__ . '/header_public.php'; ?>
   <div class="un-overlay"></div><!-- ⭐ 手機遮罩 -->
   <div class="un-layout">
-    <aside class="un-sidebar">
-      <div class="sidebar-section sidebar-title">
-        <span class="sidebar-game">UNLIGHT</span>
-
-
-
-
-      </div>
-
-
-      <nav class="sidebar-nav">
-        <!-- 系統 -->
-        <a href="/pages/index.php"
-          class="sidebar-link <?= $activeMenu === 'index' ? 'is-active' : '' ?>">
-          <span class="sidebar-icon">📢</span>
-          <span class="sidebar-text">首頁情報 <small>Bulletin</small></span>
-        </a>
-
-        <!-- ⭐ 新增：ULGG 杯 -->
-        <a href="/pages/tournament/ulgg_cup.php"
-          class="sidebar-link <?= $activeMenu === 'ulgg_cup' ? 'is-active' : '' ?>">
-          <span class="sidebar-icon">🏟️</span>
-          <span class="sidebar-text">ULGG 杯 <small>Cup</small></span>
-        </a>
-
-        <!-- 排行 -->
-        <div class="sidebar-group">
-
-          <button class="sidebar-group-toggle" data-target="group-team">
-            <span class="sidebar-icon">🏆</span>
-            <span class="sidebar-text">對戰組合 <small>Team</small></span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div class="sidebar-group-items" id="group-team">
-
-            <a href="/pages/ranking_team.php"
-              class="sidebar-link <?= $activeMenu === 'ranking_team' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">🏆</span>
-              <span class="sidebar-text">組合排行 <small>Ranking</small></span>
-            </a>
-
-            <a href="/pages/strength_rank.php"
-              class="sidebar-link <?= $activeMenu === 'strength_rank' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">🔥</span>
-              <span class="sidebar-text">強度排行 <small>Strength</small></span>
-            </a>
-
-          </div>
-        </div>
-
-
-
-        <div class="sidebar-group">
-          <button class="sidebar-group-toggle" data-target="group-character">
-            <span class="sidebar-icon">🧙</span>
-            <span class="sidebar-text">角色 <small>Character</small></span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div class="sidebar-group-items" id="group-character">
-            <a href="/pages/ranking_char.php"
-              class="sidebar-link <?= $activeMenu === 'ranking_char' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">🧙</span>
-              <span class="sidebar-text">角色排行 <small>Ranking</small></span>
-            </a>
-
-            <a href="/pages/character_analysis.php"
-              class="sidebar-link <?= $activeMenu === 'character_analysis' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">🧠</span>
-              <span class="sidebar-text">角色分析 <small>Analysis</small></span>
-            </a>
-
-            <a href="/pages/character_intro.php"
-              class="sidebar-link <?= $activeMenu === 'character_intro' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">🃏</span>
-              <span class="sidebar-text">集卡冊 <small>Intro</small></span>
-            </a>
-
-
-
-
-            <!-- ⭐ 新增：自製卡面 Fan ART -->
-            <a href="/pages/upload_card_art.php"
-              class="sidebar-link <?= $activeMenu === 'upload_card_art' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">🎨</span>
-              <span class="sidebar-text">自製卡面 <small>Fan Art</small></span>
-            </a>
-          </div>
-        </div>
-
-
-        <div class="sidebar-group">
-          <button class="sidebar-group-toggle" data-target="group-rank">
-            <span class="sidebar-icon">📊</span>
-            <span class="sidebar-text">排行榜 <small>Rank</small></span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div class="sidebar-group-items" id="group-rank">
-
-            <a href="/pages/bp_rank.php"
-              class="sidebar-link <?= $activeMenu === 'bp_rank' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">📈</span>
-              <span class="sidebar-text">BP 排行</span>
-            </a>
-
-            <a href="/pages/qp_rank.php"
-              class="sidebar-link <?= $activeMenu === 'qp_rank' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">📊</span>
-              <span class="sidebar-text">QP 排行</span>
-            </a>
-
-            <!-- 🏆 歷史名人堂 -->
-            <a href="/pages/hall_of_fame.php"
-              class="sidebar-link <?= $activeMenu === 'hall_of_fame' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">🏆</span>
-              <span class="sidebar-text">歷史名人堂</span>
-            </a>
-
-          </div>
-        </div>
-
-        <!-- ⭐ 新增：ULGG 杯 -->
-        
-
-        <!-- 工具 -->
-        <div class="sidebar-group">
-
-          <button
-            class="sidebar-group-toggle"
-            type="button"
-            data-target="group-tools">
-            <span class="sidebar-icon">🧰</span>
-            <span class="sidebar-text">
-              實用工具 <small>Tools</small>
-            </span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div class="sidebar-group-items" id="group-tools">
-
-            <a href="/pages/quest_map.php"
-              class="sidebar-link <?= $activeMenu === 'quest_map' ? 'is-active' : '' ?>">
-              <span class="sidebar-text">
-                地圖任務查詢 <small>Map</small>
-              </span>
-            </a>
-
-            <a href="/pages/skills.php"
-              class="sidebar-link <?= $activeMenu === 'skills' ? 'is-active' : '' ?>">
-              <span class="sidebar-text">
-                技能戰術搜尋 <small>Skills</small>
-              </span>
-            </a>
-
-            <a href="/pages/calculator.php"
-              class="sidebar-link <?= $activeMenu === 'calculator' ? 'is-active' : '' ?>">
-              <span class="sidebar-text">
-                計算 Cost <small>Calculator</small>
-              </span>
-            </a>
-
-            <!-- QUEST_PUBLIC_MAIN_MENU_20261026 -->
-            <a href="/pages/quest_public/v1.4.1/index.php"
-              class="sidebar-link <?= $activeMenu === 'quest_public' ? 'is-active' : '' ?>">
-              <span class="sidebar-text">任務公開分析 <small>Quest Analytics</small></span>
-            </a>
-
-
-
-
-
-          </div>
-        </div>
-        <a href="/pages/queue.php"
-          class="sidebar-link <?= $activeMenu === 'queue' ? 'is-active' : '' ?>">
-          <span class="sidebar-icon">👀</span>
-          <span class="sidebar-text">觀察大廳 <small>Lobby</small></span>
-        </a>
-
-        <!-- RAID_PUBLIC_NAV_GROUP_V1 -->
-        <div class="sidebar-group <?= in_array(
-          $activeMenu,
-          ['raid_observer', 'raid_stats'],
-          true
-        ) ? 'is-open' : '' ?>">
-
-          <button
-            class="sidebar-group-toggle"
-            type="button"
-            data-target="group-raid">
-            <span class="sidebar-icon">🌀</span>
-            <span class="sidebar-text">
-              公開渦 <small>Raid</small>
-            </span>
-            <span class="chevron">▾</span>
-          </button>
-
-          <div
-            class="sidebar-group-items"
-            id="group-raid">
-
-            <a href="/pages/raid_observer.php"
-              class="sidebar-link sidebar-sub-link <?= $activeMenu === 'raid_observer' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">👁</span>
-              <span class="sidebar-text">
-                觀察渦 <small>Live</small>
-              </span>
-            </a>
-
-            <a href="/pages/raid_stats.php"
-              class="sidebar-link sidebar-sub-link <?= $activeMenu === 'raid_stats' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">📊</span>
-              <span class="sidebar-text">
-                Raid 統計 <small>Stats</small>
-              </span>
-            </a>
-
-          </div>
-        </div>
-
-        <a href="/pages/raising/index.php"
-          class="sidebar-link <?= $activeMenu === 'raising' ? 'is-active' : '' ?>">
-          <span class="sidebar-icon">⚔️</span>
-          <span class="sidebar-text">暗房育成 <small>Prototype</small></span>
-        </a>
-
-        <?php if (!empty($_SESSION['permission']) && $_SESSION['permission'] >= 2): ?>
-
-          <!-- =========================
-       管理員
-  ========================== -->
-          <div class="sidebar-divider"></div>
-
-          <div class="sidebar-section-title">🛠 管理員</div>
-
-          <!-- 📊 系統監控 -->
-          <a href="/pages/admin_dashboard.php"
-            class="sidebar-link <?= $activeMenu === 'admin_dashboard' ? 'is-active' : '' ?>">
-            <span class="sidebar-icon">📊</span>
-            <span class="sidebar-text">
-              系統監控 <small>Dashboard</small>
-            </span>
-          </a>
-
-          <!-- 👤 會員管理 -->
-          <a href="/pages/admin/user_manage.php"
-            class="sidebar-link <?= $activeMenu === 'user_manage' ? 'is-active' : '' ?>">
-            <span class="sidebar-icon">👤</span>
-            <span class="sidebar-text">
-              會員管理 <small>Members</small>
-            </span>
-          </a>
-
-          <?php if ($_SESSION['permission'] >= 3): ?>
-
-            <!-- ☕ 上傳紀錄 -->
-            <a href="/pages/admin/payment_qr.php"
-              class="sidebar-link <?= $activeMenu === 'payment_qr' ? 'is-active' : '' ?>">
-              <span class="sidebar-icon">☕</span>
-              <span class="sidebar-text">
-                上傳紀錄 <small>Upload</small>
-              </span>
-            </a>
-
-          <?php endif; ?>
-
-
-          <!-- =========================
-       開發中
-  ========================== -->
-          <div class="sidebar-divider"></div>
-
-          <div class="sidebar-section-title">🧪 開發中</div>
-
-          <div class="sidebar-group <?= in_array($activeMenu, ['card_tracker', 'raid_stats'], true) ? 'is-open' : '' ?>">
-
-            <!-- 🃏 公牌追蹤 -->
-            <a href="/tool/unlight-card-tracker/index.php"
-              class="sidebar-link sidebar-sub-link <?= $activeMenu === 'card_tracker' ? 'is-active' : '' ?>">
-
-              <span class="sidebar-icon">🃏</span>
-
-              <span class="sidebar-text">
-                公牌追蹤 <small>Tracker</small>
-              </span>
-            </a>
-
-            <!-- 📊 Raid 統計 -->
-
-          </div>
-
-
-        <?php endif; ?>
-
-
-        <!-- =========================
-              Data Status (Compact)
-          ========================= -->
-        <div class="sidebar-divider"></div>
-
-        <div class="sidebar-status">
-
-          <div class="sidebar-status-title">📡 資料狀態</div>
-
-          <!-- <div class="status-source">
-            來源：遊戲中可公開觀察之排行事件
-          </div> -->
-
-          <div class="status-row">
-            <span class="status-server">
-              <?= htmlspecialchars($serverLabel) ?>
-            </span>
-            <span class="status-update">
-              <span class="status-dot <?= $statusDot ?>"></span>
-              <?= htmlspecialchars($statusText) ?>
-            </span>
-          </div>
-
-          <div class="status-row">
-            <span class="status-server">
-              <?= htmlspecialchars($serverLabelJP) ?>
-            </span>
-            <span class="status-update">
-              <span class="status-dot <?= $statusDotJP ?>"></span>
-              <?= htmlspecialchars($statusTextJP) ?>
-            </span>
-          </div>
-
-          <!-- ⭐ 新增：分析樣本數 -->
-          <div class="status-row status-sample">
-            <span class="status-label">📊 分析樣本數</span>
-            <span class="status-value">
-              <?= number_format($totalSamples) ?> 場
-            </span>
-          </div>
-
-        </div>
-
-
-      </nav>
-    </aside>
+    <?php require __DIR__ . '/sidebar_public.php'; ?>
 
     <main class="un-main">
       <?php
@@ -6100,60 +5621,10 @@ if (
 
       </div>
 
-      <footer class="un-footer">
-        <div class="footer-inner container">
-
-          <!-- 💜 支持 UL.GG Modal -->
-          <div class="footer-support">
-
-            <!-- 台灣支付（Modal） -->
-            <a class="open-support-modal report-btn">
-              💜 支持 UL.GG
-              <span>街口 / 全支付</span>
-            </a>
-
-            <!-- 信用卡（Buy Me a Coffee） -->
-            <a class="report-btn"
-              href="https://www.buymeacoffee.com/ulgg"
-              target="_blank"
-              rel="noopener">
-              ☕ Buy Me a Coffee
-              <span>信用卡</span>
-            </a>
-
-          </div>
-
-
-          <!-- 🐞 問題回報 -->
-          <div class="footer-report">
-            <!-- <div class="footer-title">🐞 問題回報</div>
-
-            <div class="footer-desc">
-              若您在使用本站時遇到錯誤、顯示異常或資料問題，<br>
-              歡迎回報協助我們改善。
-            </div> -->
-
-            <a
-              href="mailto:ulgg.online@gmail.com?subject=UL.GG 問題回報&body=請描述您遇到的問題：%0A%0A頁面網址：%0A使用裝置／瀏覽器：%0A問題發生時間：">
-              回報問題
-            </a>
-            -
-            <a href="/pages/about.php" class="footer-link">
-              關於本站
-            </a>
-            -
-            <a href="/pages/privacy.php" class="footer-link">
-              隱私權政策
-            </a>
-          </div>
-
-          <!-- © -->
-          <div class="footer-copy">
-            © <?= date('Y') ?> UL.GG • Unlight Fan-made Statistics
-          </div>
-
-        </div>
-      </footer>
+<?php
+      $supportUrl = '#';
+      require_once __DIR__ . '/footer_public.php';
+?>
 
     </main>
   </div>
@@ -6180,7 +5651,7 @@ if (
         <strong>非官方 UNLIGHT 戰績分析網站</strong>。<br>
         所有功能皆免費提供，<br>
         若你覺得本站對你有幫助，<br>
-        歡迎使用 <strong>街口支付、全支付</strong> 小額支持網站維運 🙏
+        歡迎使用 <strong>街口支付</strong> 小額支持網站維運 🙏
       </p>
 
       <div class="pay-stack">
@@ -6192,19 +5663,6 @@ if (
             <div class="text-muted small">尚未設定街口支付</div>
           <?php endif; ?>
         </div>
-
-        <!-- 全支付 -->
-        <div class="pay-card pay-card-sub pay-pxp" data-pay="pxpay">
-          <?php if (!empty($paymentQR['pxpay'])): ?>
-            <img src="<?= htmlspecialchars($paymentQR['pxpay']) ?>" alt="全支付 QR">
-          <?php else: ?>
-            <div class="text-muted small">今日尚未設定全支付 QR</div>
-          <?php endif; ?>
-        </div>
-      </div>
-
-      <div class="pay-label">
-        👉 點擊露出的卡片可切換支付方式
       </div>
 
 
@@ -7253,34 +6711,13 @@ if (
     document.querySelector('.ulgg-modal-backdrop').onclick = () => {
       document.getElementById('supportModal').classList.add('hidden');
     };
+
+    if (window.location.hash === '#supportModal') {
+      document.getElementById('supportModal').classList.remove('hidden');
+    }
   </script>
 
-  <script>
-    document.querySelectorAll('.pay-card').forEach(card => {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.pay-card').forEach(c => {
-          c.classList.remove('active');
-        });
-        card.classList.add('active');
-      });
-    });
-  </script>
-
-  <script>
-    document.querySelectorAll('.sidebar-group-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = document.getElementById(btn.dataset.target);
-        target.classList.toggle('open');
-      });
-    });
-
-    // 若裡面有 is-active，自動展開
-    document.querySelectorAll('.sidebar-group-items').forEach(group => {
-      if (group.querySelector('.is-active')) {
-        group.classList.add('open');
-      }
-    });
-  </script>
+  <script defer src="/assets/js/shell_public.js?v=82e916307a00"></script>
 
   <!-- 1️⃣ jQuery（只能一份） -->
   <!-- <script src="/assets/bower_components/jquery/dist/jquery.min.js"></script> -->
