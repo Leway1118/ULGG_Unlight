@@ -106,6 +106,7 @@ $stages = [
   10 => '魔女山谷',
   11 => '隨機',
   12 => '烏波斯黑湖',
+  14 => '聖域的凱旋門',
 ];
 
 function stageName($stage, array $stages): string
