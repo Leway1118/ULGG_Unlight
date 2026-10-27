@@ -16,7 +16,7 @@
 | Steam OpenID 登入流程保護 | PR #1、對應原始碼與 Git 歷史 | 有 PR，尚需整理公開測試證據 |
 | UL.GG 正式來源安全同步 | `scripts/ops/`、`server-sync` Commit 記錄 | 排程已在 VPS 運作；定期依日誌稽核 |
 | 場景 13、14 顯示修復 | Draft PR #4 | 待人工審核與回歸測試 |
-| PR 品質閘門 P0 | 本分支 `.github/workflows/ci.yml`、`tests/ci/` | 待 GitHub Actions 隔離執行驗證 |
+| PR 品質閘門 P0 | [CI 隔離驗證紀錄](P0-CI-VALIDATION.md)、`.github/workflows/ci.yml`、`tests/ci/` | 首次 CI PASS，舊 Raising 測試仍有缺失 |
 
 ## PR 的證據標準
 
