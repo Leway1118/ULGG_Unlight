@@ -101,9 +101,16 @@ requireSource(strpos($ctaMarkup, "referrerPolicy: 'no-referrer'") !== false, 'su
 requireSource(strpos($ctaMarkup, "new Set(['impression', 'click_tw', 'click_bmc'])") !== false, 'support event allowlist changed');
 
 echo "[PASS] verified fight support CTA, caller, and shared modal integration\n";
-if (!is_file(dirname(__DIR__, 2) . '/api/support_event.php')) {
-    echo "[LIMIT] api/support_event.php absent: telemetry parity NOT confirmed\n";
-}
+$eventPath = dirname(__DIR__, 2) . '/api/support_event.php';
+requireSource(is_file($eventPath), 'support_event.php missing (telemetry would fail)');
+$eventSource = file_get_contents($eventPath);
+requireSource(is_string($eventSource), 'cannot read support_event.php');
+requireSource(
+    strpos($eventSource, "['impression', 'click_tw', 'click_bmc']") !== false,
+    'support event server allowlist no longer agrees with client'
+);
+requireSource(strpos($eventSource, "http_response_code(204);") !== false, 'valid event 204 response missing');
+echo "[PASS] support CTA and event endpoint are both tracked in Git\n";
 
 echo "[PASS] BP computation remains forward; presentation is reversed only once\n";
 echo "[PASS] two event images and empty slots reserve 44x68 dimensions\n";
