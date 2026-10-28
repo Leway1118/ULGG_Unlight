@@ -237,6 +237,125 @@ $content = ulggSortableTables($content, $view, [
     )),
 ]);
 
+/* ULGG-VAL-INFO-MODAL-BRIDGE-V1: UI-only helper; original Quest pages remain untouched. */
+require_once __DIR__ . '/quest_val_info_public.php';
+$content = ulggValInfoModal($content);
+
+/* ULGG-QUEST-TOOLBAR-GROUP-V1: presentation only. */
+$content = '<style id="ulggQuestToolbarGroupedV1">
+.quest-native-content .qpub-toolbar {
+  display:flex;
+  flex-flow:row wrap;
+  align-items:flex-end !important;
+  justify-content:flex-start;
+  gap:12px;
+  margin-bottom:12px;
+}
+.quest-native-content .qpub-toolbar > .qpub-field {
+  margin:0;
+  min-width:0;
+  align-self:flex-end;
+}
+.quest-native-content .qpub-toolbar > .qpub-field:not(.qpub-field--search) {
+  display:grid;
+  grid-template-rows:14px 38px;
+  gap:6px;
+  flex:0 0 142px;
+  width:142px;
+  max-width:200px;
+}
+.quest-native-content .qpub-toolbar .qpub-field__label {
+  display:block;
+  margin:0;
+  line-height:14px;
+  height:14px;
+  white-space:nowrap;
+}
+.quest-native-content .qpub-toolbar > .qpub-field:not(.qpub-field--search) > .qpub-select {
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  max-width:none;
+  height:38px;
+  min-height:38px;
+  margin:0;
+}
+.quest-native-content .qpub-toolbar > .qpub-field--search {
+  display:grid !important;
+  grid-template-areas:"label label" "search submit";
+  grid-template-columns:minmax(0,1fr) max-content;
+  grid-template-rows:14px 38px;
+  align-items:stretch;
+  gap:6px 8px;
+  flex:0 1 340px;
+  width:340px;
+  max-width:100%;
+  min-width:min(260px,100%);
+}
+.quest-native-content .qpub-toolbar > .qpub-field--search > .qpub-field__label {
+  grid-area:label;
+}
+.quest-native-content .qpub-toolbar > .qpub-field--search > .qpub-input {
+  grid-area:search;
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  max-width:none;
+  min-width:0;
+  height:38px;
+  min-height:38px;
+  margin:0;
+}
+.quest-native-content .qpub-toolbar > .qpub-field--search > .qpub-btn {
+  grid-area:submit;
+  box-sizing:border-box;
+  height:38px;
+  min-height:38px;
+  margin:0;
+  white-space:nowrap;
+  justify-content:center;
+}
+.quest-native-content .qpub-toolbar > .qpub-btn {
+  box-sizing:border-box;
+  display:inline-flex;
+  flex:0 0 auto;
+  align-self:flex-end;
+  height:38px;
+  min-height:38px;
+  margin:0;
+  white-space:nowrap;
+}
+@media (max-width:760px) {
+  .quest-native-content .qpub-toolbar > .qpub-field:not(.qpub-field--search),
+  .quest-native-content .qpub-toolbar > .qpub-field--search {
+    flex:1 1 100%;
+    width:100%;
+    max-width:none;
+    min-width:0;
+  }
+  .quest-native-content .qpub-toolbar > .qpub-btn {
+    flex:1 1 auto;
+    justify-content:center;
+  }
+}
+</style>' . $content;
+
+/* ULGG-QUEST-MOBILE-DENSITY-V1 */
+require_once __DIR__ . '/quest_mobile_density_public.php';
+$content = ulggQuestMobileDensity($content,$view);
+
+/* ULGG-QUEST-PLAYER-COPY-P1 */
+require_once __DIR__ . '/quest_player_copy_public.php';
+$content = ulggQuestPlayerCopy($content,$view);
+
+/* ULGG-QUEST-STAR-COPY-P2 */
+require_once __DIR__ . '/quest_star_copy_public.php';
+$content = ulggQuestStarPlayerCopy($content,$view);
+
+/* ULGG-QUEST-DURATION-UI-P3 */
+require_once __DIR__ . '/quest_duration_ui_public.php';
+$content = ulggQuestDurationUi($content,$view);
+
 // Remap only navigation within Quest; keep links to every other main-site page.
 // This is a preview, so the source Quest entries and original routes remain intact.
 $content = preg_replace_callback(
