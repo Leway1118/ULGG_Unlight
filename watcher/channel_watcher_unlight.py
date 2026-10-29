@@ -176,6 +176,7 @@ def atomic_write_json(file_path: Path, data) -> None:
 # --- Discord alert throttle ---
 _ALERT_LAST_SENT: dict[str, float] = {}
 _ALERT_COOLDOWN = 300  # 秒（5 分鐘）
+_AUTH_UNAVAILABLE_LOG_INTERVAL = 300  # 秒
 
 async def send_discord_alert(msg: str):
     """傳送錯誤/崩潰通知到 Discord（含節流）"""
@@ -222,6 +223,10 @@ class BaseWatcher(ABC):
         self.msg_idx = 0
         self.acks: list[str] = []
         self.alive = True
+        self._auth_unavailable = False
+        self._auth_unavailable_since = 0.0
+        self._auth_last_summary = 0.0
+        self._auth_unavailable_count = 0
 
     async def emit_event(self, event: str, args: list):
         self._last_emit = getattr(self, "_last_emit", 0)
@@ -388,6 +393,40 @@ class BaseWatcher(ABC):
             except Exception:
                 pass
 
+    def _mark_auth_unavailable(self, error: Exception) -> None:
+        now_ts = time.time()
+        self._auth_unavailable_count += 1
+
+        if not self._auth_unavailable:
+            self._auth_unavailable = True
+            self._auth_unavailable_since = now_ts
+            self._auth_last_summary = now_ts
+            logger.warning(
+                "[%s] auth provider unavailable: %s",
+                self.task_id,
+                error,
+            )
+            return
+
+        if now_ts - self._auth_last_summary >= _AUTH_UNAVAILABLE_LOG_INTERVAL:
+            self._auth_last_summary = now_ts
+            logger.warning(
+                "[%s] auth provider still unavailable (%d retries): %s",
+                self.task_id,
+                self._auth_unavailable_count,
+                error,
+            )
+
+    def _mark_auth_healthy(self) -> None:
+        if not self._auth_unavailable:
+            return
+
+        logger.info("[%s] auth provider recovered", self.task_id)
+        self._auth_unavailable = False
+        self._auth_unavailable_since = 0.0
+        self._auth_last_summary = 0.0
+        self._auth_unavailable_count = 0
+
     async def _run_task_group_until_disconnect(self):
         """任一背景 task 結束就視為連線生命週期結束，取消其餘 task 後重連。
 
@@ -421,6 +460,7 @@ class BaseWatcher(ABC):
         for retry in count(1):
             try:
                 await self.prepare()
+                self._mark_auth_healthy()
                 await self._run_task_group_until_disconnect()
             except RegisterRejected as e:
                 await self._close_ws()
@@ -440,7 +480,7 @@ class BaseWatcher(ABC):
                 except AuthProviderUnavailable as refresh_error:
                     # V1_3: provider 正在重建 session，5 秒後重試。
                     # 不可用 WatcherConfigError（那會永久停止 task）。
-                    print(f"[{self.task_id}] {refresh_error}")
+                    self._mark_auth_unavailable(refresh_error)
                     await asyncio.sleep(5)
                     continue
                 except WatcherConfigError as refresh_error:
@@ -448,6 +488,7 @@ class BaseWatcher(ABC):
                     print(msg)
                     await send_discord_alert(msg)
                     return
+                self._mark_auth_healthy()
                 print(f"[{self.task_id}] register session 已刷新，重新連線")
                 await asyncio.sleep(1)
             except WatcherConfigError as e:
@@ -460,11 +501,21 @@ class BaseWatcher(ABC):
                 await self._close_ws()
                 print(e)
                 await asyncio.sleep(600)
+            except AuthProviderUnavailable as e:
+                await self._close_ws()
+                # Auth availability 的 human alert 由 PHP monitor 負責。
+                # Watcher 只留 transition / 5 分鐘 summary log，不送 Discord。
+                self._mark_auth_unavailable(e)
+                await asyncio.sleep(5)
             except Exception as e:
                 await self._close_ws()
                 msg = f"[{self.task_id}] 連線中斷：{e}（第 {retry} 次重試）"
                 print(msg)
-                await send_discord_alert(msg)
+                # P2A HOTFIX: auth-provider availability is owned by the
+                # dedicated PHP DEGRADED/RECOVERY monitor. Keep watcher
+                # retries/logging, but do not duplicate human Discord alerts.
+                if not isinstance(e, AuthProviderUnavailable):
+                    await send_discord_alert(msg)
                 await asyncio.sleep(5)
 
 

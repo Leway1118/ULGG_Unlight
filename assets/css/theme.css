@@ -1088,3 +1088,12 @@ tr:hover .btn-check-float {
     text-decoration: none;
     display: inline-block;
   }
+/* ULGG-PUBLIC-HEADER-CLEARANCE-P1
+   Keep the main content below the fixed navbar across mobile/tablet pages.
+   Replaces the mobile 35px / 0px effective margins without altering Headbar.
+*/
+@media (max-width: 991px) {
+  .un-main {
+    margin-top: var(--navbar-height, 56px);
+  }
+}
