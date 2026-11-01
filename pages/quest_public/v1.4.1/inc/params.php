@@ -322,10 +322,45 @@ function qpub_param_context(string $window): array
     return $context;
 }
 
-const QPUB_URL_KEYS = [
-    'window', 'region', 'quest', 'q', 'duration', 'sort', 'dir', 'page',
+function p4c_public_enabled(): bool
+{
+    $flag = __DIR__ . '/p4c_public.flag';
+    return is_file($flag) && trim((string)@file_get_contents($flag)) === 'ON';
+}
+
+function g2_public_enabled(): bool
+{
+    $flag = __DIR__ . '/g2_public.flag';
+    return is_file($flag) && trim((string)@file_get_contents($flag)) === 'ON';
+}
+
+/** Human-readable zone labels recovered from scripts/import/import_quests.json.
+ * Catalog may have a placeholder for map groups 9 (event) and 10 (NamelessLand).
+ */
+function qpub_region_source_name(string $key, string $fallback): string
+{
+    $names = [
+        '9:0' => 'Xmas Event 2025（9:0）',
+        '9:1' => 'Xmas Event 2025（9:1）',
+        '9:2' => 'ExHexRealm',
+        '9:3' => '青碧の魔物:Revive',
+        '10:0' => '哀憐之丘',
+        '10:1' => '搖籃之森',
+        '10:2' => '鮮甜湖',
+        '10:3' => '怪夢的要塞',
+        '10:4' => '流放之森',
+        '10:5' => '自豪絕峰',
+        '10:6' => '思量之淵',
+        '10:7' => '軛之城',
+    ];
+    return $names[$key] ?? $fallback;
+}
+
+define('QPUB_URL_KEYS', [
+    'window', 'region', 'quest', 'q', 'duration', 'sort', 'dir', 'page', 'show_special',
     'team', 'from_region', 'from_quest',
-];
+    ...((p4c_public_enabled() || g2_public_enabled()) ? ['experiment'] : []),
+]);
 
 /** Build a shareable URL from whitelisted parts only. */
 function qpub_url(string $file, array $params = []): string

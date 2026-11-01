@@ -19,7 +19,12 @@ $sortMap = [
 $sort = qpub_param_sort(array_keys($sortMap), 'qph');
 $dir = qpub_param_dir('desc');
 $q = qpub_param_q();
-$carry = ['sort' => $sort, 'dir' => $dir, 'q' => $q];
+$showSpecialRaw = qpub_raw('show_special', 4);
+if ($showSpecialRaw !== '' && $showSpecialRaw !== '1') {
+    qpub_reject('show_special', $showSpecialRaw);
+}
+$showSpecial = $showSpecialRaw === '1';
+$carry = ['sort' => $sort, 'dir' => $dir, 'q' => $q, 'show_special' => $showSpecial ? '1' : null];
 
 /**
  * Only classify zones with explicit metadata, an ExQuest/Event world marker,
@@ -38,6 +43,11 @@ function qpub_special_zone_keys(): array
         '7:3' => true, // 天使大陸 (Ex / passage)
         '8:0' => true, // R1 記憶任務 (bookmark)
     ];
+    // Verified world families from game import_quests.json:
+    // 7=ExQuest, 8=rarecard memory, 9=event, 10=NamelessLand.
+    foreach ([7 => 4, 8 => 2, 9 => 4, 10 => 8] as $world => $regions) {
+        for ($i = 0; $i < $regions; ++$i) $special[$world . ':' . $i] = true;
+    }
     foreach (qpub_catalog_rows() as $entry) {
         $zoneKey = (string)($entry['zone_key'] ?? '');
         if ($zoneKey !== '' && qpub_special_region_flag($entry)) {
@@ -232,6 +242,130 @@ $ordinaryRows = $sort === 'composite'
     : qpub_rows_sort($ordinaryRows, $sort, $dir, $sortMap);
 // Special maps are intentionally NOT scored in the ordinary-region V2 universe.
 $specialRows = qpub_rows_sort($filter($specialAll), $sort === 'composite' ? 'qph' : $sort, $dir, $sortMap);
+// Catalog-only zones have no published region metric row, so never add
+// them to observed ranking/leaderboards/V2 score or star matrix.
+$rankedZoneKeys = [];
+foreach ($allRows as $rankedRegion) {
+    $rankedZoneKeys[(string)($rankedRegion['zone_key'] ?? '')] = true;
+}
+$catalogOnlyZones = [];
+foreach (qpub_catalog_rows() as $cat) {
+    $z = (string)($cat['zone_key'] ?? '');
+    if ($z === '' || isset($rankedZoneKeys[$z])) continue;
+    if (!isset($catalogOnlyZones[$z])) {
+        $catalogOnlyZones[$z] = [
+            'name' => trim((string)($cat['region_name'] ?? $z)),
+            'count' => 0,
+        ];
+    }
+    ++$catalogOnlyZones[$z]['count'];
+}
+uksort($catalogOnlyZones, 'strnatcmp');
+$catalogOnlyTotal = count($catalogOnlyZones);
+$catalogOnlyFiltered = [];
+foreach ($catalogOnlyZones as $z => $entry) {
+    $haystack = $entry['name'] . ' ' . $z;
+    $needle = function_exists('mb_strtolower') ? mb_strtolower($q, 'UTF-8') : strtolower($q);
+    $haystack = function_exists('mb_strtolower') ? mb_strtolower($haystack, 'UTF-8') : strtolower($haystack);
+    if ($needle === '' || str_contains($haystack, $needle)) {
+        $catalogOnlyFiltered[$z] = $entry;
+    }
+}
+// Display all 53 zones in ONE table. Leader cards and composite math above
+// remain based solely on observed eligible ordinary regions.
+$mergedRegionRows = array_merge($ordinaryAll, $specialAll);
+if (g2_public_enabled() && $catalogOnlyZones) {
+    require_once __DIR__ . '/inc/g2_route_valh.php';
+    $g2ByQuest = g2_route_load(); // Guarded by candidate and published-source hashes.
+    if ($g2ByQuest) {
+        // Fixed cost per Quest comes from the same Catalog used by the site.
+        $apByQuest = [];
+        foreach (qpub_catalog_rows() as $catalogQuest) {
+            $questKey = (string)($catalogQuest['quest_key'] ?? '');
+            $search = $catalogQuest['search_ap'] ?? null;
+            $execute = $catalogQuest['execute_ap'] ?? null;
+            if ($questKey !== '' && is_numeric($search) && is_numeric($execute)
+                && (float)$search >= 0 && (float)$execute >= 0) {
+                $apByQuest[$questKey] = (float)$search + (float)$execute;
+            }
+        }
+        $byRegion = [];
+        foreach ($g2ByQuest as $key => $estimate) {
+            $parts = explode('#', (string)$key, 2);
+            if (count($parts) !== 2) continue;
+            $byRegion[$parts[0]][] = $estimate;
+        }
+        foreach ($catalogOnlyZones as $key => $meta) {
+            $estimates = $byRegion[$key] ?? [];
+            if (count($estimates) !== (int)$meta['count'] || !$estimates) continue;
+            $sumSec = 0.0; $sumQp = 0.0; $sumValue = 0.0; $sumAp = 0.0; $times = [];
+            $unpricedGroup = false;
+            foreach ($estimates as $estimate) {
+                $seconds = (float)($estimate['estimated_sec'] ?? 0);
+                $questKey = (string)($estimate['quest_key'] ?? '');
+                $ap = $apByQuest[$questKey] ?? null;
+                if ($seconds <= 0 || !is_finite($seconds) || $ap === null
+                    || abs((float)($estimate['ap_cost'] ?? -1) - $ap) > 0.001) continue 2;
+                $unpricedGroup = $unpricedGroup || !empty($estimate['reward_unpriced'])
+                    || !empty($estimate['time_unverified']);
+                $sumSec += $seconds;
+                $sumQp += (float)$estimate['estimated_qp'];
+                $sumValue += (float)$estimate['known_value'];
+                $sumAp += $ap;
+                $times[] = $seconds;
+            }
+            if ($sumSec <= 0 || count($times) !== count($estimates)) continue;
+            sort($times, SORT_NUMERIC);
+            $n = count($times);
+            $middle = $n % 2
+                ? $times[intdiv($n, 2)]
+                : ($times[intdiv($n, 2) - 1] + $times[intdiv($n, 2)]) / 2;
+            $secondsRounded = (int)round($middle);
+            $medianText = intdiv($secondsRounded, 3600) > 0
+                ? intdiv($secondsRounded, 3600).'h '.intdiv($secondsRounded % 3600, 60).'m '.($secondsRounded % 60).'s'
+                : intdiv($secondsRounded, 60).'m '.($secondsRounded % 60).'s';
+            $mergedRegionRows[] = [
+                'zone_key' => $key,
+                'zone_name' => $meta['name'] ?: $key,
+                'eligible_samples' => 0,
+                'qph' => $unpricedGroup ? null : $sumQp * 3600 / $sumSec,
+                'valh' => $unpricedGroup ? null : $sumValue * 3600 / $sumSec,
+                'average_qp' => $sumQp / $n,
+                'average_value' => $unpricedGroup ? null : $sumValue / $n,
+                'confidence' => '模型模擬',
+                'median_text' => $unpricedGroup ? null : $medianText,
+                'qp_per_ap' => $sumAp > 0 ? $sumQp / $sumAp : null,
+                'value_per_ap' => !$unpricedGroup && $sumAp > 0 ? $sumValue / $sumAp : null,
+                'composite_score_v2' => null,
+                '_composite_v2_points' => null,
+                'simulated_region' => true,
+                'simulated_quest_count' => $n,
+            ];
+        }
+    }
+}
+$allCatalogZoneKeys = [];
+foreach (qpub_catalog_rows() as $cat) {
+    $key = (string)($cat['zone_key'] ?? '');
+    if ($key !== '') $allCatalogZoneKeys[$key] = true;
+}
+$specialRegionCount = count(array_intersect_key($specialKeys, $allCatalogZoneKeys));
+foreach ($mergedRegionRows as &$regionRow) {
+    $key = (string)($regionRow['zone_key'] ?? '');
+    $regionRow['zone_name'] = qpub_region_source_name($key, (string)($regionRow['zone_name'] ?? ''));
+    $regionRow['_special_map'] = qpub_region_is_special($regionRow, $specialKeys);
+}
+unset($regionRow);
+if (!$showSpecial) {
+    $mergedRegionRows = array_values(array_filter(
+        $mergedRegionRows,
+        static fn(array $row): bool => empty($row['_special_map'])
+    ));
+}
+$mergedRegionRows = $filter($mergedRegionRows);
+$mergedRegionRows = $sort === 'composite'
+    ? qpub_v2_sort_rows($mergedRegionRows, $dir)
+    : qpub_rows_sort($mergedRegionRows, $sort, $dir, $sortMap);
 qpub_render_head('regions', '地域排行', ['canonical' => qpub_canonical_url('index.php')]);
 qpub_render_notices();
 ?>
@@ -243,10 +377,21 @@ qpub_render_notices();
 </style>
 <div class="qpub-toolbar">
   <?php
-    qpub_render_search('index.php', $q, ['sort' => $sort, 'dir' => $dir], '搜尋地域名稱');
+    qpub_render_search('index.php', $q, [
+        'sort' => $sort, 'dir' => $dir,
+        'show_special' => $showSpecial ? '1' : null,
+    ], '搜尋地域名稱');
     qpub_render_reset('index.php');
     qpub_render_copy_button();
   ?>
+  <a class="report-btn" id="toggle-special-maps"
+     href="<?= qpub_hu(qpub_url('index.php', [
+         'q' => $q, 'sort' => $sort, 'dir' => $dir,
+         'show_special' => $showSpecial ? null : '1',
+     ])) ?>"
+     aria-expanded="<?= $showSpecial ? 'true' : 'false' ?>">
+    <?= $showSpecial ? '隱藏特殊地圖' : '顯示特殊地圖' ?>（<?= qpub_int($specialRegionCount) ?>）
+  </a>
 </div>
 <div class="qpub-cards qpub-featured-cards" aria-label="推薦排行摘要">
   <div class="qpub-card qpub-leader-card">
@@ -299,25 +444,28 @@ function qpub_render_region_list(array $rows, array $carry, string $sort, string
       <tbody>
         <?php foreach ($rows as $index => $row): ?>
         <?php
-            $low = qpub_low_sample($row);
+            $simulated = !empty($row['simulated_region']);
+            $low = !$simulated && qpub_low_sample($row);
             ?>
-        <tr class="<?= $low ? 'is-low-sample' : '' ?>">
+        <tr class="<?= !empty($row['simulated_region']) ? 'is-model-simulated' : ($low ? 'is-low-sample' : '') ?>">
           <td class="qpub-col-rank"><?= qpub_int($index + 1) ?></td>
           <td class="qpub-col-name">
             <a class="qpub-link" href="<?= qpub_hu(qpub_url('quest.php', ['region' => (string)($row['zone_key'] ?? '')])) ?>">
               <?= qpub_text($row['zone_name'] ?? null) ?>
             </a>
             <?php if ($low): ?> <?= qpub_badge('低樣本', 'warn') ?><?php endif; ?>
+            <?php if ($simulated): ?> <span class="qpub-model-mark" title="本地域暫無實測資料，依 <?= qpub_int($row['simulated_quest_count'] ?? null) ?> 個子任務的模型模擬彙總">* </span><?php endif; ?>
+            <?php if (!empty($row['_special_map'])): ?> <small class="qpub-sub">特殊</small><?php endif; ?>
           </td>
           <td class="qpub-col-num"><?= qpub_int($row['eligible_samples'] ?? null) ?></td>
-          <td class="qpub-col-num qpub-col-strong"><?= qpub_num($row['qph'] ?? null) ?></td>
-          <td class="qpub-col-num"><?= qpub_num($row['valh'] ?? null) ?></td>
-          <td class="qpub-col-num"><?= qpub_num($row['average_qp'] ?? null) ?></td>
-          <td class="qpub-col-num"><?= qpub_num($row['average_value'] ?? null) ?></td>
+          <td class="qpub-col-num qpub-col-strong"><?= qpub_num($row['qph'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
+          <td class="qpub-col-num"><?= qpub_num($row['valh'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
+          <td class="qpub-col-num"><?= qpub_num($row['average_qp'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
+          <td class="qpub-col-num"><?= qpub_num($row['average_value'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
           <td><?= qpub_text($row['confidence'] ?? null) ?></td>
           
           
-          <td class="qpub-col-num qpub-col-optional"><?= qpub_text($row['median_text'] ?? null) ?></td>
+          <td class="qpub-col-num qpub-col-optional"><?= qpub_text($row['median_text'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
           <td class="qpub-col-num qpub-col-optional"><?= qpub_num($row['qp_per_ap'] ?? null, 4) ?></td>
           <td class="qpub-col-num qpub-col-optional"><?= qpub_num($row['value_per_ap'] ?? null, 4) ?></td>
           
@@ -331,20 +479,12 @@ function qpub_render_region_list(array $rows, array $carry, string $sort, string
 <div class="qpub-panel" id="regions">
   <div class="qpub-panel__head">
     <h2 class="qpub-panel__title">地域排行</h2>
-    <p class="qpub-panel__note">一般地圖 <?= qpub_int(count($ordinaryRows)) ?> 個。表格可點擊欄名排序；低於 5 筆的地圖標示低樣本。</p>
+    <p class="qpub-panel__note">目前顯示 <?= qpub_int(count($mergedRegionRows)) ?> 個地域，同表搜尋與排序。* 代表模型模擬；特殊地圖預設隱藏，可用上方按鈕切換。</p>
   </div>
-  <?php if (!$ordinaryRows): ?>
-    <?= qpub_empty_state('沒有符合條件的一般地域', '請調整搜尋文字，或查看下方特殊地圖。') ?>
-  <?php else: qpub_render_region_list($ordinaryRows, $carry, $sort, $dir); endif; ?>
-</div>
-<div class="qpub-panel" id="special-maps">
-  <div class="qpub-panel__head">
-    <h2 class="qpub-panel__title">特殊地圖</h2>
-    <p class="qpub-panel__note">特殊地圖 <?= qpub_int(count($specialRows)) ?> 個（ExQuest／Event、道具與 R1 記憶任務）。不參與一般地域的綜合分 V2 評分。</p>
-  </div>
-  <?php if (!$specialRows): ?>
-    <?= qpub_empty_state('沒有符合搜尋條件的特殊地圖', '請調整搜尋文字。') ?>
-  <?php else: qpub_render_region_list($specialRows, $carry, $sort, $dir); endif; ?>
+  <?php if (!$mergedRegionRows): ?>
+    <?= qpub_empty_state('沒有符合搜尋條件的地域', '請調整搜尋文字，或顯示特殊地圖。') ?>
+  <?php endif; ?>
+  <?php qpub_render_region_list($mergedRegionRows, $carry, $sort, $dir); ?>
 </div>
 <?php require __DIR__ . '/inc/stars_section.php'; ?>
 <?php qpub_render_foot(); ?>

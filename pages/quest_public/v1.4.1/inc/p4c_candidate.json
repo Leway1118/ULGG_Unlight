@@ -1,0 +1,928 @@
+{
+  "schema": "ULGG_QUEST_G1_P4C_EXPERIMENTAL_D1_V1",
+  "model_version": "G1-P3-pooled-exact-d1",
+  "generated_at_utc": "2026-10-31T09:13:56Z",
+  "expires_at_utc": "2026-11-02T09:13:56Z",
+  "source_sha256": {
+    "quest_catalog.json": "d7dda743acbad8d6bf8219792c14e76b6b1ea84016377b56a4c5411b1cdade9a",
+    "windows/all/quests.json": "2d68c62c15593a80cbddc23f42983cd887903e5ff16df0747dbb869a8c96d683",
+    "P3_CANDIDATE_DIAGNOSTICS.csv": "67bc5cea41c12f2357809cd0875e32b656d544eb138f4e6dadc68100e8c5e254"
+  },
+  "publication_allowed": false,
+  "runtime_feature_flag": "OFF",
+  "disclaimer": "僅離線模型候選，尚未通過正式發布或 UI 驗收",
+  "estimates": [
+    {
+      "quest_key": "3:4#13",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 3,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#9",
+        "3:7#8",
+        "4:6#3"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.33333,
+      "zone_spread_ratio": 0.07143,
+      "risk_tier": "E1",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#13",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 287.3,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 3,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#9",
+        "3:7#8",
+        "4:6#3"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.33333,
+      "zone_spread_ratio": 0.04605,
+      "risk_tier": "E1",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#18",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 6,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:7#16",
+        "3:7#19",
+        "4:6#17",
+        "4:6#21",
+        "4:6#22",
+        "4:6#4"
+      ],
+      "donor_region_keys": [
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.66667,
+      "zone_spread_ratio": 0.35294,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#18",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 204.615,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 6,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:7#16",
+        "3:7#19",
+        "4:6#17",
+        "4:6#21",
+        "4:6#22",
+        "4:6#4"
+      ],
+      "donor_region_keys": [
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.66667,
+      "zone_spread_ratio": 0.33315,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#19",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 6,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:7#16",
+        "3:7#19",
+        "4:6#17",
+        "4:6#21",
+        "4:6#22",
+        "4:6#4"
+      ],
+      "donor_region_keys": [
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.66667,
+      "zone_spread_ratio": 0.35294,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#19",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 204.615,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 6,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:7#16",
+        "3:7#19",
+        "4:6#17",
+        "4:6#21",
+        "4:6#22",
+        "4:6#4"
+      ],
+      "donor_region_keys": [
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.66667,
+      "zone_spread_ratio": 0.33315,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#20",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#18",
+        "3:6#19",
+        "4:6#19",
+        "4:6#5"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.0,
+      "risk_tier": "E1",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#20",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 280.025,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#18",
+        "3:6#19",
+        "4:6#19",
+        "4:6#5"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.08454,
+      "risk_tier": "E1",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#21",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.42857,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#21",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 201.45499999999998,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.31796,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#22",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.42857,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#22",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 201.45499999999998,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.31796,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#23",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 5,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#21",
+        "3:6#22",
+        "3:6#26",
+        "3:7#21",
+        "3:7#22"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7"
+      ],
+      "max_zone_share": 0.6,
+      "zone_spread_ratio": 0.35294,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#23",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 207.59,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 5,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#21",
+        "3:6#22",
+        "3:6#26",
+        "3:7#21",
+        "3:7#22"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7"
+      ],
+      "max_zone_share": 0.6,
+      "zone_spread_ratio": 0.31255,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#26",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 5,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#21",
+        "3:6#22",
+        "3:6#26",
+        "3:7#21",
+        "3:7#22"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7"
+      ],
+      "max_zone_share": 0.6,
+      "zone_spread_ratio": 0.35294,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#26",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 207.59,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 5,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#21",
+        "3:6#22",
+        "3:6#26",
+        "3:7#21",
+        "3:7#22"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7"
+      ],
+      "max_zone_share": 0.6,
+      "zone_spread_ratio": 0.31255,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#8",
+      "zone_key": "3:4",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#5",
+        "4:6#7",
+        "4:6#8",
+        "4:6#9"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.75,
+      "zone_spread_ratio": 0.0,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_CONCENTRATION_OVER_60PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "3:4#8",
+      "zone_key": "3:4",
+      "metric": "qph",
+      "estimate": 285.45000000000005,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#5",
+        "4:6#7",
+        "4:6#8",
+        "4:6#9"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.75,
+      "zone_spread_ratio": 0.07179,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_CONCENTRATION_OVER_60PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:2#49",
+      "zone_key": "7:2",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.42857,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:2#49",
+      "zone_key": "7:2",
+      "metric": "qph",
+      "estimate": 201.45499999999998,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.31796,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:2#55",
+      "zone_key": "7:2",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.42857,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:2#55",
+      "zone_key": "7:2",
+      "metric": "qph",
+      "estimate": 201.45499999999998,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.31796,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:2#58",
+      "zone_key": "7:2",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.42857,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:2#58",
+      "zone_key": "7:2",
+      "metric": "qph",
+      "estimate": 201.45499999999998,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.31796,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#49",
+      "zone_key": "7:3",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.42857,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#49",
+      "zone_key": "7:3",
+      "metric": "qph",
+      "estimate": 201.45499999999998,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:6#20",
+        "3:7#20",
+        "4:6#11",
+        "4:6#20"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "3:7",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.31796,
+      "risk_tier": "E3",
+      "risk_reason": "REVIEW_ZONE_SPREAD_OVER_25PCT",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#51",
+      "zone_key": "7:3",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:5#13",
+        "3:6#13",
+        "4:6#13",
+        "4:6#15"
+      ],
+      "donor_region_keys": [
+        "3:5",
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.07143,
+      "risk_tier": "E2",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#51",
+      "zone_key": "7:3",
+      "metric": "qph",
+      "estimate": 283.51,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:5#13",
+        "3:6#13",
+        "4:6#13",
+        "4:6#15"
+      ],
+      "donor_region_keys": [
+        "3:5",
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.04723,
+      "risk_tier": "E2",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#52",
+      "zone_key": "7:3",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#18",
+        "3:6#19",
+        "4:6#19",
+        "4:6#5"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.0,
+      "risk_tier": "E2",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#52",
+      "zone_key": "7:3",
+      "metric": "qph",
+      "estimate": 280.025,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#18",
+        "3:6#19",
+        "4:6#19",
+        "4:6#5"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.08454,
+      "risk_tier": "E2",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#57",
+      "zone_key": "7:3",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:5#13",
+        "3:6#13",
+        "4:6#13",
+        "4:6#15"
+      ],
+      "donor_region_keys": [
+        "3:5",
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.07143,
+      "risk_tier": "E2",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#57",
+      "zone_key": "7:3",
+      "metric": "qph",
+      "estimate": 283.51,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 3,
+      "donor_quest_keys": [
+        "3:5#13",
+        "3:6#13",
+        "4:6#13",
+        "4:6#15"
+      ],
+      "donor_region_keys": [
+        "3:5",
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.04723,
+      "risk_tier": "E2",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#58",
+      "zone_key": "7:3",
+      "metric": "qp",
+      "estimate": 14.0,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#18",
+        "3:6#19",
+        "4:6#19",
+        "4:6#5"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.0,
+      "risk_tier": "E2",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    },
+    {
+      "quest_key": "7:3#58",
+      "zone_key": "7:3",
+      "metric": "qph",
+      "estimate": 280.025,
+      "model_tier": "EXACT",
+      "model_method": "pooled_quest_median",
+      "donor_quests": 4,
+      "donor_zones": 2,
+      "donor_quest_keys": [
+        "3:6#18",
+        "3:6#19",
+        "4:6#19",
+        "4:6#5"
+      ],
+      "donor_region_keys": [
+        "3:6",
+        "4:6"
+      ],
+      "max_zone_share": 0.5,
+      "zone_spread_ratio": 0.08454,
+      "risk_tier": "E2",
+      "risk_reason": "REVIEW_PENDING_VALIDATION",
+      "experimental_unvalidated": true,
+      "official_rank_eligible": false
+    }
+  ]
+}

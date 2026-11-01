@@ -231,10 +231,13 @@ $content = ulggSortableTables($content, $view, [
     'all' => $allRows ?? [],
     'page' => $page ?? 1,
     'pageSize' => $pageSize ?? 50,
-    'groups' => array_values(array_filter(
-        [$ordinaryRows ?? [], $specialRows ?? []],
-        static fn($g) => is_array($g) && count($g) > 0
-    )),
+    // One merged region table, not the removed ordinary/special split.
+    'groups' => $view === 'regions'
+        ? [$mergedRegionRows ?? []]
+        : array_values(array_filter(
+            [$ordinaryRows ?? [], $specialRows ?? []],
+            static fn($g) => is_array($g) && count($g) > 0
+        )),
 ]);
 
 /* ULGG-VAL-INFO-MODAL-BRIDGE-V1: UI-only helper; original Quest pages remain untouched. */

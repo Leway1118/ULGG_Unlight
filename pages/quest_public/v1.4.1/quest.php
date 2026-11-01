@@ -63,6 +63,24 @@ if ($q !== '') {
     }));
 }
 
+require_once __DIR__ . '/inc/p4c_release.php';
+$p4cFlag = p4c_public_enabled();
+$p4cHide = (string)($_GET['experiment'] ?? '') === 'hide';
+require_once __DIR__ . '/inc/g2_route_valh.php';
+$g2Flag = g2_public_enabled();
+$g2Model = $g2Flag ? g2_route_load() : [];
+$p4cOverlay = $p4cFlag ? p4c_release_load(__DIR__ . '/inc/p4c_candidate.json') : [];
+$allRows = p4c_release_rows($allRows, $p4cOverlay, $p4cFlag && !$p4cHide);
+$allRows = g2_route_rows($allRows, $g2Model, $g2Flag && !$p4cHide);
+if ($p4cFlag) {
+    $sortMap['qp'] = 'p4c_sort_qp';
+    $sortMap['qph'] = 'p4c_sort_qph';
+}
+if ($g2Flag) {
+    $sortMap['qp'] = 'g2_sort_qp';
+    $sortMap['qph'] = 'g2_sort_qph';
+    $sortMap['valh'] = 'g2_sort_valh';
+}
 $allRows = qpub_rows_sort($allRows, $sort, $dir, $sortMap);
 
 $total = count($allRows);
@@ -78,6 +96,7 @@ $rows = array_slice($allRows, $offset, $pageSize);
 
 $carry = [
     'window' => $window, 'region' => $region, 'q' => $q,
+    'experiment' => ($p4cFlag || $g2Flag) ? ($p4cHide ? 'hide' : 'show') : null,
     'sort' => $sort, 'dir' => $dir, 'page' => $page,
 ];
 
@@ -88,22 +107,40 @@ foreach (qpub_catalog_rows() as $cat) {
         break;
     }
 }
+$regionName = qpub_region_source_name($region, $regionName);
 $title = $regionName !== '' ? $regionName . '（' . $region . '）' : $region;
 
 qpub_render_head('regions', $title . ' 任務一覽', ['canonical' => qpub_canonical_url('quest.php')]);
 qpub_render_notices();
+if ($g2Flag) {
+    echo '<div class="qpub-panel" role="status"><strong>* 模型模擬</strong>：僅缺少實測時顯示，滑鼠移到數值可查看來源與計算假設。';
+    if (!$g2Model) echo ' <strong>模型來源失效：已退回純實測 VAL。</strong>';
+    if (!$p4cFlag) {
+        echo ' <a href="'.qpub_hu(qpub_url('quest.php', [
+          'region'=>$region,'sort'=>$sort,'dir'=>$dir,'q'=>$q,
+          'page'=>1,'experiment'=>$p4cHide?'show':'hide'
+        ])).'">'.($p4cHide?'顯示模型模擬':'隱藏模型模擬').'</a>';
+    }
+    echo '</div>';
+}
 ?>
-<div class="qpub-toolbar">
+<?php if ($p4cFlag && !$g2Flag): ?>
+<div class="qpub-panel" role="status">
+  <strong>實驗推估（不是實測）</strong>：跨地域可能有較大誤差；E2 特殊規則未驗證、E3 高風險，不參與官方排名。
+  <?php if (!$p4cOverlay): ?><?= $g2Flag ? 'QP 推估資料失效，QP 已退回純實測。' : '資料失效，已安全退回純實測。' ?><?php endif; ?>
+  <a href="<?= qpub_hu(qpub_url('quest.php', ['region'=>$region,'sort'=>$sort,'dir'=>$dir,'q'=>$q,'page'=>1,'experiment'=>$p4cHide?'show':'hide'])) ?>"><?= $p4cHide ? '顯示實驗推估' : '隱藏實驗推估' ?></a>
+</div>
+<?php endif; ?><div class="qpub-toolbar">
   <?php
     $windowOptions = [];
     foreach (QPUB_WINDOWS as $key) {
         $windowOptions[$key] = qpub_window_label($key);
     }
     qpub_render_select('quest.php', 'window', '時間範圍', $windowOptions, $window, [
-        'region' => $region, 'q' => $q, 'sort' => $sort, 'dir' => $dir,
+        'region' => $region, 'q' => $q, 'sort' => $sort, 'dir' => $dir, 'experiment' => ($p4cFlag || $g2Flag) ? ($p4cHide ? 'hide' : 'show') : null,
     ]);
     qpub_render_search('quest.php', $q, [
-        'window' => $window, 'region' => $region, 'sort' => $sort, 'dir' => $dir,
+        'window' => $window, 'region' => $region, 'sort' => $sort, 'dir' => $dir, 'experiment' => ($p4cFlag || $g2Flag) ? ($p4cHide ? 'hide' : 'show') : null,
     ]);
     qpub_render_reset('quest.php', '重設篩選');
   ?>
@@ -153,7 +190,7 @@ qpub_render_notices();
             $ambiguous = !empty($row['name_ambiguous']);
         ?>
         <tr class="<?= $low && !empty($row['observed']) ? 'is-low-sample' : '' ?>">
-          <td class="qpub-col-rank"><?= qpub_int($offset + $index + 1) ?></td>
+          <td class="qpub-col-rank"><?= ($p4cFlag && !$g2Flag && in_array(($row['p4c_tier'] ?? ''), ['E2','E3'], true)) ? '—' : qpub_int($offset + $index + 1) ?></td>
           <td class="qpub-col-name">
             <?= qpub_text($row['quest_name'] ?? null) ?>
             <?php if (qpub_is_number($questId)): ?>
@@ -167,13 +204,13 @@ qpub_render_notices();
           <td class="qpub-col-num"><?= qpub_int($row['star'] ?? null) ?></td>
           <td class="qpub-col-num"><?= qpub_int($row['occurrences'] ?? null) ?></td>
           <td class="qpub-col-num qpub-col-optional"><?= qpub_int($row['completed_count'] ?? null) ?></td>
-          <td class="qpub-col-num qpub-col-optional"><?= qpub_int($row['qp'] ?? null) ?></td>
-          <td class="qpub-col-num qpub-col-strong"><?= qpub_num($row['qph'] ?? null) ?></td>
-          <td class="qpub-col-num"><?= qpub_num($row['valh'] ?? null) ?></td>
-          <td class="qpub-col-num qpub-col-optional"><?= qpub_num($row['average_value'] ?? null) ?></td>
+          <td class="qpub-col-num qpub-col-optional"><?= $g2Flag ? g2_route_cell($row, 'qp') : ($p4cFlag ? p4c_release_cell($row, 'qp') : qpub_int($row['qp'] ?? null)) ?></td>
+          <td class="qpub-col-num qpub-col-strong"><?= $g2Flag ? g2_route_cell($row, 'qph') : ($p4cFlag ? p4c_release_cell($row, 'qph') : qpub_num($row['qph'] ?? null)) ?></td>
+          <td class="qpub-col-num"><?= $g2Flag ? g2_route_cell($row, 'valh') : qpub_num($row['valh'] ?? null) ?></td>
+          <td class="qpub-col-num qpub-col-optional"><?= $g2Flag ? g2_route_cell($row, 'value') : qpub_num($row['average_value'] ?? null) ?></td>
           <td class="qpub-col-num qpub-col-optional"><?= qpub_int($row['search_ap'] ?? null) ?></td>
           <td class="qpub-col-num qpub-col-optional"><?= qpub_int($row['execute_ap'] ?? null) ?></td>
-          <td class="qpub-col-num qpub-col-optional"><?= qpub_text($row['median_text'] ?? null) ?></td>
+          <td class="qpub-col-num qpub-col-optional"><?= $g2Flag ? g2_route_cell($row, 'time') : qpub_text($row['median_text'] ?? null) ?></td>
         </tr>
         <?php endforeach; ?>
       </tbody>

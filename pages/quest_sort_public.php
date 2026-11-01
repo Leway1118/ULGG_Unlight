@@ -14,7 +14,7 @@ function ulggSortSpecs(string $view): array {
         8=>['median','中位時間','median_sec','number'],
         9=>['qpap','QP/AP','qp_per_ap','number'],
         10=>['valap','VAL/AP','value_per_ap','number'],
-        11=>['composite','綜合分 V2','composite_score','number'],
+        11=>['composite','綜合分 V2','composite_score_v2','number'],
     ] : [
         1=>['name','Quest','quest_name','text'],
         2=>['type','類型','quest_type','text'],
@@ -49,6 +49,33 @@ function ulggSortValMap(): array {
 function ulggSortValue(array $r, array $spec, array $values): mixed {
     $field=$spec[2]; $kind=$spec[3];
     $value=$field==='ulgg_val' ? ($r['average_value'] ?? $values[(string)($r['quest_key']??'')]??null) : ($r[$field]??null);
+    // ULGG-G2: use visible experimental sortable metrics, never overwrite observed metrics.
+    if (($field==='qp' || $field==='qph') && array_key_exists('p4c_sort_'.$field,$r)) {
+        $value=$r['p4c_sort_'.$field];
+    }
+    if (($field==='qp' || $field==='qph') && array_key_exists('g2_sort_'.$field,$r)) {
+        $value=$r['g2_sort_'.$field];
+    }
+    if ($field==='valh' && array_key_exists('g2_sort_valh',$r)) {
+        $value=$r['g2_sort_valh'];
+    }
+    // All sortable model columns must use the values actually displayed.
+    // Otherwise VAL/time click ordering silently sorts all simulated rows as null.
+    if (isset($r['g2_estimate']) && is_array($r['g2_estimate'])) {
+        if ($field==='ulgg_val') $value=$r['g2_estimate']['known_value'] ?? null;
+        if ($field==='median_sec') $value=$r['g2_estimate']['estimated_sec'] ?? null;
+    }
+    // qpub_quest_view_row does not expose observed median_sec, only median_text.
+    // Parse that displayed time to seconds so observed and simulated rows
+    // share the same numeric sort key. Unknown time remains null.
+    if ($field==='median_sec' && $value===null) {
+        $timeText=trim((string)($r['median_text'] ?? ''));
+        if (preg_match('/\A(?:(\d+)h\s*)?(?:(\d+)m\s*)?(\d+(?:\.\d+)?)s\z/u', $timeText, $timeParts)) {
+            $value=(float)($timeParts[1] ?? 0)*3600
+                +(float)($timeParts[2] ?? 0)*60
+                +(float)($timeParts[3] ?? 0);
+        }
+    }
     if ($kind==='observed_number' && empty($r['observed'])) return null;
     if ($value===null || $value==='' || $value==='—') return null;
     if ($kind==='confidence') return ['低'=>1,'中'=>2,'高'=>3][$value]??null;
@@ -75,7 +102,7 @@ function ulggSortRows(array $rows, array $spec, string $dir, array $values): arr
 
 function ulggSortHref(string $view, string $key, string $dir): string {
     $params=['view'=>$view];
-    foreach (['q','window','region','quest','duration'] as $p) {
+    foreach (['q','window','region','quest','duration','experiment','show_special'] as $p) {
         if (!isset($_GET[$p]) || !is_scalar($_GET[$p])) continue;
         $value=(string)$_GET[$p];
         if (strlen($value)<=250 && $value!=='') $params[$p]=$value;
@@ -122,7 +149,7 @@ function ulggSortTableRows(string $table, array $rows, array $ordered, int $colC
         $key=(string)($row['zone_key']??'');
         if (!isset($lookup[$key])) throw new RuntimeException('STOP=REGION_KEY_DRIFT');
         $html=$lookup[$key];
-        $html=preg_replace('~(<td\b[^>]*class="[^"]*\bqpub-col-rank\b[^"]*"[^>]*>)\s*[^<]*\s*(</td>)~si','$1'.($idx+1).'$2',$html,1);
+        $html=preg_replace('~(<td\b[^>]*class="[^"]*\bqpub-col-rank\b[^"]*"[^>]*>)\s*[^<]*\s*(</td>)~si','${1}'.($idx+1).'${2}',$html,1);
         $render[]=$html;
     }
     return str_replace($tbody[0],str_replace($tbody[1],implode("\n",$render),$tbody[0]),$table);
@@ -142,20 +169,33 @@ function ulggSortQuestRow(array $r, int $rank, array $values): string {
     $name=$e($r['quest_name']??'');
     $ambiguous=!empty($r['name_ambiguous']) ? ' <span class="qpub-badge">同名多 ID</span>' : '';
     $td=static fn(string $v,string $cls='qpub-col-num'):string=>'<td class="'.$cls.'">'.$v.'</td>';
+    $tier=(string)($r['p4c_tier']??'');
+    $rankText=isset($r['g2_estimate']) ? (string)$rank : (in_array($tier,['E2','E3'],true) ? '—' : (string)$rank);
+    // Original QUEST controller already validates these experimental rows.
+    $g2=isset($r['g2_estimate']) && function_exists('g2_route_cell');
+    $qpDisplay=$g2 ? g2_route_cell($r,'qp')
+        : (isset($r['p4c_tier']) && function_exists('p4c_release_cell')
+            ? p4c_release_cell($r,'qp') : $int($r['qp']??null));
+    $qphDisplay=$g2 ? g2_route_cell($r,'qph')
+        : (isset($r['p4c_tier']) && function_exists('p4c_release_cell')
+            ? p4c_release_cell($r,'qph') : $num($r['qph']??null,1));
+    $valhDisplay=$g2 ? g2_route_cell($r,'valh') : $num($r['valh']??null,0);
+    $valueDisplay=$g2 ? g2_route_cell($r,'value') : $num($val,0);
+    $timeDisplay=$g2 ? g2_route_cell($r,'time') : $e($r['median_text']??'—');
     $cells=[
-        $td((string)$rank,'qpub-col-rank'),
+        $td($rankText,'qpub-col-rank'),
         $td($name.' '.$id.$ambiguous,'qpub-col-name'),
         '<td>'.$e($r['quest_type']??'').'</td>',
         $td($int($r['star']??null)),
         $td($int($observed?($r['occurrences']??null):null)),
         $td($int($observed?($r['completed_count']??null):null),'qpub-col-num qpub-col-optional'),
-        $td($int($r['qp']??null),'qpub-col-num qpub-col-optional'),
-        $td($num($r['qph']??null,1),'qpub-col-num qpub-col-strong'),
-        $td($num($r['valh']??null,0)),
-        $td($num($val,0),'qpub-col-num qpub-col-optional'),
+        $td($qpDisplay,'qpub-col-num qpub-col-optional'),
+        $td($qphDisplay,'qpub-col-num qpub-col-strong'),
+        $td($valhDisplay),
+        $td($valueDisplay,'qpub-col-num qpub-col-optional'),
         $td($int($r['search_ap']??null),'qpub-col-num qpub-col-optional'),
         $td($int($r['execute_ap']??null),'qpub-col-num qpub-col-optional'),
-        $td($e($r['median_text']??'—'),'qpub-col-num qpub-col-optional'),
+        $td($timeDisplay,'qpub-col-num qpub-col-optional'),
     ];
     return '<tr'.$low.'>'.implode("\n",$cells).'</tr>';
 }
