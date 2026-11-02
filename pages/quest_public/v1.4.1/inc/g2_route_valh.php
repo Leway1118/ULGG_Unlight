@@ -18,7 +18,7 @@ function g2_route_load(): array
 {
     $path = g2_route_candidate_path();
     if (!is_file($path) || !is_readable($path)
-        || !hash_equals('92ea37a5f50773a422951762f5f499c4fe6d787b38e8686bee0c5d4aaa5c2ca9', (string)hash_file('sha256', $path))) return [];
+        || !hash_equals('90593c6e7de3d9fc2e8753f8a22e4a9a68e5d1535fe14c06fa8e09572b09216f', (string)hash_file('sha256', $path))) return [];
     $raw = file_get_contents($path);
     if ($raw === false || strlen($raw) > 800000) return [];
     $doc = json_decode($raw, true);

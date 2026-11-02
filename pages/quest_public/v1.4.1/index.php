@@ -143,12 +143,81 @@ function qpub_v2_score_regions(array $ordinary): array
     return $ordinary;
 }
 
+/**
+ * Reference V2 score for unobserved model regions and measured-but-low
+ * sample ordinary regions. Use ONLY eligible measured ordinary regions as
+ * the fixed comparison reference. Never rescore official measured rows.
+ * Percentiles use the V2 midrank formula; unseen between-rank observations
+ * use midpoint rank, clipped at [0,100]. Null metric = no score.
+ * Special maps are excluded, even when the toggle reveals their rows.
+ */
+function qpub_v2_score_model_regions(array $rows, array $measuredOrdinary): array
+{
+    $weights = ['qph' => 5, 'valh' => 3, 'qp_per_ap' => 1, 'value_per_ap' => 1];
+    $reference = [];
+    foreach ($measuredOrdinary as $ref) {
+        if (($ref['_composite_v2_points'] ?? null) !== null) {
+            $reference[] = $ref;
+        }
+    }
+    $n = count($reference);
+    if ($n < 2) return $rows;
+    foreach ($rows as &$row) {
+        if (!empty($row['_special_map'])) continue;
+        $model = !empty($row['simulated_region']);
+        $provisionalMeasured = !$model && ($row['composite_score_v2'] ?? null) === null
+            && (int)($row['eligible_samples'] ?? 0) > 0;
+        if (!$model && !$provisionalMeasured) continue;
+        $weighted = 0.0;
+        $valid = true;
+        foreach ($weights as $metric => $weight) {
+            $value = $row[$metric] ?? null;
+            if (!qpub_is_number($value) || !is_finite((float)$value)
+                || (float)$value < 0) {
+                $valid = false;
+                break;
+            }
+            $above = 0; $ties = 0;
+            foreach ($reference as $ref) {
+                $other = (float)$ref[$metric];
+                if ($other > (float)$value) ++$above;
+                elseif ($other === (float)$value) ++$ties;
+            }
+            $midrank = $above + ($ties > 0 ? ($ties + 1) / 2.0 : 0.5);
+            $percentile = max(0.0, min(1.0, ($n - $midrank) / ($n - 1)));
+            $weighted += $weight * $percentile;
+        }
+        if ($valid) {
+            $row['composite_score_v2'] = 10.0 * $weighted;
+            if ($model) {
+                $row['_composite_model_basis_n'] = $n;
+            } else {
+                $row['_composite_low_sample_reference'] = true;
+                $row['_composite_reference_n'] = $n;
+            }
+        }
+    }
+    unset($row);
+    return $rows;
+}
+
+/**
+ * Stable region-column formatting. Display precision is fixed per unit:
+ * rate/average QP/AP/composite 1 decimal; VAL/h & average VAL 0 decimals.
+ * Sort always uses original raw numeric values, never formatted strings.
+ */
+function qpub_region_display_number($value, int $decimals): string
+{
+    if (!qpub_is_number($value) || !is_finite((float)$value)) return '—';
+    return number_format((float)$value, $decimals, '.', ',');
+}
+
 /** Sort V2 values deterministically; unqualified rows always appear last. */
 function qpub_v2_sort_rows(array $rows, string $dir): array
 {
     usort($rows, static function (array $a, array $b) use ($dir): int {
-        $aScore = $a['_composite_v2_points'] ?? null;
-        $bScore = $b['_composite_v2_points'] ?? null;
+        $aScore = $a['composite_score_v2'] ?? null;
+        $bScore = $b['composite_score_v2'] ?? null;
         if ($aScore === null || $bScore === null) {
             if ($aScore === null && $bScore === null) {
                 return strcmp((string)($a['zone_key'] ?? ''), (string)($b['zone_key'] ?? ''));
@@ -356,6 +425,8 @@ foreach ($mergedRegionRows as &$regionRow) {
     $regionRow['_special_map'] = qpub_region_is_special($regionRow, $specialKeys);
 }
 unset($regionRow);
+// Score simulated ordinary regions against the 14 measured V2 references.
+$mergedRegionRows = qpub_v2_score_model_regions($mergedRegionRows, $ordinaryAll);
 if (!$showSpecial) {
     $mergedRegionRows = array_values(array_filter(
         $mergedRegionRows,
@@ -403,7 +474,7 @@ qpub_render_notices();
   <?php foreach ($leaders as $leader): $row = $leader['row']; ?>
     <div class="qpub-card qpub-leader-card">
       <span class="qpub-card__label"><?= qpub_h($leader['label']) ?></span>
-      <span class="qpub-card__value"><?= $row === null ? '—' : qpub_num($row[$leader['metric']] ?? null, $leader['metric'] === 'eligible_samples' ? 0 : 2) ?></span>
+      <span class="qpub-card__value"><?= $row === null ? '—' : qpub_region_display_number($row[$leader['metric']] ?? null, $leader['metric'] === 'valh' || $leader['metric'] === 'eligible_samples' ? 0 : 1) ?></span>
       <span class="qpub-leader-name"><?= $row === null ? '尚無足夠樣本' : qpub_text($row['zone_name'] ?? null) ?></span>
       <span class="qpub-leader-meta"><?= qpub_h($leader['unit']) ?> · <?= $row === null ? '—' : '樣本 ' . qpub_int($row['eligible_samples'] ?? null) ?>
       </span>
@@ -413,7 +484,7 @@ qpub_render_notices();
 <!-- QUEST_COMPOSITE_V2A_20261027 -->
 <!-- QUEST_TOTAL_CARD_SPECIAL_TABLE_20261027 -->
 <p class="qpub-hint">總樣本數依全期間公開來源紀錄計算，與表格的「有效地域樣本 n」定義不同。最高 QP/VAL 效率卡片需至少 10 筆對應樣本；最高綜合分 V2 需至少 30 筆有效及 QP/VAL 樣本。最高效率卡片僅計一般地圖、不受搜尋影響。</p>
-<p class="qpub-hint">綜合分 V2-A = QP/h 百分位 × 50% + VAL/h 百分位 × 30% + QP/AP 百分位 × 10% + VAL/AP 百分位 × 10%。排名母體僅包含資料完整的一般地圖；同值用平均名次、樣本不足顯示「—」，特殊地圖不評分。</p>
+<p class="qpub-hint">綜合分 V2-A = QP/h 百分位 × 50% + VAL/h 百分位 × 30% + QP/AP 百分位 × 10% + VAL/AP 百分位 × 10%。合格實測使用正式分數；* 為模型參考分；† 為未達 30 筆門檻的低樣本實測參考分。兩種參考分均以合格實測一般地域為固定基準，不參與最高分卡片；特殊地圖不評分。</p>
 <?php
 /** Render the identical region table for either ordinary or explicitly revealed special maps. */
 function qpub_render_region_list(array $rows, array $carry, string $sort, string $dir): void
@@ -453,23 +524,22 @@ function qpub_render_region_list(array $rows, array $carry, string $sort, string
             <a class="qpub-link" href="<?= qpub_hu(qpub_url('quest.php', ['region' => (string)($row['zone_key'] ?? '')])) ?>">
               <?= qpub_text($row['zone_name'] ?? null) ?>
             </a>
-            <?php if ($low): ?> <?= qpub_badge('低樣本', 'warn') ?><?php endif; ?>
             <?php if ($simulated): ?> <span class="qpub-model-mark" title="本地域暫無實測資料，依 <?= qpub_int($row['simulated_quest_count'] ?? null) ?> 個子任務的模型模擬彙總">* </span><?php endif; ?>
             <?php if (!empty($row['_special_map'])): ?> <small class="qpub-sub">特殊</small><?php endif; ?>
           </td>
           <td class="qpub-col-num"><?= qpub_int($row['eligible_samples'] ?? null) ?></td>
-          <td class="qpub-col-num qpub-col-strong"><?= qpub_num($row['qph'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
-          <td class="qpub-col-num"><?= qpub_num($row['valh'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
-          <td class="qpub-col-num"><?= qpub_num($row['average_qp'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
-          <td class="qpub-col-num"><?= qpub_num($row['average_value'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
+          <td class="qpub-col-num qpub-col-strong"><?= qpub_region_display_number($row['qph'] ?? null, 1) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
+          <td class="qpub-col-num"><?= qpub_region_display_number($row['valh'] ?? null, 0) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
+          <td class="qpub-col-num"><?= qpub_region_display_number($row['average_qp'] ?? null, 1) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
+          <td class="qpub-col-num"><?= qpub_region_display_number($row['average_value'] ?? null, 0) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
           <td><?= qpub_text($row['confidence'] ?? null) ?></td>
           
           
           <td class="qpub-col-num qpub-col-optional"><?= qpub_text($row['median_text'] ?? null) ?><?= $simulated ? '<sup title="模型模擬">*</sup>' : '' ?></td>
-          <td class="qpub-col-num qpub-col-optional"><?= qpub_num($row['qp_per_ap'] ?? null, 4) ?></td>
-          <td class="qpub-col-num qpub-col-optional"><?= qpub_num($row['value_per_ap'] ?? null, 4) ?></td>
+          <td class="qpub-col-num qpub-col-optional"><?= qpub_region_display_number($row['qp_per_ap'] ?? null, 1) ?></td>
+          <td class="qpub-col-num qpub-col-optional"><?= qpub_region_display_number($row['value_per_ap'] ?? null, 1) ?></td>
           
-          <td class="qpub-col-num qpub-col-optional"><?= qpub_num($row['composite_score_v2'] ?? null) ?></td>
+          <td class="qpub-col-num qpub-col-optional"><?= qpub_region_display_number($row['composite_score_v2'] ?? null, 1) ?><?php if ($simulated && ($row['composite_score_v2'] ?? null) !== null): ?><sup title="依合格實測地域百分位計算的模型參考綜合分">*</sup><?php elseif (!empty($row['_composite_low_sample_reference'])): ?><sup title="未達 30 筆有效樣本門檻；依合格實測地域百分位計算的低樣本參考綜合分">†</sup><?php endif; ?></td>
         </tr>
         <?php endforeach; ?>
       </tbody>
@@ -479,7 +549,7 @@ function qpub_render_region_list(array $rows, array $carry, string $sort, string
 <div class="qpub-panel" id="regions">
   <div class="qpub-panel__head">
     <h2 class="qpub-panel__title">地域排行</h2>
-    <p class="qpub-panel__note">目前顯示 <?= qpub_int(count($mergedRegionRows)) ?> 個地域，同表搜尋與排序。* 代表模型模擬；特殊地圖預設隱藏，可用上方按鈕切換。</p>
+    <p class="qpub-panel__note">目前顯示 <?= qpub_int(count($mergedRegionRows)) ?> 個地域，同表搜尋與排序。* 代表模型模擬，† 代表低樣本實測參考分；兩者以合格實測一般地域為固定參照計算；特殊地圖預設隱藏，可用上方按鈕切換。</p>
   </div>
   <?php if (!$mergedRegionRows): ?>
     <?= qpub_empty_state('沒有符合搜尋條件的地域', '請調整搜尋文字，或顯示特殊地圖。') ?>
