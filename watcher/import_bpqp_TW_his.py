@@ -194,9 +194,6 @@ def fallback_live_rows(table, score_key):
     rows = cursor.fetchall()
     print(f"↩️ {score_key.upper()} JSON 無資料，改用結算前 DB 快照 {snap}（{len(rows)} rows）")
     return rows
-    
-
-
 
 
 # ----------------------------------------------------------------
