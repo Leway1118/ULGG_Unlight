@@ -34,12 +34,15 @@ def create_db_connection(cfg):
         print("✅ 成功連線到 MySQL")
         return conn
     except MySQLError as e:
-        print(f"❌ 連線失敗：{e}")
+        print(f"❌ 連線失敗：{e}", file=sys.stderr)
         sys.exit(1)
 
 # 正式拿到連線與 cursor
 db = create_db_connection(db_config)
 cursor = db.cursor()
+
+_bpqp_errors = []
+_bpqp_inserted = False
 
 # helper：備份並讀 JSON
 def backup_and_load(name):
@@ -73,8 +76,17 @@ def _settlement_dt():
         raise RuntimeError(f"尚未到本日 10:00 結算時間：now={now_tw}, target={target}")
     return target
 
-SETTLEMENT_DT = _settlement_dt()
-SETTLEMENT_TS = SETTLEMENT_DT.strftime("%Y-%m-%d %H:%M:%S")
+try:
+    SETTLEMENT_DT = _settlement_dt()
+    SETTLEMENT_TS = SETTLEMENT_DT.strftime("%Y-%m-%d %H:%M:%S")
+except RuntimeError as _e:
+    print(f"❌ {_e}", file=sys.stderr)
+    sys.exit(1)
+
+# ----------------------------------------------------------------
+# 執行模式
+# ----------------------------------------------------------------
+DRY_RUN = "--dry-run" in sys.argv
 
 
 def _payload_dt(payload):
@@ -227,45 +239,56 @@ if not bp_list:
 if not bp_list:
     print("⚠️ ranking_bp_TW.json 無任何排行物件，跳過 DB 寫入及清空原檔")
 else:
-    cursor.execute("DELETE FROM ranking_bp_TW_history WHERE ts=%s", (ts,))
-    # INSERT 語句多加了 rank_num
-    insert_bp = """
-      INSERT INTO `ranking_bp_TW_history`
-        (`ts`, `rank_num`, `name`, `level`, `bp`, `win_ranked`, `lose_ranked`, `draw_ranked`)
-      VALUES (%s,     %s,        %s,     %s,    %s,   %s,           %s,            %s)
-    """
+    if DRY_RUN:
+        print(f"🧪 [DRY RUN] 將寫入 ranking_bp_TW_history ts={ts}，{len(bp_list)} 筆")
+        _bpqp_inserted = True
+    else:
+        try:
+            cursor.execute("DELETE FROM ranking_bp_TW_history WHERE ts=%s", (ts,))
+            # INSERT 語句多加了 rank_num
+            insert_bp = """
+              INSERT INTO `ranking_bp_TW_history`
+                (`ts`, `rank_num`, `name`, `level`, `bp`, `win_ranked`, `lose_ranked`, `draw_ranked`)
+              VALUES (%s,     %s,        %s,     %s,    %s,   %s,           %s,            %s)
+            """
 
-    # enumerate 從 1 開始，i 就是我們要塞給 rank_num 的值
-    for i, rec in enumerate(bp_list, start=1):
-        if isinstance(rec, dict):
-            if "player_name" in rec:
-                name        = rec.get("player_name")
-                level       = None
-                bp          = rec.get("point")
-                win_ranked  = None
-                lose_ranked = None
-                draw_ranked = None
-            else:
-                name        = rec.get("name")
-                level       = rec.get("level")
-                bp          = rec.get("bp")
-                win_ranked  = rec.get("win_ranked")
-                lose_ranked = rec.get("lose_ranked")
-                draw_ranked = rec.get("draw_ranked")
-        else:
-            # 如果遇到不是 dict（例如 null），全部欄位設為 None
-            name = level = bp = win_ranked = lose_ranked = draw_ranked = None
+            # enumerate 從 1 開始，i 就是我們要塞給 rank_num 的值
+            for i, rec in enumerate(bp_list, start=1):
+                if isinstance(rec, dict):
+                    if "player_name" in rec:
+                        name        = rec.get("player_name")
+                        level       = None
+                        bp          = rec.get("point")
+                        win_ranked  = None
+                        lose_ranked = None
+                        draw_ranked = None
+                    else:
+                        name        = rec.get("name")
+                        level       = rec.get("level")
+                        bp          = rec.get("bp")
+                        win_ranked  = rec.get("win_ranked")
+                        lose_ranked = rec.get("lose_ranked")
+                        draw_ranked = rec.get("draw_ranked")
+                else:
+                    # 如果遇到不是 dict（例如 null），全部欄位設為 None
+                    name = level = bp = win_ranked = lose_ranked = draw_ranked = None
 
-        cursor.execute(insert_bp, (
-            ts,
-            i,                # rank_num
-            name, level, bp,
-            win_ranked, lose_ranked, draw_ranked
-        ))
+                cursor.execute(insert_bp, (
+                    ts,
+                    i,                # rank_num
+                    name, level, bp,
+                    win_ranked, lose_ranked, draw_ranked
+                ))
 
-    db.commit()
-    print(f"✅ 已插入 {len(bp_list)} 筆到 ranking_bp_TW_history（含 rank_num）")
-    print(f"ℹ️ 保留 {bp_path.name}，不再於月結匯入後清空來源 JSON")
+            db.commit()
+            print(f"✅ 已插入 {len(bp_list)} 筆到 ranking_bp_TW_history（含 rank_num）")
+            print(f"ℹ️ 保留 {bp_path.name}，不再於月結匯入後清空來源 JSON")
+            _bpqp_inserted = True
+        except Exception as _e:
+            db.rollback()
+            _err = f"BP 匯入失敗：{_e}"
+            _bpqp_errors.append(_err)
+            print(f"❌ {_err}", file=sys.stderr)
 
 
 print("🚧 進入 QP 區段")
@@ -307,56 +330,70 @@ print("DEBUG QP first:", qp_list[0] if qp_list else None)
 if not qp_list:
     print("⚠️ ranking_qp_TW.json 無任何排行物件，跳過 DB 寫入及清空原檔")
 else:
-    cursor.execute("DELETE FROM ranking_qp_TW_history WHERE ts=%s", (ts_qp,))
-    # INSERT 語句多了 rank_num 欄位
-    insert_qp = """
-      INSERT INTO `ranking_qp_TW_history`
-        (`ts`, `rank_num`, `name`, `level`, `qp`)
-      VALUES (%s,     %s,         %s,      %s,    %s)
-    """
-
-    # 用 enumerate 產生從 1 開始的 i 當作 rank_num
-    for i, rec in enumerate(qp_list, start=1):
-        if isinstance(rec, dict):
-            if "player_name" in rec:
-                name  = rec.get("player_name")
-                level = None
-                qp    = rec.get("point")
-            else:
-                name  = rec.get("name")
-                level = rec.get("level")
-                qp    = rec.get("qp")
-        else:
-            # 如果碰到不是 dict（例如 null），全部設為 None
-            name = level = qp = None
-
-        cursor.execute(insert_qp, (
-            ts_qp,
-            i,       # 這裡就是第幾名
-            name, level, qp
-        ))
-
-    db.commit()
-    print(f"✅ 已插入 {len(qp_list)} 筆到 ranking_qp_TW_history（含 rank_num）")
-    print(f"ℹ️ 保留 {qp_path.name}，不再於月結匯入後清空來源 JSON")
-
-# RANK_MAINTENANCE_ENABLE_ON_MONTHLY_IMPORT_V2
-# BP / QP 各自屏蔽、各自等待自己的榜單清 0，再各自公開。
-_gate_base = Path(__file__).parent
-_season_date = SETTLEMENT_DT.strftime("%Y-%m-%d")
-
-for _kind, _rows in (("bp", bp_list), ("qp", qp_list)):
-    if not _rows:
-        continue
-    _season_marker = _gate_base / f"ranking_{_kind}_season_started_{_season_date}.flag"
-    _maintenance_flag = _gate_base / f"ranking_{_kind}_maintenance.flag"
-    _label = _kind.upper()
-    if _season_marker.exists():
-        print(f"ℹ️ {_label} {_season_date} 已偵測到新賽季清零，不重新啟用 {_label} 排行榜維護屏蔽")
+    if DRY_RUN:
+        print(f"🧪 [DRY RUN] 將寫入 ranking_qp_TW_history ts={ts_qp}，{len(qp_list)} 筆")
+        _bpqp_inserted = True
     else:
-        _maintenance_flag.write_text(
-            f"settlement={SETTLEMENT_TS}\ncreated={datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n",
-            encoding="utf-8",
-        )
-        print(f"🟡 {_label} 月結完成：已啟用 {_label} 排行榜維護屏蔽，等待 {_label} 榜單清零後自動公開")
+        try:
+            cursor.execute("DELETE FROM ranking_qp_TW_history WHERE ts=%s", (ts_qp,))
+            # INSERT 語句多了 rank_num 欄位
+            insert_qp = """
+              INSERT INTO `ranking_qp_TW_history`
+                (`ts`, `rank_num`, `name`, `level`, `qp`)
+              VALUES (%s,     %s,         %s,      %s,    %s)
+            """
 
+            # 用 enumerate 產生從 1 開始的 i 當作 rank_num
+            for i, rec in enumerate(qp_list, start=1):
+                if isinstance(rec, dict):
+                    if "player_name" in rec:
+                        name  = rec.get("player_name")
+                        level = None
+                        qp    = rec.get("point")
+                    else:
+                        name  = rec.get("name")
+                        level = rec.get("level")
+                        qp    = rec.get("qp")
+                else:
+                    # 如果碰到不是 dict（例如 null），全部設為 None
+                    name = level = qp = None
+
+                cursor.execute(insert_qp, (
+                    ts_qp,
+                    i,       # 這裡就是第幾名
+                    name, level, qp
+                ))
+
+            db.commit()
+            print(f"✅ 已插入 {len(qp_list)} 筆到 ranking_qp_TW_history（含 rank_num）")
+            print(f"ℹ️ 保留 {qp_path.name}，不再於月結匯入後清空來源 JSON")
+            _bpqp_inserted = True
+        except Exception as _e:
+            db.rollback()
+            _err = f"QP 匯入失敗：{_e}"
+            _bpqp_errors.append(_err)
+            print(f"❌ {_err}", file=sys.stderr)
+
+# BP/QP 歷史匯入腳本不再建立維護屏蔽標記。
+# - 原本沒有標記：匯入結束後保持公開。
+# - 原本已存在標記：由其他流程管理，本腳本不會刪除。
+# - 匯入失敗：已於上方 rollback，不會留下本次操作產生的永久屏蔽。
+if DRY_RUN:
+    print("🧪 [DRY RUN] 已跳過任何維護屏蔽標記相關動作")
+else:
+    print("ℹ️ 歷史匯入完成：不新建或刪除維護屏蔽標記")
+
+# 回報最終狀態
+if _bpqp_errors:
+    sys.exit(1)
+
+if _bpqp_inserted:
+    print("RESULT=SUCCESS")
+else:
+    print("RESULT=NO_DATA")
+
+try:
+    cursor.close()
+    db.close()
+except Exception:
+    pass
