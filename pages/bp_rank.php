@@ -1545,27 +1545,81 @@ if (!$rankingMaintenance && is_file($bpLiveJsonPath)) {
 
 
 // ------------------------------------------------------------
-// ⭐ 在這裡放匯入 TW / JP 的 PHP 功能（最安全）
+// TW / JP 每月榜單匯入功能
+// - 僅管理員可觸發
+// - 檢查 Python exit code，不再僅憑 stdout 判斷成功
+// - 以 inline 提示取代 alert()，避免阻斷式彈窗
+// - 不對一般訪客輸出 Python traceback 或伺服器路徑
 // ------------------------------------------------------------
 
-/* 匯入程式開始 */
-if (isset($_POST['import_tw'])) {
-
-  $cmd = "python3 /var/www/html/unlight/watcher/import_bpqp_TW_his.py 2>&1";
-  $output = shell_exec($cmd);
-
-  echo "<pre style='background:#111;color:#0f0;padding:10px;'>
-========= 🇹🇼 TW 匯入結果 =========
-$output
-================================
-</pre>";
-
-  echo "<script>alert('🇹🇼 TW BP/QP 歷史已成功匯入！');</script>";
-  //echo "<meta http-equiv='refresh' content='1'>";
+function bpImportStoreFlash(string $type, string $message, ?string $detail = null): void
+{
+  $_SESSION['bp_import_tw_flash'] = [
+    'type'    => $type,
+    'message' => $message,
+    'detail'  => $detail,
+  ];
 }
 
-if (isset($_POST['import_jp'])) {
-  echo "<script>alert('🇯🇵 JP / DMM 已停止追蹤，歷史匯入已停用。');</script>";
+$bpImportFlash = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_tw'])) {
+  if ((int)$permission < 2) {
+    bpImportStoreFlash('danger', '權限不足：只有管理員能執行 TW BP/QP 歷史匯入。');
+  } else {
+    // 使用與 systemd cron 相同的 Python 3.11，避免 python3 指向缺少 PyMySQL 的解釋器
+    $pythonBin = is_executable('/usr/bin/python3.11') ? '/usr/bin/python3.11' : 'python3';
+    $scriptPath = '/var/www/html/unlight/watcher/import_bpqp_TW_his.py';
+    $cmd = escapeshellcmd($pythonBin) . ' ' . escapeshellarg($scriptPath) . ' 2>&1';
+
+    $outputLines = [];
+    $exitCode = 0;
+    exec($cmd, $outputLines, $exitCode);
+    $rawOutput = implode("\n", $outputLines);
+    $safeOutput = htmlspecialchars($rawOutput, ENT_QUOTES, 'UTF-8');
+
+    if ($exitCode !== 0) {
+      bpImportStoreFlash(
+        'danger',
+        "🇹🇼 TW BP/QP 歷史匯入失敗（exit code {$exitCode}）。請檢視下方詳細輸出或伺服器日誌。",
+        $safeOutput
+      );
+    } elseif (strpos($rawOutput, 'RESULT=NO_DATA') !== false) {
+      bpImportStoreFlash(
+        'info',
+        '🇹🇼 TW BP/QP 歷史：本次無可匯入的月結資料（NO_DATA）。',
+        $safeOutput
+      );
+    } elseif (strpos($rawOutput, 'RESULT=SUCCESS') !== false || strpos($rawOutput, '已插入') !== false) {
+      bpImportStoreFlash(
+        'success',
+        '🇹🇼 TW BP/QP 歷史匯入成功。',
+        $safeOutput
+      );
+    } else {
+      bpImportStoreFlash(
+        'warning',
+        '🇹🇼 TW BP/QP 歷史匯入完成，但狀態無法確認。',
+        $safeOutput
+      );
+    }
+  }
+
+  header('Location: ' . $_SERVER['PHP_SELF']);
+  exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_jp'])) {
+  if ((int)$permission >= 2) {
+    bpImportStoreFlash('info', '🇯🇵 JP / DMM 已停止追蹤，歷史匯入已停用。');
+  }
+  header('Location: ' . $_SERVER['PHP_SELF']);
+  exit;
+}
+
+if (!empty($_SESSION['bp_import_tw_flash'])) {
+  $bpImportFlash = $_SESSION['bp_import_tw_flash'];
+  unset($_SESSION['bp_import_tw_flash']);
 }
 /* 匯入程式結束 */
 function renderBpActivityPanel(array $data, string $label): void
@@ -2010,6 +2064,48 @@ function renderBpActivityPanel(array $data, string $label): void
         <!-- Steam main column -->
         <div class="col-md-12">
           <?php if ($permission >= 2): ?>
+
+            <?php if (!empty($bpImportFlash)): ?>
+              <div style="
+                margin-bottom:14px;
+                padding:12px;
+                border-radius:8px;
+                font-weight:700;
+                <?php if ($bpImportFlash['type'] === 'success'): ?>
+                  background:#102018;
+                  color:#86efac;
+                  border:1px solid rgba(74,222,128,.35);
+                <?php elseif ($bpImportFlash['type'] === 'danger'): ?>
+                  background:#2a0a0a;
+                  color:#fca5a5;
+                  border:1px solid rgba(248,113,113,.45);
+                <?php elseif ($bpImportFlash['type'] === 'warning'): ?>
+                  background:#2a1f0a;
+                  color:#fde047;
+                  border:1px solid rgba(250,204,21,.45);
+                <?php else: ?>
+                  background:#0f172a;
+                  color:#93c5fd;
+                  border:1px solid rgba(147,197,253,.35);
+                <?php endif; ?>
+              ">
+                <?= bpSafe($bpImportFlash['message']) ?>
+                <?php if (!empty($bpImportFlash['detail'])): ?>
+                  <details style="margin-top:10px;font-weight:400;">
+                    <summary style="cursor:pointer;font-weight:800;">詳細輸出（僅管理員）</summary>
+                    <pre style="
+                      margin-top:8px;
+                      white-space:pre-wrap;
+                      word-break:break-word;
+                      background:#0b0c10;
+                      color:#e5e7eb;
+                      padding:10px;
+                      border-radius:6px;
+                    "><?= $bpImportFlash['detail'] ?></pre>
+                  </details>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
 
             <?php
             // 取得 TW 最新匯入時間
