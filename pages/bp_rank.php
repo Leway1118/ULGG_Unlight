@@ -37,7 +37,7 @@ ob_start();  // ⭐ 開始收集本頁 HTML
     font-size: .85rem;
   }
 
-  
+
 
 
   /* =========================
@@ -208,450 +208,682 @@ ob_start();  // ⭐ 開始收集本頁 HTML
   .bp-delta.same {
     color: #94a3b8;
   }
+
   /* =========================
    BP Activity Analysis
 ========================= */
-.bp-activity-wrap {
-  margin-bottom: 18px;
-}
-
-.bp-activity-hero {
-  background: linear-gradient(135deg, #111827, #312e81);
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 16px;
-  padding: 18px;
-  color: #fff;
-  margin-bottom: 14px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, .22);
-}
-
-.bp-activity-title {
-  font-size: 22px;
-  font-weight: 800;
-  margin-bottom: 6px;
-}
-
-.bp-activity-desc {
-  color: rgba(255, 255, 255, .76);
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.bp-activity-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 12px 0;
-}
-
-.bp-activity-tab-btn {
-  border: 1px solid rgba(255, 255, 255, .18);
-  background: #1f2937;
-  color: #ddd6fe;
-  border-radius: 999px;
-  padding: 7px 13px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.bp-activity-tab-btn.active {
-  background: #7c3aed;
-  color: #fff;
-  border-color: #a78bfa;
-}
-
-.bp-activity-panel {
-  display: none;
-}
-
-.bp-activity-panel.active {
-  display: block;
-}
-
-.bp-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.bp-stat-card {
-  background: #111827;
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 12px;
-  padding: 12px;
-  color: #fff;
-}
-
-.bp-stat-label {
-  color: #9ca3af;
-  font-size: 12px;
-  margin-bottom: 6px;
-}
-
-.bp-stat-value {
-  font-size: 21px;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.bp-stat-note {
-  color: #a5b4fc;
-  font-size: 11px;
-  margin-top: 6px;
-}
-
-.bp-focus-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.bp-focus-card {
-  background: linear-gradient(135deg, #0f172a, #1e1b4b);
-  border: 1px solid rgba(167, 139, 250, .32);
-  border-radius: 14px;
-  padding: 14px;
-  color: #e5e7eb;
-}
-
-.bp-focus-label {
-  color: #c4b5fd;
-  font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.bp-focus-name {
-  font-size: 20px;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
-.bp-focus-main {
-  font-size: 24px;
-  font-weight: 900;
-  color: #facc15;
-  margin-bottom: 5px;
-}
-
-.bp-focus-sub {
-  color: #cbd5e1;
-  font-size: 12px;
-}
-
-.bp-analysis-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr);
-  gap: 16px;
-  align-items: start;
-}
-
-.bp-analysis-card {
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 14px;
-  padding: 14px;
-  color: #e5e7eb;
-  margin-bottom: 12px;
-}
-
-.bp-analysis-title {
-  font-weight: 800;
-  font-size: 16px;
-  color: #fff;
-  margin-bottom: 10px;
-}
-
-.bp-mini-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 12px 0 14px;
-}
-
-.bp-mini-tab-btn {
-  border: 1px solid rgba(148, 163, 184, .35);
-  background: rgba(15, 23, 42, .55);
-  color: #cbd5e1;
-  border-radius: 999px;
-  padding: 8px 13px;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.bp-mini-tab-btn.active {
-  background: #7c3aed;
-  border-color: #a78bfa;
-  color: #fff;
-}
-
-.bp-mini-panel {
-  display: none;
-}
-
-.bp-mini-panel.active {
-  display: block;
-}
-
-.bp-analysis-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.bp-analysis-table th {
-  background: #1f2937;
-  color: #cbd5e1;
-  font-size: 12px;
-  padding: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
-  white-space: nowrap;
-}
-
-.bp-analysis-table td {
-  color: #e5e7eb;
-  font-size: 12px;
-  padding: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, .08);
-  white-space: nowrap;
-}
-
-.bp-player-name {
-  font-weight: 800;
-  color: #fff;
-}
-
-.bp-player-link {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px dashed rgba(196, 181, 253, .65);
-}
-
-.bp-player-link:hover {
-  color: #c4b5fd;
-  text-decoration: none;
-}
-
-.bp-focus-card-link {
-  display: block;
-  text-decoration: none;
-  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
-}
-
-.bp-focus-card-link:hover {
-  color: #e5e7eb;
-  text-decoration: none;
-  transform: translateY(-2px);
-  border-color: rgba(196, 181, 253, .72);
-  box-shadow: 0 8px 22px rgba(124, 58, 237, .24);
-}
-
-.bp-gain {
-  color: #86efac;
-  font-weight: 800;
-}
-
-.bp-rise {
-  color: #facc15;
-  font-weight: 800;
-}
-
-.bp-loss {
-  color: #f87171;
-  font-weight: 800;
-}
-
-.bp-same {
-  color: #94a3b8;
-  font-weight: 800;
-}
-
-.bp-empty {
-  padding: 18px;
-  text-align: center;
-  color: #94a3b8;
-  background: rgba(255, 255, 255, .04);
-  border-radius: 10px;
-}
-
-.bp-dist-row {
-  display: grid;
-  grid-template-columns: 90px 1fr 38px;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 12px;
-  color: #cbd5e1;
-}
-
-.bp-dist-bar {
-  height: 10px;
-  background: #1f2937;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.bp-dist-bar span {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, #7c3aed, #facc15);
-  border-radius: 999px;
-}
-
-@media (max-width: 1199px) {
-  .bp-stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .bp-activity-wrap {
+    margin-bottom: 18px;
   }
 
-  .bp-analysis-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 991px) {
-  .bp-analysis-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 767px) {
-  .bp-stat-grid,
-  .bp-focus-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .bp-analysis-table-wrap {
-    overflow-x: auto;
-  }
-
-  .bp-analysis-table {
-    min-width: 650px;
-  }
-}
-
-@media (max-width: 575px) {
-  .bp-analysis-card {
-    padding: 14px;
+  .bp-activity-hero {
+    background: linear-gradient(135deg, #111827, #312e81);
+    border: 1px solid rgba(255, 255, 255, .12);
     border-radius: 16px;
-  }
-
-  .bp-analysis-title {
-    font-size: 16px;
-    margin-bottom: 10px;
-  }
-
-  .bp-empty {
-    padding: 16px;
-    font-size: 13px;
-  }
-
-  .bp-mini-tabs {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .bp-mini-tab-btn {
-    width: 100%;
-    padding: 10px 12px;
-    text-align: center;
-  }
-
-  .bp-analysis-table-wrap {
-    overflow: visible;
-  }
-
-  .bp-analysis-table {
-    min-width: 0;
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 10px;
-  }
-
-  .bp-analysis-table thead {
-    display: none;
-  }
-
-  .bp-analysis-table,
-  .bp-analysis-table tbody,
-  .bp-analysis-table tr,
-  .bp-analysis-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .bp-analysis-table tr {
-    background: rgba(15, 23, 42, .72);
-    border: 1px solid rgba(148, 163, 184, .18);
-    border-radius: 14px;
-    padding: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, .16);
-  }
-
-  .bp-analysis-table td {
-    border: 0 !important;
-    padding: 4px 0;
-    color: #cbd5e1;
-    white-space: normal;
-  }
-
-  .bp-analysis-table td:first-child {
-    color: #c4b5fd;
-    font-size: 12px;
-    font-weight: 900;
-    margin-bottom: 4px;
-  }
-
-  .bp-analysis-table td:nth-child(2) {
-    font-size: 17px;
-    font-weight: 900;
+    padding: 18px;
     color: #fff;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .22);
+  }
+
+  .bp-activity-title {
+    font-size: 22px;
+    font-weight: 800;
     margin-bottom: 6px;
   }
 
-  .bp-analysis-table td:nth-child(n+3) {
-    display: inline-flex;
-    width: auto;
-    margin-right: 10px;
-    margin-top: 4px;
+  .bp-activity-desc {
+    color: rgba(255, 255, 255, .76);
     font-size: 13px;
+    line-height: 1.7;
   }
 
-  .bp-analysis-table td[data-label]:nth-child(n+3)::before {
-    content: attr(data-label) "：";
-    color: #94a3b8;
-    font-weight: 700;
-    margin-right: 2px;
-  }
-
-  .bp-analysis-table .bp-player-link {
-    color: #fff;
-    text-decoration: none;
-  }
-
-  .bp-analysis-table .bp-player-link:hover {
-    color: #c4b5fd;
-  }
-
-  .bp-dist-row {
-    grid-template-columns: 78px minmax(0, 1fr) 34px;
+  .bp-activity-tabs {
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
+    margin: 12px 0;
+  }
+
+  .bp-activity-tab-btn {
+    border: 1px solid rgba(255, 255, 255, .18);
+    background: #1f2937;
+    color: #ddd6fe;
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .bp-activity-tab-btn.active {
+    background: #7c3aed;
+    color: #fff;
+    border-color: #a78bfa;
+  }
+
+  .bp-activity-panel {
+    display: none;
+  }
+
+  .bp-activity-panel.active {
+    display: block;
+  }
+
+  .bp-compare-note {
+    margin: 0 0 12px 0;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: rgba(124, 58, 237, .12);
+    border: 1px solid rgba(167, 139, 250, .24);
+    color: #c4b5fd;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .bp-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .bp-stat-card {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 12px;
+    padding: 12px;
+    color: #fff;
+  }
+
+  .bp-stat-label {
+    color: #9ca3af;
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .bp-stat-value {
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .bp-stat-note {
+    color: #a5b4fc;
+    font-size: 11px;
+    margin-top: 6px;
+  }
+
+  .bp-focus-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .bp-focus-card {
+    background: linear-gradient(135deg, #0f172a, #1e1b4b);
+    border: 1px solid rgba(167, 139, 250, .32);
+    border-radius: 14px;
+    padding: 14px;
+    color: #e5e7eb;
+  }
+
+  .bp-focus-label {
+    color: #c4b5fd;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .bp-focus-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .bp-focus-main {
+    font-size: 24px;
+    font-weight: 900;
+    color: #facc15;
+    margin-bottom: 5px;
+  }
+
+  .bp-focus-sub {
+    color: #cbd5e1;
     font-size: 12px;
   }
 
+  .bp-analysis-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  .bp-analysis-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 14px;
+    padding: 14px;
+    color: #e5e7eb;
+    margin-bottom: 12px;
+  }
+
+  .bp-analysis-title {
+    font-weight: 800;
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .bp-mini-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 14px;
+  }
+
+  .bp-mini-tab-btn {
+    border: 1px solid rgba(148, 163, 184, .35);
+    background: rgba(15, 23, 42, .55);
+    color: #cbd5e1;
+    border-radius: 999px;
+    padding: 8px 13px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .bp-mini-tab-btn.active {
+    background: #7c3aed;
+    border-color: #a78bfa;
+    color: #fff;
+  }
+
+  .bp-mini-panel {
+    display: none;
+  }
+
+  .bp-mini-panel.active {
+    display: block;
+  }
+
+  .bp-analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .bp-analysis-table th {
+    background: #1f2937;
+    color: #cbd5e1;
+    font-size: 12px;
+    padding: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
+    white-space: nowrap;
+  }
+
+  .bp-analysis-table td {
+    color: #e5e7eb;
+    font-size: 12px;
+    padding: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    white-space: nowrap;
+  }
+
+  .bp-player-name {
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .bp-player-link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(196, 181, 253, .65);
+  }
+
+  .bp-player-link:hover {
+    color: #c4b5fd;
+    text-decoration: none;
+  }
+
+  .bp-focus-card-link {
+    display: block;
+    text-decoration: none;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .bp-focus-card-link:hover {
+    color: #e5e7eb;
+    text-decoration: none;
+    transform: translateY(-2px);
+    border-color: rgba(196, 181, 253, .72);
+    box-shadow: 0 8px 22px rgba(124, 58, 237, .24);
+  }
+
+  .bp-gain {
+    color: #86efac;
+    font-weight: 800;
+  }
+
+  .bp-rise {
+    color: #facc15;
+    font-weight: 800;
+  }
+
+  .bp-loss {
+    color: #f87171;
+    font-weight: 800;
+  }
+
+  .bp-same {
+    color: #94a3b8;
+    font-weight: 800;
+  }
+
+  .bp-empty {
+    padding: 18px;
+    text-align: center;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, .04);
+    border-radius: 10px;
+  }
+
+  .bp-dist-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 38px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+
   .bp-dist-bar {
-    height: 9px;
-    background: rgba(148, 163, 184, .16);
+    height: 10px;
+    background: #1f2937;
+    border-radius: 999px;
+    overflow: hidden;
   }
 
   .bp-dist-bar span {
-    background: linear-gradient(90deg, #a78bfa, #facc15);
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #7c3aed, #facc15);
+    border-radius: 999px;
   }
-}
+
+  @media (max-width: 1199px) {
+    .bp-stat-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bp-analysis-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 991px) {
+    .bp-analysis-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 767px) {
+
+    .bp-stat-grid,
+    .bp-focus-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .bp-analysis-table-wrap {
+      overflow-x: auto;
+    }
+
+    .bp-analysis-table {
+      min-width: 650px;
+    }
+  }
+
+  @media (max-width: 575px) {
+    .bp-analysis-card {
+      padding: 14px;
+      border-radius: 16px;
+    }
+
+    .bp-analysis-title {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .bp-empty {
+      padding: 16px;
+      font-size: 13px;
+    }
+
+    .bp-mini-tabs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .bp-mini-tab-btn {
+      width: 100%;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .bp-analysis-table-wrap {
+      overflow: visible;
+    }
+
+    .bp-analysis-table {
+      min-width: 0;
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+
+    .bp-analysis-table thead {
+      display: none;
+    }
+
+    .bp-analysis-table,
+    .bp-analysis-table tbody,
+    .bp-analysis-table tr,
+    .bp-analysis-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .bp-analysis-table tr {
+      background: rgba(15, 23, 42, .72);
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .16);
+    }
+
+    .bp-analysis-table td {
+      border: 0 !important;
+      padding: 4px 0;
+      color: #cbd5e1;
+      white-space: normal;
+    }
+
+    .bp-analysis-table td:first-child {
+      color: #c4b5fd;
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .bp-analysis-table td:nth-child(2) {
+      font-size: 17px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .bp-analysis-table td:nth-child(n+3) {
+      display: inline-flex;
+      width: auto;
+      margin-right: 10px;
+      margin-top: 4px;
+      font-size: 13px;
+    }
+
+    .bp-analysis-table td[data-label]:nth-child(n+3)::before {
+      content: attr(data-label) "：";
+      color: #94a3b8;
+      font-weight: 700;
+      margin-right: 2px;
+    }
+
+    .bp-analysis-table .bp-player-link {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .bp-analysis-table .bp-player-link:hover {
+      color: #c4b5fd;
+    }
+
+    .bp-dist-row {
+      grid-template-columns: 78px minmax(0, 1fr) 34px;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .bp-dist-bar {
+      height: 9px;
+      background: rgba(148, 163, 184, .16);
+    }
+
+    .bp-dist-bar span {
+      background: linear-gradient(90deg, #a78bfa, #facc15);
+    }
+  }
+
+
+  /* =========================
+     BP_ONLY_UI_20260926
+     2026/09 game update no longer exposes reliable W/L/D counters.
+     Keep the page focused on rank + BP snapshot deltas.
+  ========================= */
+  .bp-snapshot-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    background: rgba(124, 58, 237, .14);
+    border: 1px solid rgba(167, 139, 250, .28);
+    color: #c4b5fd;
+  }
+
+  .bp-rank-delta-cell {
+    white-space: nowrap;
+    font-weight: 800;
+  }
+
+  .bp-rank-delta-up { color: #86efac; }
+  .bp-rank-delta-down { color: #f87171; }
+  .bp-rank-delta-same { color: #94a3b8; }
+
+  .bp-rank-change-inline { display: none; }
+
+  @media (max-width: 768px) {
+    .bp-rank-change-inline { display: inline; margin-left: 4px; }
+    .col-rank-delta { display: none !important; }
+    .col-bp { width: 92px; }
+    .col-rate { display: none !important; }
+  }
+
+
+  /* =========================
+     STEAM_REWARD_TIERS_20260930
+     Steam 主榜季末獎勵分水嶺：Top 5 / Top 30
+  ========================= */
+  #example1 tbody tr.reward-tier-top5 > td {
+    background: rgba(250, 204, 21, .035) !important;
+  }
+
+  #example1 tbody tr.reward-tier-top30 > td {
+    background: rgba(167, 139, 250, .022) !important;
+  }
+
+  #example1 tbody tr.reward-tier-top5 > td:first-child {
+    box-shadow: inset 3px 0 0 rgba(250, 204, 21, .82);
+    color: #fde68a;
+    font-weight: 900;
+  }
+
+  #example1 tbody tr.reward-tier-top30 > td:first-child {
+    box-shadow: inset 3px 0 0 rgba(167, 139, 250, .66);
+  }
+
+  #example1 tbody tr.reward-boundary-top5 > td {
+    border-bottom: 2px solid rgba(250, 204, 21, .48) !important;
+  }
+
+  #example1 tbody tr.reward-boundary-top30 > td {
+    border-bottom: 2px solid rgba(167, 139, 250, .34) !important;
+  }
+
+  .rank-reward-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px 3px;
+    color: #94a3b8;
+    font-size: 12px;
+  }
+
+  .rank-reward-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .10);
+  }
+
+  .rank-reward-chip::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+  }
+
+  .rank-reward-chip.top5::before {
+    background: rgba(250, 204, 21, .75);
+  }
+
+  .rank-reward-chip.top30::before {
+    background: rgba(167, 139, 250, .72);
+  }
+
+  .dmm-archive-details {
+    margin-top: 14px;
+    margin-bottom: 14px;
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, .20);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .dmm-archive-summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 13px 16px;
+    color: #cbd5e1;
+    font-weight: 800;
+    background: rgba(148, 163, 184, .055);
+  }
+
+  .dmm-archive-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .dmm-archive-summary::after {
+    content: "＋";
+    float: right;
+    color: #94a3b8;
+  }
+
+  .dmm-archive-details[open] .dmm-archive-summary::after {
+    content: "－";
+  }
+
+  .dmm-archive-body {
+    padding: 10px;
+  }
+
+
+  /* =========================================================
+     RANK_DUAL_PLAYER_LINKS_20260930
+     玩家名稱 -> Fight / 小膠囊 -> Rank Player Detail
+  ========================================================= */
+  .rank-player-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    vertical-align: middle;
+  }
+
+  .rank-player-fight-link {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rank-player-detail-link {
+    flex: 0 0 auto;
+    min-width: 28px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    padding: 1px 6px;
+    border-radius: 999px;
+
+    font-size: 10px;
+    line-height: 1.5;
+    font-weight: 900;
+
+    text-decoration: none !important;
+    vertical-align: middle;
+    max-width: none !important;
+
+    transition:
+      background .15s ease,
+      border-color .15s ease,
+      color .15s ease;
+  }
+
+  .rank-player-detail-link-bp {
+    color: #c4b5fd !important;
+    background: rgba(124, 58, 237, .08);
+    border: 1px solid rgba(167, 139, 250, .28);
+  }
+
+  .rank-player-detail-link-bp:hover {
+    color: #fff !important;
+    background: rgba(124, 58, 237, .28);
+    border-color: rgba(196, 181, 253, .65);
+  }
+
+  .rank-player-detail-link-qp {
+    color: #bfdbfe !important;
+    background: rgba(37, 99, 235, .08);
+    border: 1px solid rgba(96, 165, 250, .28);
+  }
+
+  .rank-player-detail-link-qp:hover {
+    color: #fff !important;
+    background: rgba(37, 99, 235, .27);
+    border-color: rgba(147, 197, 253, .65);
+  }
+
+  @media (max-width: 768px) {
+    .rank-player-nav {
+      gap: 4px;
+    }
+
+    .rank-player-detail-link {
+      padding: 1px 5px;
+      font-size: 9px;
+    }
+  }
+
 </style>
 
 <?php
@@ -659,6 +891,20 @@ ob_start();  // ⭐ 開始收集本頁 HTML
 
 //$ack = $_SESSION["ack"] ?? 0;
 $permission = $_SESSION["ack"] ?? 0;
+/* BP_ACTIVITY_ADMIN_DEBUG_V1 */
+/* BP_ONLY_UI_20260926: ranking UI no longer depends on W/L/D counters. */
+$bpActivityErrors = [];
+
+function bpActivityRecordError(Throwable $e, string $sql, array $params = []): void
+{
+  global $bpActivityErrors;
+
+  $bpActivityErrors[] = [
+    'message' => $e->getMessage(),
+    'sql' => preg_replace('/\s+/', ' ', trim($sql)),
+    'params' => $params,
+  ];
+}
 
 function bpFmt($v)
 {
@@ -688,6 +934,7 @@ function fetchBpRows(PDO $db, string $sql, array $params = []): array
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
   } catch (Throwable $e) {
+    bpActivityRecordError($e, $sql, $params);
     return [];
   }
 }
@@ -700,6 +947,7 @@ function fetchBpOne(PDO $db, string $sql, array $params = []): ?array
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     return $row ?: null;
   } catch (Throwable $e) {
+    bpActivityRecordError($e, $sql, $params);
     return null;
   }
 }
@@ -711,6 +959,7 @@ function fetchBpCol(PDO $db, string $sql, array $params = [])
     $stmt->execute($params);
     return $stmt->fetchColumn();
   } catch (Throwable $e) {
+    bpActivityRecordError($e, $sql, $params);
     return null;
   }
 }
@@ -725,26 +974,153 @@ function bpMedian(array $nums): int
   return $count % 2 ? $nums[$mid] : (int)round(($nums[$mid - 1] + $nums[$mid]) / 2);
 }
 
+/* BP_SEASON_RESET_WINDOW_V1_1
+ * Snapshot rules:
+ * - heartbeat rows (blank name / NULL bp) are NOT valid ranking snapshots.
+ * - a snapshot with >=1 real player is valid, even if the new season currently has <50 players.
+ * - TW season boundary: first Tuesday of the month, 10:00 Taiwan time.
+ * - JP season boundary: first Thursday of the month, 10:00 Taiwan time
+ *   (= 11:00 JST maintenance/ranking cutoff).
+ * - after the season boundary, never compare against a pre-reset snapshot.
+ */
+function bpSeasonRule(string $server): array
+{
+  $rules = [
+    'TW' => [
+      'weekday' => 2,
+      'reset_time' => '10:00:00',
+    ],
+    'JP' => [
+      'weekday' => 4,
+      'reset_time' => '10:00:00',
+    ],
+  ];
+
+  if (!isset($rules[$server])) {
+    throw new InvalidArgumentException("Unknown BP server: {$server}");
+  }
+
+  return $rules[$server];
+}
+
+function bpResetBoundaryForDate(string $server, string $date): ?string
+{
+  if ($server === 'TW') {
+    $markerPath = dirname(__DIR__) . '/watcher/ranking_bp_season_started_TW.txt';
+    if (is_file($markerPath)) {
+      $markerTs = trim((string)@file_get_contents($markerPath));
+      if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $markerTs)
+          && substr($markerTs, 0, 10) === $date) {
+        return $markerTs;
+      }
+    }
+  }
+
+  $rule = bpSeasonRule($server);
+  $tz = new DateTimeZone('Asia/Taipei');
+
+  $day = new DateTimeImmutable($date . ' 00:00:00', $tz);
+  $first = new DateTimeImmutable($day->format('Y-m-01 00:00:00'), $tz);
+
+  $firstWeekday = (int)$first->format('N');
+  $offset = ((int)$rule['weekday'] - $firstWeekday + 7) % 7;
+  $resetDate = $first->modify("+{$offset} days")->format('Y-m-d');
+
+  if ($date !== $resetDate) {
+    return null;
+  }
+
+  return $resetDate . ' ' . $rule['reset_time'];
+}
+
+function bpValidSnapshotHavingSql(): string
+{
+  return "SUM(CASE
+    WHEN name IS NOT NULL
+     AND TRIM(name) <> ''
+     AND bp IS NOT NULL
+    THEN 1 ELSE 0 END) >= 1";
+}
+
 function buildBpActivity(PDO $db, string $server): array
 {
   $table = "ranking_bp_{$server}";
-  $latestTs = fetchBpCol($db, "SELECT MAX(ts) FROM `$table`");
+  $validHaving = bpValidSnapshotHavingSql();
 
-  // ranking_bp_* 是日常快照；history 是月結資料，不拿來算今日 / 本次變化
-  $todayBaseTs = $latestTs ? fetchBpCol($db, "
-    SELECT MIN(ts)
+  $latestTs = fetchBpCol($db, "
+    SELECT ts
     FROM `$table`
-    WHERE DATE(ts) = DATE(?)
-  ", [$latestTs]) : null;
+    GROUP BY ts
+    HAVING {$validHaving}
+    ORDER BY ts DESC
+    LIMIT 1
+  ");
 
-  $prevTs = $latestTs ? fetchBpCol($db, "
-    SELECT MAX(ts)
-    FROM `$table`
-    WHERE ts < ?
-  ", [$latestTs]) : null;
+  $resetBoundary = null;
+  $isPostResetWindow = false;
+  $windowStart = null;
+  $windowBaseTs = null;
+  $prevTs = null;
+  $compareTs = null;
+  $compareModeText = '前次快照';
 
-  $compareTs = ($todayBaseTs && $todayBaseTs !== $latestTs) ? $todayBaseTs : $prevTs;
-  $compareModeText = ($todayBaseTs && $todayBaseTs !== $latestTs) ? '今日' : '前次快照';
+  if ($latestTs) {
+    $latestDate = substr((string)$latestTs, 0, 10);
+    $resetBoundary = bpResetBoundaryForDate($server, $latestDate);
+
+    $isPostResetWindow = $resetBoundary !== null && strcmp((string)$latestTs, $resetBoundary) > 0;
+    $windowStart = $isPostResetWindow
+      ? $resetBoundary
+      : $latestDate . ' 00:00:00';
+
+    $windowOp = $isPostResetWindow ? '>' : '>=';
+
+    $windowBaseTs = fetchBpCol($db, "
+      SELECT ts
+      FROM `$table`
+      WHERE ts {$windowOp} ?
+        AND ts <= ?
+      GROUP BY ts
+      HAVING {$validHaving}
+      ORDER BY ts ASC
+      LIMIT 1
+    ", [$windowStart, $latestTs]);
+
+    if ($isPostResetWindow) {
+      $prevTs = fetchBpCol($db, "
+        SELECT ts
+        FROM `$table`
+        WHERE ts < ?
+          AND ts > ?
+        GROUP BY ts
+        HAVING {$validHaving}
+        ORDER BY ts DESC
+        LIMIT 1
+      ", [$latestTs, $resetBoundary]);
+    } else {
+      $prevTs = fetchBpCol($db, "
+        SELECT ts
+        FROM `$table`
+        WHERE ts < ?
+        GROUP BY ts
+        HAVING {$validHaving}
+        ORDER BY ts DESC
+        LIMIT 1
+      ", [$latestTs]);
+    }
+
+    if ($windowBaseTs && $windowBaseTs !== $latestTs) {
+      $compareTs = $windowBaseTs;
+    } elseif ($prevTs) {
+      $compareTs = $prevTs;
+    }
+
+    if ($isPostResetWindow) {
+      $compareModeText = '新賽季';
+    } elseif ($windowBaseTs && $windowBaseTs !== $latestTs) {
+      $compareModeText = '今日';
+    }
+  }
 
   $data = [
     'server' => $server,
@@ -752,6 +1128,11 @@ function buildBpActivity(PDO $db, string $server): array
     'prevTs' => $prevTs,
     'compareTs' => $compareTs,
     'compareModeText' => $compareModeText,
+    'resetBoundary' => $resetBoundary,
+    'isPostResetWindow' => $isPostResetWindow,
+    'windowStart' => $windowStart,
+    'windowBaseTs' => $windowBaseTs,
+    'comparisonReady' => (bool)$compareTs,
     'summary' => [
       'max_bp' => 0,
       'avg_bp' => 0,
@@ -759,6 +1140,7 @@ function buildBpActivity(PDO $db, string $server): array
       'up_players' => 0,
       'down_players' => 0,
       'same_players' => 0,
+      'new_players' => 0,
       'total_bp_gain' => 0,
       'total_bp_loss' => 0,
       'max_bp_gain' => 0,
@@ -776,9 +1158,12 @@ function buildBpActivity(PDO $db, string $server): array
   if (!$latestTs) return $data;
 
   $currentRows = fetchBpRows($db, "
-    SELECT rank_num, name, level, bp, win_ranked, lose_ranked, draw_ranked, ts
+    SELECT rank_num, name, level, bp, ts
     FROM `$table`
     WHERE ts = ?
+      AND name IS NOT NULL
+      AND TRIM(name) <> ''
+      AND bp IS NOT NULL
     ORDER BY rank_num ASC
   ", [$latestTs]);
 
@@ -816,28 +1201,23 @@ function buildBpActivity(PDO $db, string $server): array
       p.bp AS old_bp,
       c.bp AS now_bp,
       c.bp - p.bp AS bp_diff,
-      CAST(p.rank_num AS SIGNED) - CAST(c.rank_num AS SIGNED) AS rank_rise,
-      COALESCE(c.win_ranked, 0) AS now_win,
-      COALESCE(p.win_ranked, 0) AS old_win,
-      COALESCE(c.lose_ranked, 0) AS now_lose,
-      COALESCE(p.lose_ranked, 0) AS old_lose,
-      COALESCE(c.draw_ranked, 0) AS now_draw,
-      COALESCE(p.draw_ranked, 0) AS old_draw,
-      COALESCE(c.win_ranked, 0) - COALESCE(p.win_ranked, 0) AS win_gain,
-      COALESCE(c.lose_ranked, 0) - COALESCE(p.lose_ranked, 0) AS lose_gain,
-      COALESCE(c.draw_ranked, 0) - COALESCE(p.draw_ranked, 0) AS draw_gain,
-      (
-        COALESCE(c.win_ranked, 0) - COALESCE(p.win_ranked, 0) +
-        COALESCE(c.lose_ranked, 0) - COALESCE(p.lose_ranked, 0) +
-        COALESCE(c.draw_ranked, 0) - COALESCE(p.draw_ranked, 0)
-      ) AS match_gain
+      CAST(p.rank_num AS SIGNED) - CAST(c.rank_num AS SIGNED) AS rank_rise
+    ";
+
+    $realCurrent = "
+      c.name IS NOT NULL
+      AND TRIM(c.name) <> ''
+      AND c.bp IS NOT NULL
     ";
 
     $data['growthTop'] = fetchBpRows($db, "
       SELECT {$baseSelect}
       FROM `$table` c
       JOIN `$table` p ON {$joinName} AND p.ts = ?
-      WHERE c.ts = ? AND c.bp > p.bp
+      WHERE c.ts = ?
+        AND {$realCurrent}
+        AND p.bp IS NOT NULL
+        AND c.bp > p.bp
       ORDER BY bp_diff DESC, c.rank_num ASC
       LIMIT 20
     ", [$compareTs, $latestTs]);
@@ -846,7 +1226,10 @@ function buildBpActivity(PDO $db, string $server): array
       SELECT {$baseSelect}
       FROM `$table` c
       JOIN `$table` p ON {$joinName} AND p.ts = ?
-      WHERE c.ts = ? AND CAST(p.rank_num AS SIGNED) > CAST(c.rank_num AS SIGNED)
+      WHERE c.ts = ?
+        AND {$realCurrent}
+        AND p.bp IS NOT NULL
+        AND CAST(p.rank_num AS SIGNED) > CAST(c.rank_num AS SIGNED)
       ORDER BY rank_rise DESC, bp_diff DESC
       LIMIT 20
     ", [$compareTs, $latestTs]);
@@ -855,19 +1238,25 @@ function buildBpActivity(PDO $db, string $server): array
       SELECT {$baseSelect}
       FROM `$table` c
       JOIN `$table` p ON {$joinName} AND p.ts = ?
-      WHERE c.ts = ? AND c.bp < p.bp
+      WHERE c.ts = ?
+        AND {$realCurrent}
+        AND p.bp IS NOT NULL
+        AND c.bp < p.bp
       ORDER BY bp_diff ASC, c.rank_num ASC
       LIMIT 20
     ", [$compareTs, $latestTs]);
 
     $data['newRows'] = fetchBpRows($db, "
-      SELECT c.rank_num, c.name, c.level, c.bp, c.win_ranked, c.lose_ranked, c.draw_ranked
+      SELECT c.rank_num, c.name, c.level, c.bp
       FROM `$table` c
       LEFT JOIN `$table` p ON {$joinName} AND p.ts = ?
-      WHERE c.ts = ? AND p.name IS NULL
+      WHERE c.ts = ?
+        AND {$realCurrent}
+        AND p.name IS NULL
       ORDER BY c.rank_num ASC
-      LIMIT 50
     ", [$compareTs, $latestTs]);
+
+    $data['summary']['new_players'] = count($data['newRows']);
 
     $stat = fetchBpOne($db, "
       SELECT
@@ -883,6 +1272,8 @@ function buildBpActivity(PDO $db, string $server): array
       FROM `$table` c
       JOIN `$table` p ON {$joinName} AND p.ts = ?
       WHERE c.ts = ?
+        AND {$realCurrent}
+        AND p.bp IS NOT NULL
     ", [$compareTs, $latestTs]);
 
     if ($stat) {
@@ -902,13 +1293,16 @@ function buildBpActivity(PDO $db, string $server): array
   return $data;
 }
 
+/* DMM_RETIRE_BP_20260930_V1
+ * JP/DMM 保留歷史查詢，但不再視為即時排行。
+ */
 $bpActivityTW = buildBpActivity($db, 'TW');
 $bpActivityJP = buildBpActivity($db, 'JP');
 
 // -----------------------------------------------------------
 //  TW / JP 每月榜單匯入工具：初始化變數
 // -----------------------------------------------------------
-$dataPath = __DIR__ . "/steam/data";
+$dataPath = dirname(__DIR__) . "/watcher";
 
 // 安全初始化
 $tw_updated_bp  = "";
@@ -918,10 +1312,17 @@ $tw_last_import = "";
 // --- 將 UTC 時間字串轉換成本地台灣時間 ---
 function formatTWTime($utcString)
 {
-  if (empty($utcString)) return "（無資料）";
+  if ($utcString === null || $utcString === '') return "（無資料）";
 
   try {
-    $dt = new DateTime($utcString, new DateTimeZone("UTC"));
+    if (is_numeric($utcString)) {
+      $n = (float)$utcString;
+      if (abs($n) >= 10000000000) $n /= 1000.0;
+      $dt = (new DateTime('@' . (string)$n));
+      $dt->setTimezone(new DateTimeZone("Asia/Taipei"));
+      return $dt->format("Y-m-d H:i:s");
+    }
+    $dt = new DateTime((string)$utcString, new DateTimeZone("UTC"));
     $dt->setTimezone(new DateTimeZone("Asia/Taipei"));
     return $dt->format("Y-m-d H:i:s");
   } catch (Exception $e) {
@@ -939,14 +1340,14 @@ $tw_qp_file = "$dataPath/ranking_qp_TW.json";
 if (file_exists($tw_bp_file)) {
   $json = json_decode(file_get_contents($tw_bp_file), true);
   if (json_last_error() === JSON_ERROR_NONE) {
-    $tw_updated_bp = $json["updatedAt"] ?? "";
+    $tw_updated_bp = $json["update_at"] ?? $json["updatedAt"] ?? "";
   }
 }
 
 if (file_exists($tw_qp_file)) {
   $json = json_decode(file_get_contents($tw_qp_file), true);
   if (json_last_error() === JSON_ERROR_NONE) {
-    $tw_updated_qp = $json["updatedAt"] ?? "";
+    $tw_updated_qp = $json["update_at"] ?? $json["updatedAt"] ?? "";
   }
 }
 
@@ -1062,15 +1463,9 @@ while ($row = $stmt2->fetch(PDO::FETCH_ASSOC)) {
   $ms_ts[]   = $row['ts'];
 }
 
-// 取得「當日第一筆（最早）快照」的 ts
-$todayDate = date('Y-m-d');
-$stmtFirstTs = $db->prepare("
-  SELECT MIN(ts) AS first_ts
-  FROM ranking_bp_TW
-  WHERE ts >= :start AND ts < DATE_ADD(:start, INTERVAL 1 DAY)
-");
-$stmtFirstTs->execute([':start' => $todayDate . ' 00:00:00']);
-$baselineTs = $stmtFirstTs->fetchColumn();
+// 主排行的比較基準直接沿用 BP Activity，避免主榜與分析區使用不同賽季。
+$todayDate = (new DateTimeImmutable('now', new DateTimeZone('Asia/Taipei')))->format('Y-m-d');
+$baselineTs = $bpActivityTW['compareTs'] ?? null;
 
 // 撈出「當日第一筆」的排名快照（若不存在則留空，後面會自動跳過差異計算）
 $prevSnapshot = [];
@@ -1079,6 +1474,9 @@ if ($baselineTs) {
     SELECT name, rank_num, bp
     FROM ranking_bp_TW
     WHERE ts = :ts
+      AND name IS NOT NULL
+      AND TRIM(name) <> ''
+      AND bp IS NOT NULL
   ");
   $stmtPrev->execute([':ts' => $baselineTs]);
   $prevSnapshot = $stmtPrev->fetchAll(PDO::FETCH_ASSOC);
@@ -1092,20 +1490,12 @@ foreach ($prevSnapshot as $p) {
 
 
 // 1. 準備與執行查詢台服BP榜
-try {
-  $stmt = $db->query("SELECT MAX(`ts`) FROM `ranking_bp_TW`");
-  $lastUpdate = $stmt->fetchColumn();
-} catch (PDOException $e) {
-  $lastUpdate = null;
-}
+$lastUpdate = $bpActivityTW['latestTs'] ?? null;
 
 $sql = "SELECT
   r.rank_num,
   r.name,
   r.bp,
-  r.win_ranked,
-  r.lose_ranked,
-  r.draw_ranked,
   r.ts,
   u.black_list,
   CASE
@@ -1116,52 +1506,120 @@ FROM ranking_bp_TW AS r
 LEFT JOIN game_user AS u
   ON u.username = r.name
  AND u.region = 'TW'
-WHERE r.ts = (
-  SELECT MAX(ts) FROM ranking_bp_TW
-)
+WHERE r.ts = :latest_ts
+  AND r.name IS NOT NULL
+  AND TRIM(r.name) <> ''
+  AND r.bp IS NOT NULL
 ORDER BY r.rank_num DESC;
-        ";
-$stmt = $db->query($sql);
+";
 
-if (!$stmt) {
-  $err = $db->errorInfo();
-  die("查詢失敗：{$err[2]}");
+$stmt = $db->prepare($sql);
+$stmt->execute([':latest_ts' => $lastUpdate]);
+
+// RANK_MAINTENANCE_GATE_V1
+$rankingMaintenanceFlag = dirname(__DIR__) . '/watcher/ranking_bp_maintenance.flag';
+$rankingMaintenance = is_file($rankingMaintenanceFlag);
+
+// BP_POST_MAINTENANCE_WAITING_V1
+// Maintenance can be over before the official BP list has its first real player.
+// In that gap, do not fall back to a stale pre-maintenance DB snapshot.
+$rankingAwaitingData = false;
+$bpLiveJsonPath = dirname(__DIR__) . '/watcher/ranking_bp_TW.json';
+if (!$rankingMaintenance && is_file($bpLiveJsonPath)) {
+  $bpLivePayload = json_decode((string)@file_get_contents($bpLiveJsonPath), true);
+  $bpLiveRows = is_array($bpLivePayload) ? ($bpLivePayload['data'] ?? []) : [];
+  $hasRealBpRow = false;
+  if (is_array($bpLiveRows)) {
+    foreach ($bpLiveRows as $bpLiveRow) {
+      if (!is_array($bpLiveRow)) continue;
+      $n = trim((string)($bpLiveRow['player_name'] ?? ''));
+      $v = $bpLiveRow['point'] ?? null;
+      if ($n !== '' && $n !== '-' && is_numeric($v)) {
+        $hasRealBpRow = true;
+        break;
+      }
+    }
+  }
+  $rankingAwaitingData = !$hasRealBpRow;
 }
 
 
 // ------------------------------------------------------------
-// ⭐ 在這裡放匯入 TW / JP 的 PHP 功能（最安全）
+// TW / JP 每月榜單匯入功能
+// - 僅管理員可觸發
+// - 檢查 Python exit code，不再僅憑 stdout 判斷成功
+// - 以 inline 提示取代 alert()，避免阻斷式彈窗
+// - 不對一般訪客輸出 Python traceback 或伺服器路徑
 // ------------------------------------------------------------
 
-/* 匯入程式開始 */
-if (isset($_POST['import_tw'])) {
-
-  $cmd = "python3 /var/www/html/unlight/watcher/import_bpqp_TW_his.py 2>&1";
-  $output = shell_exec($cmd);
-
-  echo "<pre style='background:#111;color:#0f0;padding:10px;'>
-========= 🇹🇼 TW 匯入結果 =========
-$output
-================================
-</pre>";
-
-  echo "<script>alert('🇹🇼 TW BP/QP 歷史已成功匯入！');</script>";
-  //echo "<meta http-equiv='refresh' content='1'>";
+function bpImportStoreFlash(string $type, string $message, ?string $detail = null): void
+{
+  $_SESSION['bp_import_tw_flash'] = [
+    'type'    => $type,
+    'message' => $message,
+    'detail'  => $detail,
+  ];
 }
 
-if (isset($_POST['import_jp'])) {
+$bpImportFlash = null;
 
-  $cmd = "python3 /var/www/html/unlight/watcher/import_bpqp_JP_his.py 2>&1";
-  $output = shell_exec($cmd);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_tw'])) {
+  if ((int)$permission < 2) {
+    bpImportStoreFlash('danger', '權限不足：只有管理員能執行 TW BP/QP 歷史匯入。');
+  } else {
+    // 使用與 systemd cron 相同的 Python 3.11，避免 python3 指向缺少 PyMySQL 的解釋器
+    $pythonBin = is_executable('/usr/bin/python3.11') ? '/usr/bin/python3.11' : 'python3';
+    $scriptPath = '/var/www/html/unlight/watcher/import_bpqp_TW_his.py';
+    $cmd = escapeshellcmd($pythonBin) . ' ' . escapeshellarg($scriptPath) . ' 2>&1';
 
-  echo "<pre style='background:#111;color:#0f0;padding:10px;'>
-========= 🇯🇵 JP 匯入結果 =========
-$output
-================================
-</pre>";
+    $outputLines = [];
+    $exitCode = 0;
+    exec($cmd, $outputLines, $exitCode);
+    $rawOutput = implode("\n", $outputLines);
+    $safeOutput = htmlspecialchars($rawOutput, ENT_QUOTES, 'UTF-8');
 
-  echo "<script>alert('🇯🇵 JP BP/QP 歷史已成功匯入！');</script>";
-  //echo "<meta http-equiv='refresh' content='1'>";
+    if ($exitCode !== 0) {
+      bpImportStoreFlash(
+        'danger',
+        "🇹🇼 TW BP/QP 歷史匯入失敗（exit code {$exitCode}）。請檢視下方詳細輸出或伺服器日誌。",
+        $safeOutput
+      );
+    } elseif (strpos($rawOutput, 'RESULT=NO_DATA') !== false) {
+      bpImportStoreFlash(
+        'info',
+        '🇹🇼 TW BP/QP 歷史：本次無可匯入的月結資料（NO_DATA）。',
+        $safeOutput
+      );
+    } elseif (strpos($rawOutput, 'RESULT=SUCCESS') !== false || strpos($rawOutput, '已插入') !== false) {
+      bpImportStoreFlash(
+        'success',
+        '🇹🇼 TW BP/QP 歷史匯入成功。',
+        $safeOutput
+      );
+    } else {
+      bpImportStoreFlash(
+        'warning',
+        '🇹🇼 TW BP/QP 歷史匯入完成，但狀態無法確認。',
+        $safeOutput
+      );
+    }
+  }
+
+  header('Location: ' . $_SERVER['PHP_SELF']);
+  exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_jp'])) {
+  if ((int)$permission >= 2) {
+    bpImportStoreFlash('info', '🇯🇵 JP / DMM 已停止追蹤，歷史匯入已停用。');
+  }
+  header('Location: ' . $_SERVER['PHP_SELF']);
+  exit;
+}
+
+if (!empty($_SESSION['bp_import_tw_flash'])) {
+  $bpImportFlash = $_SESSION['bp_import_tw_flash'];
+  unset($_SESSION['bp_import_tw_flash']);
 }
 /* 匯入程式結束 */
 function renderBpActivityPanel(array $data, string $label): void
@@ -1171,276 +1629,283 @@ function renderBpActivityPanel(array $data, string $label): void
   $riseFocus = $data['riseTop'][0] ?? null;
   $lossFocus = $data['lossTop'][0] ?? null;
   $maxDist = !empty($data['distribution']) ? max($data['distribution']) : 0;
+
+  // TW_BP_NO_LEVEL_20260930_V1
+  // Protocol 1.4 TW ranking only supplies player_name + point.
+  // JP historical data may still have level, so only hide it for TW.
+  $showLevel = (($data['server'] ?? '') !== 'TW');
 ?><div class="bp-activity-panel <?= $data['server'] === 'TW' ? 'active' : '' ?>" id="bp-activity-<?= bpSafe($data['server']) ?>">
-  <div class="bp-stat-grid">
-    <div class="bp-stat-card">
-      <div class="bp-stat-label">最高 BP</div>
-      <div class="bp-stat-value"><?= bpFmt($summary['max_bp']) ?></div>
-      <div class="bp-stat-note">目前榜首分數</div>
-    </div>
-
-    <div class="bp-stat-card">
-      <div class="bp-stat-label">平均 / 中位 BP</div>
-      <div class="bp-stat-value" style="font-size:18px;">
-        <?= bpFmt($summary['avg_bp']) ?> / <?= bpFmt($summary['median_bp']) ?>
-      </div>
-      <div class="bp-stat-note">觀察整體競技分布</div>
-    </div>
-
-    <div class="bp-stat-card">
-      <div class="bp-stat-label"><?= bpSafe($data['compareModeText']) ?> BP 上升玩家</div>
-      <div class="bp-stat-value"><?= bpFmt($summary['up_players']) ?></div>
-      <div class="bp-stat-note">BP 有增加的人數</div>
-    </div>
-
-    <div class="bp-stat-card">
-      <div class="bp-stat-label"><?= bpSafe($data['compareModeText']) ?> BP 下降玩家</div>
-      <div class="bp-stat-value"><?= bpFmt($summary['down_players']) ?></div>
-      <div class="bp-stat-note">BP 有減少的人數</div>
-    </div>
-  </div>
-
-  
-
-  <div class="bp-focus-grid">
-    <?php if ($growthFocus): ?>
-      <a class="bp-focus-card bp-focus-card-link" href="<?= bpSafe(bpPlayerUrl($data['server'], $growthFocus['name'])) ?>">
-        <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大 BP 成長</div>
-        <div class="bp-focus-name"><?= bpSafe($growthFocus['name']) ?></div>
-        <div class="bp-focus-main">+<?= bpFmt($growthFocus['bp_diff']) ?> BP</div>
-        <div class="bp-focus-sub">
-          #<?= (int)$growthFocus['old_rank'] ?> → #<?= (int)$growthFocus['now_rank'] ?>
-          ｜目前 BP <?= bpFmt($growthFocus['now_bp']) ?>
-          <?php if ((int)$growthFocus['match_gain'] > 0): ?>
-            ｜對戰 +<?= bpFmt($growthFocus['match_gain']) ?>
-          <?php endif; ?>
-          ｜點擊查看詳情
-        </div>
-      </a>
-    <?php else: ?>
-      <div class="bp-focus-card">
-        <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大 BP 成長</div>
-        <div class="bp-empty">目前沒有可比較的成長資料</div>
+    <?php if (($data['server'] ?? '') === 'JP'): ?>
+      <div class="bp-compare-note">
+        📦 DMM / JP 已停止追蹤；以下僅為最後封存快照與歷史資料，不再代表即時排行。
       </div>
     <?php endif; ?>
-
-    <?php if ($riseFocus): ?>
-      <a class="bp-focus-card bp-focus-card-link" href="<?= bpSafe(bpPlayerUrl($data['server'], $riseFocus['name'])) ?>">
-        <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大排名躍升</div>
-        <div class="bp-focus-name"><?= bpSafe($riseFocus['name']) ?></div>
-        <div class="bp-focus-main">▲<?= bpFmt($riseFocus['rank_rise']) ?></div>
-        <div class="bp-focus-sub">
-          #<?= (int)$riseFocus['old_rank'] ?> → #<?= (int)$riseFocus['now_rank'] ?>
-          ｜BP <?= (int)$riseFocus['bp_diff'] >= 0 ? '+' : '' ?><?= bpFmt($riseFocus['bp_diff']) ?>
-          ｜點擊查看詳情
-        </div>
-      </a>
-    <?php else: ?>
-      <div class="bp-focus-card">
-        <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大排名躍升</div>
-        <div class="bp-empty">目前沒有可比較的躍升資料</div>
+    <div class="bp-compare-note">
+      <?php if (!empty($data['isPostResetWindow'])): ?>
+        賽季重置日：只比較重置後的新賽季快照｜
+        <?php if (!empty($data['compareTs'])): ?>
+          基準 <?= bpSafe($data['compareTs']) ?> → 最新 <?= bpSafe($data['latestTs']) ?>
+        <?php else: ?>
+          目前為新賽季第一份有效快照，等待下一份快照後開始計算變化
+        <?php endif; ?>
+      <?php elseif (!empty($data['compareTs'])): ?>
+        比較基準：<?= bpSafe($data['compareTs']) ?> → <?= bpSafe($data['latestTs']) ?>
+      <?php else: ?>
+        目前沒有可比較的前次快照
+      <?php endif; ?>
+    </div>
+    <div class="bp-stat-grid">
+      <div class="bp-stat-card">
+        <div class="bp-stat-label">最高 BP</div>
+        <div class="bp-stat-value"><?= bpFmt($summary['max_bp']) ?></div>
+        <div class="bp-stat-note">目前榜首分數</div>
       </div>
-    <?php endif; ?>
-  </div>
 
-  <?php if ($lossFocus): ?>
+      <div class="bp-stat-card">
+        <div class="bp-stat-label">平均 / 中位 BP</div>
+        <div class="bp-stat-value" style="font-size:18px;">
+          <?= bpFmt($summary['avg_bp']) ?> / <?= bpFmt($summary['median_bp']) ?>
+        </div>
+        <div class="bp-stat-note">觀察整體競技分布</div>
+      </div>
+
+      <div class="bp-stat-card">
+        <div class="bp-stat-label"><?= bpSafe($data['compareModeText']) ?> BP 上升玩家</div>
+        <div class="bp-stat-value"><?= $data['comparisonReady'] ? bpFmt($summary['up_players']) : '—' ?></div>
+        <div class="bp-stat-note"><?= $data['comparisonReady'] ? 'BP 有增加的人數' : '等待下一份有效快照' ?></div>
+      </div>
+
+      <div class="bp-stat-card">
+        <div class="bp-stat-label"><?= bpSafe($data['compareModeText']) ?> BP 下降玩家</div>
+        <div class="bp-stat-value"><?= $data['comparisonReady'] ? bpFmt($summary['down_players']) : '—' ?></div>
+        <div class="bp-stat-note"><?= $data['comparisonReady'] ? 'BP 有減少的人數' : '等待下一份有效快照' ?></div>
+      </div>
+    </div>
+
+
+
     <div class="bp-focus-grid">
-      <a class="bp-focus-card bp-focus-card-link" href="<?= bpSafe(bpPlayerUrl($data['server'], $lossFocus['name'])) ?>">
-        <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大 BP 下降</div>
-        <div class="bp-focus-name"><?= bpSafe($lossFocus['name']) ?></div>
-        <div class="bp-focus-main bp-loss"><?= bpFmt($lossFocus['bp_diff']) ?> BP</div>
-        <div class="bp-focus-sub">
-          #<?= (int)$lossFocus['old_rank'] ?> → #<?= (int)$lossFocus['now_rank'] ?>
-          ｜目前 BP <?= bpFmt($lossFocus['now_bp']) ?>
-          <?php if ((int)$lossFocus['match_gain'] > 0): ?>
-            ｜對戰 +<?= bpFmt($lossFocus['match_gain']) ?>
+      <?php if ($growthFocus): ?>
+        <a class="bp-focus-card bp-focus-card-link" href="<?= bpSafe(bpPlayerUrl($data['server'], $growthFocus['name'])) ?>">
+          <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大 BP 成長</div>
+          <div class="bp-focus-name"><?= bpSafe($growthFocus['name']) ?></div>
+          <div class="bp-focus-main">+<?= bpFmt($growthFocus['bp_diff']) ?> BP</div>
+          <div class="bp-focus-sub">
+            #<?= (int)$growthFocus['old_rank'] ?> → #<?= (int)$growthFocus['now_rank'] ?>
+            ｜目前 BP <?= bpFmt($growthFocus['now_bp']) ?>
+            ｜點擊查看詳情
+          </div>
+        </a>
+      <?php else: ?>
+        <div class="bp-focus-card">
+          <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大 BP 成長</div>
+          <div class="bp-empty">目前沒有可比較的成長資料</div>
+        </div>
+      <?php endif; ?>
+
+      <?php if ($riseFocus): ?>
+        <a class="bp-focus-card bp-focus-card-link" href="<?= bpSafe(bpPlayerUrl($data['server'], $riseFocus['name'])) ?>">
+          <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大排名躍升</div>
+          <div class="bp-focus-name"><?= bpSafe($riseFocus['name']) ?></div>
+          <div class="bp-focus-main">▲<?= bpFmt($riseFocus['rank_rise']) ?></div>
+          <div class="bp-focus-sub">
+            #<?= (int)$riseFocus['old_rank'] ?> → #<?= (int)$riseFocus['now_rank'] ?>
+            ｜BP <?= (int)$riseFocus['bp_diff'] >= 0 ? '+' : '' ?><?= bpFmt($riseFocus['bp_diff']) ?>
+            ｜點擊查看詳情
+          </div>
+        </a>
+      <?php else: ?>
+        <div class="bp-focus-card">
+          <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大排名躍升</div>
+          <div class="bp-empty">目前沒有可比較的躍升資料</div>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <?php if ($lossFocus): ?>
+      <div class="bp-focus-grid">
+        <a class="bp-focus-card bp-focus-card-link" href="<?= bpSafe(bpPlayerUrl($data['server'], $lossFocus['name'])) ?>">
+          <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>最大 BP 下降</div>
+          <div class="bp-focus-name"><?= bpSafe($lossFocus['name']) ?></div>
+          <div class="bp-focus-main bp-loss"><?= bpFmt($lossFocus['bp_diff']) ?> BP</div>
+          <div class="bp-focus-sub">
+            #<?= (int)$lossFocus['old_rank'] ?> → #<?= (int)$lossFocus['now_rank'] ?>
+            ｜目前 BP <?= bpFmt($lossFocus['now_bp']) ?>
+            ｜點擊查看詳情
+          </div>
+        </a>
+
+        <div class="bp-focus-card">
+          <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>競技變化摘要</div>
+          <div class="bp-focus-name">升降統計</div>
+          <div class="bp-focus-main"><?= bpFmt($summary['up_players']) ?> / <?= bpFmt($summary['down_players']) ?></div>
+          <div class="bp-focus-sub">
+            上升玩家 / 下降玩家
+            ｜不變 <?= bpFmt($summary['same_players']) ?> 人
+            ｜新進 <?= bpFmt($summary['new_players']) ?> 人
+          </div>
+        </div>
+      </div>
+    <?php endif; ?>
+
+    <div class="bp-analysis-grid">
+      <div class="bp-analysis-card">
+        <div class="bp-analysis-title"><?= bpSafe($label) ?> 競技排行</div>
+
+        <div class="bp-mini-tabs" data-scope="<?= bpSafe($data['server']) ?>">
+          <button type="button" class="bp-mini-tab-btn active" data-tab="growth"><?= bpSafe($data['compareModeText']) ?> BP 成長</button>
+          <button type="button" class="bp-mini-tab-btn" data-tab="rise"><?= bpSafe($data['compareModeText']) ?>排名躍升</button>
+          <button type="button" class="bp-mini-tab-btn" data-tab="loss"><?= bpSafe($data['compareModeText']) ?> BP 掉分</button>
+          <button type="button" class="bp-mini-tab-btn" data-tab="new"><?= bpSafe($data['compareModeText']) ?>新進榜</button>
+        </div>
+
+        <div class="bp-mini-panel active" id="bp-mini-<?= bpSafe($data['server']) ?>-growth">
+          <?php if (empty($data['growthTop'])): ?>
+            <div class="bp-empty">目前沒有 BP 成長資料</div>
+          <?php else: ?>
+            <div class="bp-analysis-table-wrap">
+              <table class="bp-analysis-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>玩家</th>
+                    <?php if ($showLevel): ?><th>Lv</th><?php endif; ?>
+                    <th>BP 增加</th>
+                    <th>排名變化</th>
+                    <th>目前 BP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach (array_slice($data['growthTop'], 0, 10) as $idx => $r): ?>
+                    <tr>
+                      <td data-label="排行"><?= $idx + 1 ?></td>
+                      <td data-label="玩家" class="bp-player-name"><?= bpPlayerLink($data['server'], $r['name'], 'bp-player-link') ?></td>
+                      <?php if ($showLevel): ?><td data-label="Lv"><?= (int)$r['level'] ?></td><?php endif; ?>
+                      <td data-label="BP 增加" class="bp-gain">+<?= bpFmt($r['bp_diff']) ?></td>
+                      <td data-label="排名變化">#<?= (int)$r['old_rank'] ?> → #<?= (int)$r['now_rank'] ?></td>
+                      <td data-label="目前 BP"><?= bpFmt($r['now_bp']) ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
           <?php endif; ?>
-          ｜點擊查看詳情
         </div>
-      </a>
 
-      <div class="bp-focus-card">
-        <div class="bp-focus-label"><?= bpSafe($data['compareModeText']) ?>競技變化摘要</div>
-        <div class="bp-focus-name">升降統計</div>
-        <div class="bp-focus-main"><?= bpFmt($summary['up_players']) ?> / <?= bpFmt($summary['down_players']) ?></div>
-        <div class="bp-focus-sub">
-          上升玩家 / 下降玩家｜不變 <?= bpFmt($summary['same_players']) ?> 人
+        <div class="bp-mini-panel" id="bp-mini-<?= bpSafe($data['server']) ?>-rise">
+          <?php if (empty($data['riseTop'])): ?>
+            <div class="bp-empty">目前沒有排名躍升資料</div>
+          <?php else: ?>
+            <div class="bp-analysis-table-wrap">
+              <table class="bp-analysis-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>玩家</th>
+                    <?php if ($showLevel): ?><th>Lv</th><?php endif; ?>
+                    <th>躍升</th>
+                    <th>排名變化</th>
+                    <th>BP 變化</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach (array_slice($data['riseTop'], 0, 10) as $idx => $r): ?>
+                    <tr>
+                      <td data-label="排行"><?= $idx + 1 ?></td>
+                      <td data-label="玩家" class="bp-player-name"><?= bpPlayerLink($data['server'], $r['name'], 'bp-player-link') ?></td>
+                      <?php if ($showLevel): ?><td data-label="Lv"><?= (int)$r['level'] ?></td><?php endif; ?>
+                      <td data-label="躍升" class="bp-rise">▲<?= bpFmt($r['rank_rise']) ?></td>
+                      <td data-label="排名變化">#<?= (int)$r['old_rank'] ?> → #<?= (int)$r['now_rank'] ?></td>
+                      <td data-label="BP 變化" class="<?= (int)$r['bp_diff'] > 0 ? 'bp-gain' : ((int)$r['bp_diff'] < 0 ? 'bp-loss' : 'bp-same') ?>">
+                        <?= (int)$r['bp_diff'] > 0 ? '+' : '' ?><?= bpFmt($r['bp_diff']) ?>
+                      </td>
+
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+          <?php endif; ?>
+        </div>
+
+        <div class="bp-mini-panel" id="bp-mini-<?= bpSafe($data['server']) ?>-loss">
+          <?php if (empty($data['lossTop'])): ?>
+            <div class="bp-empty">目前沒有 BP 掉分資料</div>
+          <?php else: ?>
+            <div class="bp-analysis-table-wrap">
+              <table class="bp-analysis-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>玩家</th>
+                    <?php if ($showLevel): ?><th>Lv</th><?php endif; ?>
+                    <th>BP 下降</th>
+                    <th>排名變化</th>
+                    <th>目前 BP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach (array_slice($data['lossTop'], 0, 10) as $idx => $r): ?>
+                    <tr>
+                      <td data-label="排行"><?= $idx + 1 ?></td>
+                      <td data-label="玩家" class="bp-player-name"><?= bpPlayerLink($data['server'], $r['name'], 'bp-player-link') ?></td>
+                      <?php if ($showLevel): ?><td data-label="Lv"><?= (int)$r['level'] ?></td><?php endif; ?>
+                      <td data-label="BP 下降" class="bp-loss"><?= bpFmt($r['bp_diff']) ?></td>
+                      <td data-label="排名變化">#<?= (int)$r['old_rank'] ?> → #<?= (int)$r['now_rank'] ?></td>
+                      <td data-label="目前 BP"><?= bpFmt($r['now_bp']) ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+          <?php endif; ?>
+        </div>
+
+        <div class="bp-mini-panel" id="bp-mini-<?= bpSafe($data['server']) ?>-new">
+          <?php if (empty($data['newRows'])): ?>
+            <div class="bp-empty">目前沒有新進榜玩家</div>
+          <?php else: ?>
+            <div class="bp-analysis-table-wrap">
+              <table class="bp-analysis-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>玩家</th>
+                    <?php if ($showLevel): ?><th>Lv</th><?php endif; ?>
+                    <th>BP</th>
+                    <th>狀態</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach (array_slice($data['newRows'], 0, 15) as $r): ?>
+                    <tr>
+                      <td data-label="排名">#<?= (int)$r['rank_num'] ?></td>
+                      <td data-label="玩家" class="bp-player-name"><?= bpPlayerLink($data['server'], $r['name'], 'bp-player-link') ?></td>
+                      <?php if ($showLevel): ?><td data-label="Lv"><?= (int)$r['level'] ?></td><?php endif; ?>
+                      <td data-label="BP"><?= bpFmt($r['bp']) ?></td>
+                      <td data-label="狀態"><span class="bp-snapshot-pill">新進快照</span></td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
-    </div>
-  <?php endif; ?>
 
-  <div class="bp-analysis-grid">
-    <div class="bp-analysis-card">
-      <div class="bp-analysis-title"><?= bpSafe($label) ?> 競技排行</div>
-
-      <div class="bp-mini-tabs" data-scope="<?= bpSafe($data['server']) ?>">
-        <button type="button" class="bp-mini-tab-btn active" data-tab="growth"><?= bpSafe($data['compareModeText']) ?> BP 成長</button>
-        <button type="button" class="bp-mini-tab-btn" data-tab="rise"><?= bpSafe($data['compareModeText']) ?>排名躍升</button>
-        <button type="button" class="bp-mini-tab-btn" data-tab="loss"><?= bpSafe($data['compareModeText']) ?> BP 掉分</button>
-        <button type="button" class="bp-mini-tab-btn" data-tab="new"><?= bpSafe($data['compareModeText']) ?>新進榜</button>
-      </div>
-
-      <div class="bp-mini-panel active" id="bp-mini-<?= bpSafe($data['server']) ?>-growth">
-        <?php if (empty($data['growthTop'])): ?>
-          <div class="bp-empty">目前沒有 BP 成長資料</div>
-        <?php else: ?>
-          <div class="bp-analysis-table-wrap">
-            <table class="bp-analysis-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>玩家</th>
-                  <th>Lv</th>
-                  <th>BP 增加</th>
-                  <th>排名變化</th>
-                  <th>目前 BP</th>
-                  <th>戰績變化</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach (array_slice($data['growthTop'], 0, 10) as $idx => $r): ?>
-                  <tr>
-                    <td data-label="排行"><?= $idx + 1 ?></td>
-                    <td data-label="玩家" class="bp-player-name"><?= bpPlayerLink($data['server'], $r['name'], 'bp-player-link') ?></td>
-                    <td data-label="Lv"><?= (int)$r['level'] ?></td>
-                    <td data-label="BP 增加" class="bp-gain">+<?= bpFmt($r['bp_diff']) ?></td>
-                    <td data-label="排名變化">#<?= (int)$r['old_rank'] ?> → #<?= (int)$r['now_rank'] ?></td>
-                    <td data-label="目前 BP"><?= bpFmt($r['now_bp']) ?></td>
-                    <td data-label="戰績變化">
-                      W+<?= bpFmt($r['win_gain']) ?> / L+<?= bpFmt($r['lose_gain']) ?> / D+<?= bpFmt($r['draw_gain']) ?>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
+      <div class="bp-analysis-card">
+        <div class="bp-analysis-title"><?= bpSafe($label) ?> BP 分布</div>
+        <?php foreach ($data['distribution'] as $range => $count): ?>
+          <?php $width = $maxDist > 0 ? max(4, round($count / $maxDist * 100)) : 0; ?>
+          <div class="bp-dist-row">
+            <div><?= bpSafe($range) ?></div>
+            <div class="bp-dist-bar"><span style="width:<?= (int)$width ?>%;"></span></div>
+            <div><?= (int)$count ?></div>
           </div>
-        <?php endif; ?>
+        <?php endforeach; ?>
       </div>
-
-      <div class="bp-mini-panel" id="bp-mini-<?= bpSafe($data['server']) ?>-rise">
-        <?php if (empty($data['riseTop'])): ?>
-          <div class="bp-empty">目前沒有排名躍升資料</div>
-        <?php else: ?>
-          <div class="bp-analysis-table-wrap">
-            <table class="bp-analysis-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>玩家</th>
-                  <th>Lv</th>
-                  <th>躍升</th>
-                  <th>排名變化</th>
-                  <th>BP 變化</th>
-                  <th>戰績變化</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach (array_slice($data['riseTop'], 0, 10) as $idx => $r): ?>
-                  <tr>
-                    <td data-label="排行"><?= $idx + 1 ?></td>
-                    <td data-label="玩家" class="bp-player-name"><?= bpPlayerLink($data['server'], $r['name'], 'bp-player-link') ?></td>
-                    <td data-label="Lv"><?= (int)$r['level'] ?></td>
-                    <td data-label="躍升" class="bp-rise">▲<?= bpFmt($r['rank_rise']) ?></td>
-                    <td data-label="排名變化">#<?= (int)$r['old_rank'] ?> → #<?= (int)$r['now_rank'] ?></td>
-                    <td data-label="BP 變化" class="<?= (int)$r['bp_diff'] > 0 ? 'bp-gain' : ((int)$r['bp_diff'] < 0 ? 'bp-loss' : 'bp-same') ?>">
-                      <?= (int)$r['bp_diff'] > 0 ? '+' : '' ?><?= bpFmt($r['bp_diff']) ?>
-                    </td>
-                    <td data-label="戰績變化">
-                      W+<?= bpFmt($r['win_gain']) ?> / L+<?= bpFmt($r['lose_gain']) ?> / D+<?= bpFmt($r['draw_gain']) ?>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          </div>
-        <?php endif; ?>
-      </div>
-
-      <div class="bp-mini-panel" id="bp-mini-<?= bpSafe($data['server']) ?>-loss">
-        <?php if (empty($data['lossTop'])): ?>
-          <div class="bp-empty">目前沒有 BP 掉分資料</div>
-        <?php else: ?>
-          <div class="bp-analysis-table-wrap">
-            <table class="bp-analysis-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>玩家</th>
-                  <th>Lv</th>
-                  <th>BP 下降</th>
-                  <th>排名變化</th>
-                  <th>目前 BP</th>
-                  <th>戰績變化</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach (array_slice($data['lossTop'], 0, 10) as $idx => $r): ?>
-                  <tr>
-                    <td data-label="排行"><?= $idx + 1 ?></td>
-                    <td data-label="玩家" class="bp-player-name"><?= bpPlayerLink($data['server'], $r['name'], 'bp-player-link') ?></td>
-                    <td data-label="Lv"><?= (int)$r['level'] ?></td>
-                    <td data-label="BP 下降" class="bp-loss"><?= bpFmt($r['bp_diff']) ?></td>
-                    <td data-label="排名變化">#<?= (int)$r['old_rank'] ?> → #<?= (int)$r['now_rank'] ?></td>
-                    <td data-label="目前 BP"><?= bpFmt($r['now_bp']) ?></td>
-                    <td data-label="戰績變化">
-                      W+<?= bpFmt($r['win_gain']) ?> / L+<?= bpFmt($r['lose_gain']) ?> / D+<?= bpFmt($r['draw_gain']) ?>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          </div>
-        <?php endif; ?>
-      </div>
-
-      <div class="bp-mini-panel" id="bp-mini-<?= bpSafe($data['server']) ?>-new">
-        <?php if (empty($data['newRows'])): ?>
-          <div class="bp-empty">目前沒有新進榜玩家</div>
-        <?php else: ?>
-          <div class="bp-analysis-table-wrap">
-            <table class="bp-analysis-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>玩家</th>
-                  <th>Lv</th>
-                  <th>BP</th>
-                  <th>戰績</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach (array_slice($data['newRows'], 0, 15) as $r): ?>
-                  <tr>
-                    <td data-label="排名">#<?= (int)$r['rank_num'] ?></td>
-                    <td data-label="玩家" class="bp-player-name"><?= bpPlayerLink($data['server'], $r['name'], 'bp-player-link') ?></td>
-                    <td data-label="Lv"><?= (int)$r['level'] ?></td>
-                    <td data-label="BP"><?= bpFmt($r['bp']) ?></td>
-                    <td data-label="戰績">
-                      W<?= bpFmt($r['win_ranked'] ?? 0) ?> / L<?= bpFmt($r['lose_ranked'] ?? 0) ?> / D<?= bpFmt($r['draw_ranked'] ?? 0) ?>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          </div>
-        <?php endif; ?>
-      </div>
-    </div>
-
-    <div class="bp-analysis-card">
-      <div class="bp-analysis-title"><?= bpSafe($label) ?> BP 分布</div>
-      <?php foreach ($data['distribution'] as $range => $count): ?>
-        <?php $width = $maxDist > 0 ? max(4, round($count / $maxDist * 100)) : 0; ?>
-        <div class="bp-dist-row">
-          <div><?= bpSafe($range) ?></div>
-          <div class="bp-dist-bar"><span style="width:<?= (int)$width ?>%;"></span></div>
-          <div><?= (int)$count ?></div>
-        </div>
-      <?php endforeach; ?>
     </div>
   </div>
-</div>
 <?php
 }
 ?>
@@ -1448,24 +1913,199 @@ function renderBpActivityPanel(array $data, string $label): void
 <div class="content-wrapper">
   <section class="content ul-container-nopad">
     <div class="container">
+      <?php if ($rankingMaintenance): ?>
+        <div style="margin:14px 0 18px;padding:18px;border-radius:14px;border:1px solid rgba(250,204,21,.55);background:#241f0d;color:#fde68a;">
+          <div style="font-size:18px;font-weight:900;margin-bottom:6px;">🛠️ Steam 排行榜維護中</div>
+          <div style="line-height:1.7;color:#fef3c7;">
+            官方正在進行賽季切換，維修期間排行榜快照可能不完整或異常，因此暫停公開即時 BP 排行與競技分析。
+            系統偵測到 BP 榜單完成清零、確認新賽季開始後，會自動恢復公開。
+          </div>
+        </div>
+      <?php elseif ($rankingAwaitingData): ?>
+        <div style="margin:14px 0 18px;padding:18px;border-radius:14px;border:1px solid rgba(96,165,250,.45);background:#111827;color:#dbeafe;">
+          <div style="font-size:18px;font-weight:900;margin-bottom:6px;">📡 新賽季 BP 排行等待資料</div>
+          <div style="line-height:1.7;color:#bfdbfe;">
+            維修已結束，但官方 BP 榜目前尚未出現有效玩家資料；本站不顯示上一季舊快照，待第一份有效 BP 排行出現後會自動顯示。
+          </div>
+        </div>
+      <?php else: ?>
       <div class="bp-activity-wrap">
         <div class="bp-activity-hero">
           <div class="bp-activity-title">⚔️ BP 競技分析</div>
           <div class="bp-activity-desc">
-            BP 主要觀察玩家排名競爭、分數變化與對戰表現。
+            BP 主要觀察玩家排名競爭、分數變化與快照趨勢。
           </div>
           <div class="bp-activity-tabs">
             <button type="button" class="bp-activity-tab-btn active" data-server="TW">Steam / TW</button>
-            <button type="button" class="bp-activity-tab-btn" data-server="JP">DMM / JP</button>
+            <button type="button" class="bp-activity-tab-btn" data-server="JP">DMM / JP（歷史封存）</button>
           </div>
         </div>
+
+        <?php if ((int)$permission >= 2): ?>
+          <div style="
+            margin-bottom:14px;
+            padding:14px;
+            background:#211014;
+            border:1px solid rgba(248,113,113,.55);
+            border-radius:12px;
+            color:#fecaca;
+          ">
+            <div style="font-size:16px;font-weight:900;margin-bottom:8px;">
+              🛠 BP DEBUG（僅管理員可見）
+            </div>
+
+            <div style="font-size:13px;line-height:1.8;margin-bottom:10px;">
+              <strong>TW</strong>
+              ｜latest:
+              <?= bpSafe($bpActivityTW['latestTs'] ?? 'NULL') ?>
+              ｜compare:
+              <?= bpSafe($bpActivityTW['compareTs'] ?? 'NULL') ?>
+              ｜current rows:
+              <?= (int)array_sum($bpActivityTW['distribution'] ?? []) ?>
+              ｜reset:
+              <?= bpSafe($bpActivityTW['resetBoundary'] ?? 'N/A') ?>
+              ｜baseline:
+              <?= bpSafe($bpActivityTW['windowBaseTs'] ?? 'NULL') ?>
+              <br>
+
+              <strong>JP</strong>
+              ｜latest:
+              <?= bpSafe($bpActivityJP['latestTs'] ?? 'NULL') ?>
+              ｜compare:
+              <?= bpSafe($bpActivityJP['compareTs'] ?? 'NULL') ?>
+              ｜current rows:
+              <?= (int)array_sum($bpActivityJP['distribution'] ?? []) ?>
+              ｜reset:
+              <?= bpSafe($bpActivityJP['resetBoundary'] ?? 'N/A') ?>
+              ｜baseline:
+              <?= bpSafe($bpActivityJP['windowBaseTs'] ?? 'NULL') ?>
+            </div>
+
+            <?php if (empty($bpActivityErrors)): ?>
+
+              <div style="
+                background:#102018;
+                color:#86efac;
+                padding:10px;
+                border-radius:8px;
+              ">
+                ✓ BP Activity 查詢沒有捕捉到 SQL Exception
+              </div>
+
+            <?php else: ?>
+
+              <div style="
+                margin-bottom:8px;
+                font-weight:800;
+                color:#fca5a5;
+              ">
+                發現 <?= count($bpActivityErrors) ?> 個 SQL 錯誤
+              </div>
+
+              <?php foreach ($bpActivityErrors as $idx => $err): ?>
+
+                <details style="
+                  margin:8px 0;
+                  padding:10px;
+                  background:#0b0c10;
+                  border-radius:8px;
+                ">
+                  <summary style="
+                    cursor:pointer;
+                    font-weight:800;
+                    color:#fca5a5;
+                  ">
+                    ERROR #<?= $idx + 1 ?>
+                    <?= bpSafe($err['message'] ?? 'Unknown error') ?>
+                  </summary>
+
+                  <div style="margin-top:10px;color:#fda4af;font-weight:800;">
+                    SQL
+                  </div>
+
+                  <pre style="
+                    white-space:pre-wrap;
+                    word-break:break-word;
+                    background:#111827;
+                    color:#e5e7eb;
+                    padding:10px;
+                    border-radius:6px;
+                  "><?= bpSafe($err['sql'] ?? '') ?></pre>
+
+                  <div style="color:#fda4af;font-weight:800;">
+                    Params
+                  </div>
+
+                  <pre style="
+                    white-space:pre-wrap;
+                    word-break:break-word;
+                    background:#111827;
+                    color:#e5e7eb;
+                    padding:10px;
+                    border-radius:6px;
+                  "><?= bpSafe(json_encode(
+                      $err['params'] ?? [],
+                      JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                    )) ?></pre>
+
+                </details>
+
+              <?php endforeach; ?>
+
+            <?php endif; ?>
+          </div>
+        <?php endif; ?>
+
         <?php renderBpActivityPanel($bpActivityTW, 'Steam / TW'); ?>
-        <?php renderBpActivityPanel($bpActivityJP, 'DMM / JP'); ?>
+        <?php renderBpActivityPanel($bpActivityJP, 'DMM / JP（歷史封存）'); ?>
       </div>
+      <?php endif; ?>
       <div class="row">
-        <!-- left column -->
-        <div class="col-md-6">
+        <!-- Steam main column -->
+        <div class="col-md-12">
           <?php if ($permission >= 2): ?>
+
+            <?php if (!empty($bpImportFlash)): ?>
+              <div style="
+                margin-bottom:14px;
+                padding:12px;
+                border-radius:8px;
+                font-weight:700;
+                <?php if ($bpImportFlash['type'] === 'success'): ?>
+                  background:#102018;
+                  color:#86efac;
+                  border:1px solid rgba(74,222,128,.35);
+                <?php elseif ($bpImportFlash['type'] === 'danger'): ?>
+                  background:#2a0a0a;
+                  color:#fca5a5;
+                  border:1px solid rgba(248,113,113,.45);
+                <?php elseif ($bpImportFlash['type'] === 'warning'): ?>
+                  background:#2a1f0a;
+                  color:#fde047;
+                  border:1px solid rgba(250,204,21,.45);
+                <?php else: ?>
+                  background:#0f172a;
+                  color:#93c5fd;
+                  border:1px solid rgba(147,197,253,.35);
+                <?php endif; ?>
+              ">
+                <?= bpSafe($bpImportFlash['message']) ?>
+                <?php if (!empty($bpImportFlash['detail'])): ?>
+                  <details style="margin-top:10px;font-weight:400;">
+                    <summary style="cursor:pointer;font-weight:800;">詳細輸出（僅管理員）</summary>
+                    <pre style="
+                      margin-top:8px;
+                      white-space:pre-wrap;
+                      word-break:break-word;
+                      background:#0b0c10;
+                      color:#e5e7eb;
+                      padding:10px;
+                      border-radius:6px;
+                    "><?= $bpImportFlash['detail'] ?></pre>
+                  </details>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
 
             <?php
             // 取得 TW 最新匯入時間
@@ -1512,8 +2152,15 @@ function renderBpActivityPanel(array $data, string $label): void
           <?php endif; ?>
 
 
+          <?php if (!$rankingMaintenance && !$rankingAwaitingData): ?>
           <div class="card-dark" style="padding: 5px;">
             <div class="card-gradient-header">本季Steam BP排行</div>
+            <div class="rank-reward-legend" aria-label="季末獎勵分區">
+              <span>季末獎勵區：</span>
+              <span class="rank-reward-chip top5">#1–5</span>
+              <span class="rank-reward-chip top30">#6–30</span>
+              <span>#31+</span>
+            </div>
             <div class="table-full">
               <table id="example1" class="table datatable-init-hide">
                 <thead>
@@ -1521,10 +2168,7 @@ function renderBpActivityPanel(array $data, string $label): void
                     <th class="col-rank">#</th>
                     <th class="col-name">名稱</th>
                     <th class="col-bp">BP</th>
-                    <th class="col-win hide-mobile">勝</th>
-                    <th class="col-lose hide-mobile">敗</th>
-                    <th class="col-total hide-mobile">總計</th>
-                    <th class="col-rate">勝率</th>
+                    <th class="col-rank-delta">排名變化</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1534,11 +2178,6 @@ function renderBpActivityPanel(array $data, string $label): void
                     $rank_num  = (int) $row['rank_num'];
                     $name      = $row['name'];
                     $bp        = (int) $row['bp'];
-                    $win       = (int) $row['win_ranked'];
-                    $lose      = (int) $row['lose_ranked'];
-                    $draw      = (int) $row['draw_ranked'];
-                    $total     = $win + $lose + $draw;
-                    $rate      = $total > 0 ? round($win / $total * 100, 1) . '%' : '0%';
                     // 計算名次變化
 
                     // 把時間字串取出時:分
@@ -1549,16 +2188,26 @@ function renderBpActivityPanel(array $data, string $label): void
 
                       if ($beforeRank === null) {
                         $rankChange = '<span class="badge badge-new text-sm">新進榜</span>';
+                        $rankDeltaText = '新進';
+                        $rankDeltaClass = 'bp-rank-delta-same';
                       } elseif ($rank_num === 1 && $beforeRank > 1) {
                         $rankChange = '<span class="badge badge-top text-sm">登頂</span>';
+                        $rankDeltaText = '▲' . ($beforeRank - $rank_num);
+                        $rankDeltaClass = 'bp-rank-delta-up';
                       } elseif ($rank_num < $beforeRank) {
                         $delta = $beforeRank - $rank_num;
                         $rankChange = "<span class=\"badge badge-up text-sm\">↑{$delta}</span>";
+                        $rankDeltaText = '▲' . $delta;
+                        $rankDeltaClass = 'bp-rank-delta-up';
                       } elseif ($rank_num > $beforeRank) {
                         $delta = $rank_num - $beforeRank;
                         $rankChange = "<span class=\"badge badge-down text-sm\">↓{$delta}</span>";
+                        $rankDeltaText = '▼' . $delta;
+                        $rankDeltaClass = 'bp-rank-delta-down';
                       } else {
                         $rankChange = '<span class="text-sm">—</span>';
+                        $rankDeltaText = '—';
+                        $rankDeltaClass = 'bp-rank-delta-same';
                       }
 
                       $beforeBp = $prevBp[$name] ?? null;
@@ -1574,6 +2223,8 @@ function renderBpActivityPanel(array $data, string $label): void
                       // 當日完全沒有 baseline → 不顯示差異
                       $rankChange = '';
                       $bpChange   = '';
+                      $rankDeltaText = '—';
+                      $rankDeltaClass = 'bp-rank-delta-same';
                     }
 
 
@@ -1595,31 +2246,42 @@ function renderBpActivityPanel(array $data, string $label): void
                     }
 
                     // ===== Tooltip（黑名單 / 待觀察）=====
-                    $titleAttr = '查看 BP 競技詳情';
+                    $titleAttr = '查看對戰紀錄';
 
                     if (!empty($row['black_list']) && $row['black_list'] >= 2) {
-                      $titleAttr = '⚠ 此玩家為黑名單｜查看 BP 競技詳情';
+                      $titleAttr = '⚠ 此玩家為黑名單｜查看對戰紀錄';
                     } elseif (!empty($row['is_watch'])) {
-                      $titleAttr = '◉ 此玩家目前為待觀察狀態｜查看 BP 競技詳情';
+                      $titleAttr = '◉ 此玩家目前為待觀察狀態｜查看對戰紀錄';
                     }
 
 
 
-                    // 里程碑樣式
-                    $style = '';
-                    if (isset($ms_bp[$i]) && $bp >= $ms_bp[$i]) {
-                      $style = $ms_style[$i];
-                      $i++;
+                    // 季末獎勵分區：Top 5 / Top 30
+                    $rewardClass = $rank_num <= 5
+                      ? 'reward-tier-top5'
+                      : ($rank_num <= 30 ? 'reward-tier-top30' : '');
+                    if ($rank_num === 5) {
+                      $rewardClass .= ' reward-boundary-top5';
+                    } elseif ($rank_num === 30) {
+                      $rewardClass .= ' reward-boundary-top30';
                     }
                   ?>
-                    <tr <?= $style ?>>
+                    <tr class="<?= htmlspecialchars(trim($rewardClass), ENT_QUOTES) ?>">
                       <td class="col-rank"><?= $rank_num ?></td>
 
                       <td class="col-name">
-                        <a href="<?= $link ?>" class="<?= $nameClass ?>" <?= $titleAttr ? 'title="' . htmlspecialchars($titleAttr, ENT_QUOTES) . '"' : '' ?>>
-                          <?= htmlspecialchars($name, ENT_QUOTES) ?>
-                        </a>
-                        <?= $rankChange ?>
+                        <span class="rank-player-nav">
+                          <a
+                            href="<?= bpSafe(bpPlayerUrl('TW', $name)) ?>"
+                            class="rank-player-detail-link rank-player-detail-link-bp"
+                            title="查看 BP 玩家詳情">BP</a>
+                          <a href="<?= $link ?>"
+                            class="<?= $nameClass ?> rank-player-fight-link"
+                            <?= $titleAttr ? 'title="' . htmlspecialchars($titleAttr, ENT_QUOTES) . '"' : '' ?>>
+                            <?= htmlspecialchars($name, ENT_QUOTES) ?>
+                          </a>
+                        </span>
+                        <span class="bp-rank-change-inline"><?= $rankChange ?></span>
                       </td>
 
                       <td class="col-bp">
@@ -1628,11 +2290,7 @@ function renderBpActivityPanel(array $data, string $label): void
                       </td>
 
 
-                      <td class="col-win hide-mobile"><?= $win ?></td>
-                      <td class="col-lose hide-mobile"><?= $lose ?></td>
-                      <td class="col-total hide-mobile"><?= $total ?></td>
-
-                      <td class="col-rate"><?= $rate ?></td>
+                      <td class="col-rank-delta bp-rank-delta-cell <?= $rankDeltaClass ?>"><?= htmlspecialchars($rankDeltaText, ENT_QUOTES) ?></td>
                     </tr>
 
                   <?php } // end while 
@@ -1640,10 +2298,11 @@ function renderBpActivityPanel(array $data, string $label): void
                 </tbody>
               </table>
               <div class="text-muted small mt-2">
-                ※ 勝率計算方式：勝場 ÷（勝場 + 敗場 + 平場）
+                ※ 2026/09 遊戲更新後勝／敗／平統計已不再可靠，本頁改以 BP 與排名快照變化為主。
               </div>
             </div>
           </div>
+          <?php endif; ?>
           <!-- /.card style="display: none;"-->
           <div class="card-dark">
             <div class="box-header">
@@ -1660,11 +2319,19 @@ function renderBpActivityPanel(array $data, string $label): void
                   </tr>
                 </thead>
                 <tbody>
-                  <?php for ($i = 2; $i >= 0; $i--): ?>
-                    <tr <?= $ms_style[$i] ?>>
-                      <td><?= htmlspecialchars($ms_rank[$i]) ?></td>
-                      <td><?= htmlspecialchars($ms_bp[$i]) ?></td>
-                      <td><?= htmlspecialchars($ms_ts[$i]) ?></td>
+                  <?php for ($i = count($ms_rank) - 1; $i >= 0; $i--): ?>
+                    <?php
+                      $milestoneRank = (int)$ms_rank[$i];
+                      $milestoneStyle = [
+                        5 => 'style="background-color: #ffaeae;"',
+                        30 => 'style="background-color: #c3c3ff;"',
+                        100 => 'style="background-color: #c1ffc1;"',
+                      ][$milestoneRank] ?? '';
+                    ?>
+                    <tr <?= $milestoneStyle ?>>
+                      <td><?= htmlspecialchars($milestoneRank) ?></td>
+                      <td><?= htmlspecialchars($ms_bp[$i] ?? '') ?></td>
+                      <td><?= htmlspecialchars($ms_ts[$i] ?? '') ?></td>
                     </tr>
                   <?php endfor; ?>
                 </tbody>
@@ -1676,8 +2343,11 @@ function renderBpActivityPanel(array $data, string $label): void
           <!-- /.box -->
         </div>
         <!-- /.col -->
-        <!-- right column -->
-        <div class="col-md-6">
+        <!-- DMM / JP archived column -->
+        <div class="col-md-12">
+          <details class="dmm-archive-details">
+            <summary class="dmm-archive-summary">📦 DMM / JP 排行歷史封存（已退役，點擊展開）</summary>
+            <div class="dmm-archive-body">
           <?php
           $sql2 = "WITH latest_snapshot AS (
             -- 取最新一次的月結快照
@@ -1730,14 +2400,8 @@ function renderBpActivityPanel(array $data, string $label): void
             $ms_bp_JP[]   = (int)$row['bp'];
             $ms_ts_JP[]   = $row['ts'];
           }
-          // 撈出 DMM「當日第一筆（最早）快照」
-          $stmtFirstTsJP = $db->prepare("
-            SELECT MIN(ts) AS first_ts
-            FROM ranking_bp_JP
-            WHERE ts >= :start AND ts < DATE_ADD(:start, INTERVAL 1 DAY)
-          ");
-          $stmtFirstTsJP->execute([':start' => $todayDate . ' 00:00:00']);
-          $baselineTsJP = $stmtFirstTsJP->fetchColumn();
+          // DMM 主排行比較基準直接沿用 BP Activity。
+          $baselineTsJP = $bpActivityJP['compareTs'] ?? null;
 
           $prevSnapshotJP = [];
           if ($baselineTsJP) {
@@ -1745,6 +2409,9 @@ function renderBpActivityPanel(array $data, string $label): void
             SELECT name, rank_num, bp
             FROM ranking_bp_JP
             WHERE ts = :ts
+              AND name IS NOT NULL
+              AND TRIM(name) <> ''
+              AND bp IS NOT NULL
           ");
             $stmtPrev->execute([':ts' => $baselineTsJP]);
             $prevSnapshotJP = $stmtPrev->fetchAll(PDO::FETCH_ASSOC);
@@ -1759,20 +2426,12 @@ function renderBpActivityPanel(array $data, string $label): void
 
 
           // 1. 準備與執行查詢日服BP榜
-          try {
-            $stmt = $db->query("SELECT MAX(`ts`) FROM `ranking_bp_JP`");
-            $lastUpdate_JP = $stmt->fetchColumn();
-          } catch (PDOException $e) {
-            $lastUpdate_JP = null;
-          }
+          $lastUpdate_JP = $bpActivityJP['latestTs'] ?? null;
 
           $sql = "SELECT
             r.rank_num,
             r.name,
             r.bp,
-            r.win_ranked,
-            r.lose_ranked,
-            r.draw_ranked,
             r.ts,
             u.black_list,
             CASE
@@ -1782,19 +2441,17 @@ function renderBpActivityPanel(array $data, string $label): void
           FROM ranking_bp_JP AS r
           LEFT JOIN game_user AS u
             ON u.username = r.name
-          AND u.region = 'JP'
-          WHERE r.ts = (
-            SELECT MAX(ts) FROM ranking_bp_JP
-          )
+           AND u.region = 'JP'
+          WHERE r.ts = :latest_ts
+            AND r.name IS NOT NULL
+            AND TRIM(r.name) <> ''
+            AND r.bp IS NOT NULL
           ORDER BY r.rank_num DESC;
+          ";
 
-        ";
-          $stmt = $db->query($sql);
+          $stmt = $db->prepare($sql);
+          $stmt->execute([':latest_ts' => $lastUpdate_JP]);
 
-          if (!$stmt) {
-            $err = $db->errorInfo();
-            die("查詢失敗：{$err[2]}");
-          }
           if ($permission >= 2):
           ?>
 
@@ -1831,12 +2488,9 @@ function renderBpActivityPanel(array $data, string $label): void
                 <div>BP：<?= htmlspecialchars($jp_bp_local) ?> / <?= htmlspecialchars($jp_last_import_bp) ?></div>
                 <div>QP：<?= htmlspecialchars($jp_qp_local) ?> / <?= htmlspecialchars($jp_last_import_qp) ?></div>
 
-                <form method="post" style="margin-top:10px;">
-                  <button class="btn btn-info btn-sm" name="import_jp" value="1"
-                    onclick="return confirm('確定要匯入 JP BP/QP 歷史嗎？');">
-                    🇯🇵 一鍵匯入 JP（BP + QP）
-                  </button>
-                </form>
+                <div style="margin-top:10px;color:#9ca3af;font-size:13px;">
+                  📦 JP / DMM 已停止追蹤；歷史匯入功能已停用。
+                </div>
               </div>
             </div>
 
@@ -1845,7 +2499,7 @@ function renderBpActivityPanel(array $data, string $label): void
 
 
           <div class="card-dark" style="padding: 5px;">
-            <div class="card-gradient-header">DMM BP排行</div>
+            <div class="card-gradient-header">DMM BP排行（歷史封存）</div>
             <div class="table-full">
               <table id="exampleJP" class="table datatable-init-hide">
                 <thead>
@@ -1853,10 +2507,7 @@ function renderBpActivityPanel(array $data, string $label): void
                     <th class="col-rank">#</th>
                     <th class="col-name">名稱</th>
                     <th class="col-bp">BP</th>
-                    <th class="col-win hide-mobile">勝</th>
-                    <th class="col-lose hide-mobile">敗</th>
-                    <th class="col-total hide-mobile">總計</th>
-                    <th class="col-rate">勝率</th>
+                    <th class="col-rank-delta">排名變化</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1866,11 +2517,6 @@ function renderBpActivityPanel(array $data, string $label): void
                     $rank_num  = (int) $row['rank_num'];
                     $name      = $row['name'];
                     $bp        = (int) $row['bp'];
-                    $win       = (int) $row['win_ranked'];
-                    $lose      = (int) $row['lose_ranked'];
-                    $draw      = (int) $row['draw_ranked'];
-                    $total     = $win + $lose + $draw;
-                    $rate      = $total > 0 ? round($win / $total * 100, 1) . '%' : '0%';
                     // 計算名次變化
 
 
@@ -1879,16 +2525,26 @@ function renderBpActivityPanel(array $data, string $label): void
                       $beforeRank = $prevRankJP[$name] ?? null;
                       if ($beforeRank === null) {
                         $rankChange = '<span class="badge badge-new text-sm">新進榜</span>';
+                        $rankDeltaText = '新進';
+                        $rankDeltaClass = 'bp-rank-delta-same';
                       } elseif ($rank_num === 1 && $beforeRank > 1) {
                         $rankChange = '<span class="badge badge-top text-sm">登頂</span>';
+                        $rankDeltaText = '▲' . ($beforeRank - $rank_num);
+                        $rankDeltaClass = 'bp-rank-delta-up';
                       } elseif ($rank_num < $beforeRank) {
                         $delta = $beforeRank - $rank_num;
                         $rankChange = "<span class=\"badge badge-up text-sm\">↑{$delta}</span>";
+                        $rankDeltaText = '▲' . $delta;
+                        $rankDeltaClass = 'bp-rank-delta-up';
                       } elseif ($rank_num > $beforeRank) {
                         $delta = $rank_num - $beforeRank;
                         $rankChange = "<span class=\"badge badge-down text-sm\">↓{$delta}</span>";
+                        $rankDeltaText = '▼' . $delta;
+                        $rankDeltaClass = 'bp-rank-delta-down';
                       } else {
                         $rankChange = '<span class="text-sm">—</span>';
+                        $rankDeltaText = '—';
+                        $rankDeltaClass = 'bp-rank-delta-same';
                       }
 
                       $beforeBp = $prevBpJP[$name] ?? null;
@@ -1903,6 +2559,8 @@ function renderBpActivityPanel(array $data, string $label): void
                     } else {
                       $rankChange = '';
                       $bpChange   = '';
+                      $rankDeltaText = '—';
+                      $rankDeltaClass = 'bp-rank-delta-same';
                     }
 
 
@@ -1922,12 +2580,12 @@ function renderBpActivityPanel(array $data, string $label): void
                     }
 
                     // ===== Tooltip（黑名單 / 待觀察）=====
-                    $titleAttr = '查看 BP 競技詳情';
+                    $titleAttr = '查看對戰紀錄';
 
                     if (!empty($row['black_list']) && $row['black_list'] >= 2) {
-                      $titleAttr = '⚠ 此玩家為黑名單｜查看 BP 競技詳情';
+                      $titleAttr = '⚠ 此玩家為黑名單｜查看對戰紀錄';
                     } elseif (!empty($row['is_watch'])) {
-                      $titleAttr = '◉ 此玩家目前為待觀察狀態｜查看 BP 競技詳情';
+                      $titleAttr = '◉ 此玩家目前為待觀察狀態｜查看對戰紀錄';
                     }
 
 
@@ -1944,10 +2602,18 @@ function renderBpActivityPanel(array $data, string $label): void
                       <td class="col-rank"><?= $rank_num ?></td>
 
                       <td class="col-name">
-                        <a href="<?= $link ?>" class="<?= $nameClass ?>" <?= $titleAttr ? 'title="' . htmlspecialchars($titleAttr, ENT_QUOTES) . '"' : '' ?>>
-                          <?= htmlspecialchars($name, ENT_QUOTES) ?>
-                        </a>
-                        <?= $rankChange ?>
+                        <span class="rank-player-nav">
+                          <a
+                            href="<?= bpSafe(bpPlayerUrl('JP', $name)) ?>"
+                            class="rank-player-detail-link rank-player-detail-link-bp"
+                            title="查看 BP 玩家詳情">BP</a>
+                          <a href="<?= $link ?>"
+                            class="<?= $nameClass ?> rank-player-fight-link"
+                            <?= $titleAttr ? 'title="' . htmlspecialchars($titleAttr, ENT_QUOTES) . '"' : '' ?>>
+                            <?= htmlspecialchars($name, ENT_QUOTES) ?>
+                          </a>
+                        </span>
+                        <span class="bp-rank-change-inline"><?= $rankChange ?></span>
                       </td>
 
                       <td class="col-bp">
@@ -1956,18 +2622,14 @@ function renderBpActivityPanel(array $data, string $label): void
                       </td>
 
 
-                      <td class="col-win hide-mobile"><?= $win ?></td>
-                      <td class="col-lose hide-mobile"><?= $lose ?></td>
-                      <td class="col-total hide-mobile"><?= $total ?></td>
-
-                      <td class="col-rate"><?= $rate ?></td>
+                      <td class="col-rank-delta bp-rank-delta-cell <?= $rankDeltaClass ?>"><?= htmlspecialchars($rankDeltaText, ENT_QUOTES) ?></td>
                     </tr>
                   <?php } // end while 
                   ?>
                 </tbody>
               </table>
               <div class="text-muted small mt-2">
-                ※ 勝率計算方式：勝場 ÷（勝場 + 敗場 + 平場）
+                ※ 2026/09 遊戲更新後勝／敗／平統計已不再可靠，本頁改以 BP 與排名快照變化為主。
               </div>
             </div>
 
@@ -1993,11 +2655,19 @@ function renderBpActivityPanel(array $data, string $label): void
                   </tr>
                 </thead>
                 <tbody>
-                  <?php for ($i = 2; $i >= 0; $i--): ?>
-                    <tr <?= $ms_style_JP[$i] ?>>
-                      <td><?= htmlspecialchars($ms_rank_JP[$i]) ?></td>
-                      <td><?= htmlspecialchars($ms_bp_JP[$i]) ?></td>
-                      <td><?= htmlspecialchars($ms_ts_JP[$i]) ?></td>
+                  <?php for ($i = count($ms_rank_JP) - 1; $i >= 0; $i--): ?>
+                    <?php
+                      $milestoneRankJP = (int)$ms_rank_JP[$i];
+                      $milestoneStyleJP = [
+                        5 => 'style="background-color: #ffaeae;"',
+                        30 => 'style="background-color: #c3c3ff;"',
+                        100 => 'style="background-color: #c1ffc1;"',
+                      ][$milestoneRankJP] ?? '';
+                    ?>
+                    <tr <?= $milestoneStyleJP ?>>
+                      <td><?= htmlspecialchars($milestoneRankJP) ?></td>
+                      <td><?= htmlspecialchars($ms_bp_JP[$i] ?? '') ?></td>
+                      <td><?= htmlspecialchars($ms_ts_JP[$i] ?? '') ?></td>
                     </tr>
                   <?php endfor; ?>
                 </tbody>
@@ -2006,6 +2676,8 @@ function renderBpActivityPanel(array $data, string $label): void
             <!-- /.box-body -->
           </div>
           <!-- /.box -->
+            </div>
+          </details>
         </div>
         <!-- /.col -->
       </div>
@@ -2048,7 +2720,7 @@ function renderBpActivityPanel(array $data, string $label): void
       if (wrapper.find('.datatable-update-time').length === 0) {
         wrapper.prepend(`
           <div class="datatable-update-time">
-            最後更新：${formatted}
+            排行有效快照：${formatted}
           </div>
         `);
       }
@@ -2092,7 +2764,7 @@ function renderBpActivityPanel(array $data, string $label): void
     /* ===============================
        DataTables 初始化
     =============================== */
-    function initRankingTable(selector) {
+    function initRankingTable(selector, defaultPageLength) {
 
       if ($.fn.DataTable.isDataTable(selector)) {
         $(selector).DataTable().destroy();
@@ -2125,10 +2797,10 @@ function renderBpActivityPanel(array $data, string $label): void
 
         paging: true,
         lengthChange: true,
-        pageLength: 10,
+        pageLength: defaultPageLength,
         lengthMenu: [
-          [10, 25, 50, 100, -1],
-          ['10 列', '25 列', '50 列', '100 列', '全部']
+          [10, 30, 50, 100, -1],
+          ['10 列', '30 列', '50 列', '100 列', '全部']
         ],
 
         searching: true,
@@ -2172,8 +2844,8 @@ function renderBpActivityPanel(array $data, string $label): void
     /* ===============================
        啟動
     =============================== */
-    initRankingTable('#example1');
-    initRankingTable('#exampleJP');
+    initRankingTable('#example1', 30);
+    initRankingTable('#exampleJP', 10);
 
     injectUpdateTime('#example1', lastUpdateTW);
     injectUpdateTime('#exampleJP', lastUpdateJP);
