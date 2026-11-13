@@ -1,0 +1,15 @@
+[Unit]
+Description=UL.GG Character Cost Consistency Audit (read only)
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nginx
+Group=nginx
+WorkingDirectory=/var/www/html/unlight
+ExecStart=/usr/bin/php /var/www/html/unlight/scripts/ops/ulgg-cost-audit.php
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict

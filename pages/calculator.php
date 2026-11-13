@@ -1289,34 +1289,34 @@ if (isset($_POST["reset"])) {
                       $R5_value = ($row['R5'] ?? 0) + ((++$id_level) * 100);
 
 
-                      if ($L1 >= $cost_cal_min && $L1 <= $cost_cal_max) {
+                      if ($L1 > 0 && $L1 >= $cost_cal_min && $L1 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($L2 >= $cost_cal_min && $L2 <= $cost_cal_max) {
+                      if ($L2 > 0 && $L2 >= $cost_cal_min && $L2 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($L3 >= $cost_cal_min && $L3 <= $cost_cal_max) {
+                      if ($L3 > 0 && $L3 >= $cost_cal_min && $L3 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($L4 >= $cost_cal_min && $L4 <= $cost_cal_max) {
+                      if ($L4 > 0 && $L4 >= $cost_cal_min && $L4 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($L5 >= $cost_cal_min && $L5 <= $cost_cal_max) {
+                      if ($L5 > 0 && $L5 >= $cost_cal_min && $L5 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($R1 >= $cost_cal_min && $R1 <= $cost_cal_max) {
+                      if ($R1 > 0 && $R1 >= $cost_cal_min && $R1 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($R2 >= $cost_cal_min && $R2 <= $cost_cal_max) {
+                      if ($R2 > 0 && $R2 >= $cost_cal_min && $R2 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($R3 >= $cost_cal_min && $R3 <= $cost_cal_max) {
+                      if ($R3 > 0 && $R3 >= $cost_cal_min && $R3 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($R4 >= $cost_cal_min && $R4 <= $cost_cal_max) {
+                      if ($R4 > 0 && $R4 >= $cost_cal_min && $R4 <= $cost_cal_max) {
                         $do_all = 1;
                       }
-                      if ($R5 >= $cost_cal_min && $R5 <= $cost_cal_max) {
+                      if ($R5 > 0 && $R5 >= $cost_cal_min && $R5 <= $cost_cal_max) {
                         $do_all = 1;
                       }
                       if ($do_all == 1) {
@@ -1333,7 +1333,7 @@ if (isset($_POST["reset"])) {
 
 
 
-                        if ($L1 >= $cost_cal_min && $L1 <= $cost_cal_max) {
+                        if ($L1 > 0 && $L1 >= $cost_cal_min && $L1 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $L1_value . '" />
@@ -1343,7 +1343,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($L2 >= $cost_cal_min && $L2 <= $cost_cal_max) {
+                        if ($L2 > 0 && $L2 >= $cost_cal_min && $L2 <= $cost_cal_max) {
                           print ' <td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $L2_value . '" />
@@ -1353,7 +1353,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($L3 >= $cost_cal_min && $L3 <= $cost_cal_max) {
+                        if ($L3 > 0 && $L3 >= $cost_cal_min && $L3 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $L3_value . '" />
@@ -1363,7 +1363,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($L4 >= $cost_cal_min && $L4 <= $cost_cal_max) {
+                        if ($L4 > 0 && $L4 >= $cost_cal_min && $L4 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $L4_value . '" />
@@ -1373,7 +1373,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($L5 >= $cost_cal_min && $L5 <= $cost_cal_max) {
+                        if ($L5 > 0 && $L5 >= $cost_cal_min && $L5 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $L5_value . '" />
@@ -1383,7 +1383,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($R1 >= $cost_cal_min && $R1 <= $cost_cal_max) {
+                        if ($R1 > 0 && $R1 >= $cost_cal_min && $R1 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $R1_value . '" />
@@ -1393,7 +1393,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($R2 >= $cost_cal_min && $R2 <= $cost_cal_max) {
+                        if ($R2 > 0 && $R2 >= $cost_cal_min && $R2 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $R2_value . '" />
@@ -1403,7 +1403,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($R3 >= $cost_cal_min && $R3 <= $cost_cal_max) {
+                        if ($R3 > 0 && $R3 >= $cost_cal_min && $R3 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $R3_value . '" />
@@ -1413,7 +1413,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($R4 >= $cost_cal_min && $R4 <= $cost_cal_max) {
+                        if ($R4 > 0 && $R4 >= $cost_cal_min && $R4 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $R4_value . '" />
@@ -1423,7 +1423,7 @@ if (isset($_POST["reset"])) {
                         } else {
                           print '<td></td>';
                         }
-                        if ($R5 >= $cost_cal_min && $R5 <= $cost_cal_max) {
+                        if ($R5 > 0 && $R5 >= $cost_cal_min && $R5 <= $cost_cal_max) {
                           print '<td>
                         <span>
                           <input class="cost-radio" type="radio" id="' . $id_level . '" name="cost" value="' . $R5_value . '" />
