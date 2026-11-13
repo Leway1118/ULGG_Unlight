@@ -35,9 +35,10 @@ foreach($all as $c){
     $suspects[]=['id'=>(int)$c['id'],'name'=>$c['name'],'updated_at'=>$c['updated_at']];
   }
 }
-// Verified official releases / cost balance changes.
+// Checked reference card costs (community Wiki entries are not official game data).
+// Konrad R5 (ID 420) = 34: https://unlightrevive.wikiru.jp/?キャラクター/コンラッド
 $expected=[
-  240=>28, 420=>38, 470=>31, 544=>17, 554=>17, 568=>27, 588=>28,
+  240=>28, 420=>34, 470=>31, 544=>17, 554=>17, 568=>27, 588=>28,
   691=>9,692=>12,693=>17,694=>18,695=>23,696=>22
 ];
 $byCard=[];
