@@ -129,6 +129,32 @@ function ulggTwAuthSafeState($value): string
     return $safe === '' ? 'unknown' : substr($safe, 0, 32);
 }
 
+function ulggTwAuthSafeVersion($value): string
+{
+    $raw = is_scalar($value) ? trim((string)$value) : '';
+
+    return preg_match('/^[0-9A-Za-z._-]{1,32}$/', $raw) === 1 ? $raw : '';
+}
+
+function ulggTwAuthSafeVersionList($value): array
+{
+    if (!is_array($value)) {
+        return [];
+    }
+
+    $safe = [];
+
+    foreach (array_slice($value, 0, 8) as $item) {
+        $version = ulggTwAuthSafeVersion($item);
+
+        if ($version !== '') {
+            $safe[] = $version;
+        }
+    }
+
+    return $safe;
+}
+
 /**
  * Diagnostic fallback for an unavailable / malformed provider file.
  * It can only label an already-failing result; it never creates `ok=true`.
@@ -194,6 +220,16 @@ function ulggTwAuthHealth(
     $resolvedPidAlive = $pidAlive
         ?? ulggTwAuthPidAlive(is_array($provider) ? ($provider['pid'] ?? null) : null);
 
+    $errorCode = is_array($provider)
+        ? ulggTwAuthSafeState($provider['error_code'] ?? '')
+        : 'unknown';
+    $clientVersion = is_array($provider)
+        ? ulggTwAuthSafeVersion($provider['client_version'] ?? '')
+        : '';
+    $serverVersions = is_array($provider)
+        ? ulggTwAuthSafeVersionList($provider['server_versions'] ?? [])
+        : [];
+
     $result = [
         'ok' => false,
         'state' => 'unknown',
@@ -202,6 +238,9 @@ function ulggTwAuthHealth(
         'heartbeat_age_seconds' => $heartbeatAge,
         'session_present' => $sessionPresent,
         'pid_alive' => $resolvedPidAlive,
+        'error_code' => $errorCode,
+        'client_version' => $clientVersion,
+        'server_versions' => $serverVersions,
     ];
 
     if (!is_array($provider)) {
@@ -225,7 +264,19 @@ function ulggTwAuthHealth(
 
     if ($providerState !== 'active') {
         $result['state'] = $providerState;
-        $result['reason'] = 'provider state=' . $providerState;
+
+        if ($errorCode === 'version_mismatch') {
+            $serverText = $serverVersions !== []
+                ? implode(',', $serverVersions)
+                : 'unknown';
+            $clientText = $clientVersion !== '' ? $clientVersion : 'unknown';
+            $result['reason'] = '遊戲版本更新：伺服器要求 '
+                . $serverText
+                . '，UL.GG 客戶端仍為 '
+                . $clientText;
+        } else {
+            $result['reason'] = 'provider state=' . $providerState;
+        }
 
         if (is_array($watcherHealth)) {
             $watcherState = ulggTwAuthSafeState($watcherHealth['state'] ?? '');

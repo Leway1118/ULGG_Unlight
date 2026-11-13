@@ -99,6 +99,9 @@ class TwAuthProvider:
         self.handled_refresh_generation: int | None = None
         self.state = "starting"
         self.session_sha: str | None = None
+        self.error_code = ""
+        self.error_client_version = ""
+        self.error_server_versions: list[str] = []
         self._stop = asyncio.Event()
         # single-instance lock fd；整個 process lifetime 保持開啟（不 unlink）。
         self.lock_fd = None
@@ -121,11 +124,28 @@ class TwAuthProvider:
                 "generation": self.generation,
                 "handled_refresh_generation": self.handled_refresh_generation,
                 "session_sha256": session_sha,
+                "error_code": self.error_code or None,
+                "client_version": self.error_client_version or None,
+                "server_versions": self.error_server_versions,
                 "heartbeat_at": cw.datetime.datetime.now(
                     cw.datetime.timezone.utc
                 ).astimezone().isoformat(timespec="seconds"),
             }
         )
+
+    def _clear_error(self) -> None:
+        self.error_code = ""
+        self.error_client_version = ""
+        self.error_server_versions = []
+
+    def _record_getid_error(self, error: Exception) -> None:
+        self._clear_error()
+        if isinstance(error, cw.ClientVersionMismatchError):
+            self.error_code = "version_mismatch"
+            self.error_client_version = str(error.client_version)[:32]
+            self.error_server_versions = [
+                str(value)[:32] for value in error.accepted_versions[:8]
+            ]
 
     # -------------------------------------------------------------- cleanup
     @staticmethod
@@ -236,9 +256,11 @@ class TwAuthProvider:
         )
         platform_id = ""
 
+        self._clear_error()
         try:
             auth_id = await client.get_id(access_token, keep_open=True)
         except Exception as e:  # noqa: BLE001
+            self._record_getid_error(e)
             print(f"[AuthProvider] getid failed: {type(e).__name__}: {e}")
             await client._close_ws()
             self._write_state("needs_token", None)

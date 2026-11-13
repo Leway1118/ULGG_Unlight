@@ -138,6 +138,7 @@ function ulggTwAlertDefaults(): array
         'logical_state' => 'ok',
         'degraded_since' => null,
         'alert_sent' => false,
+        'version_mismatch_alert_sent' => false,
         'last_transition_at' => null,
         'last_reason' => '',
         'last_alert_at' => null,
@@ -173,6 +174,7 @@ function ulggTwAlertReadState(string $path): array
         ? $state['degraded_since']
         : null;
     $state['alert_sent'] = (bool)$state['alert_sent'];
+    $state['version_mismatch_alert_sent'] = (bool)$state['version_mismatch_alert_sent'];
     $state['last_transition_at'] = is_int($state['last_transition_at'])
         ? $state['last_transition_at']
         : null;
@@ -220,7 +222,8 @@ function ulggTwAlertTransition(
     bool $authOk,
     int $now,
     int $threshold = ULGG_TW_ALERT_THRESHOLD_SECONDS,
-    string $reason = ''
+    string $reason = '',
+    string $errorCode = ''
 ): array {
     $actions = [];
 
@@ -229,13 +232,20 @@ function ulggTwAlertTransition(
             $state['logical_state'] = 'degraded';
             $state['degraded_since'] = $now;
             $state['alert_sent'] = false;
+            $state['version_mismatch_alert_sent'] = false;
             $state['last_transition_at'] = $now;
         }
 
         $state['last_reason'] = $reason;
         $since = is_int($state['degraded_since']) ? $state['degraded_since'] : $now;
+        $isVersionMismatch = $errorCode === 'version_mismatch';
 
-        if (!$state['alert_sent'] && ($now - $since) >= $threshold) {
+        if ($isVersionMismatch && !$state['version_mismatch_alert_sent']) {
+            $actions[] = [
+                'type' => 'version_mismatch',
+                'duration_seconds' => $now - $since,
+            ];
+        } elseif (!$state['alert_sent'] && ($now - $since) >= $threshold) {
             $actions[] = [
                 'type' => 'degraded',
                 'duration_seconds' => $now - $since,
@@ -258,6 +268,7 @@ function ulggTwAlertTransition(
         $state['logical_state'] = 'ok';
         $state['degraded_since'] = null;
         $state['alert_sent'] = false;
+        $state['version_mismatch_alert_sent'] = false;
         $state['last_transition_at'] = $now;
         $state['last_reason'] = '';
     }
@@ -278,6 +289,21 @@ function ulggTwAlertPayload(array $action, array $auth, int $now): array
         return [
             'content' => "UL.GG TW auth recovered\n"
                 . "downtime={$minutes}m\n"
+                . "time={$time}",
+        ];
+    }
+
+    if (($action['type'] ?? '') === 'version_mismatch') {
+        $server = implode(',', $auth['server_versions'] ?? []);
+        $client = (string)($auth['client_version'] ?? '');
+        $server = $server !== '' ? $server : 'unknown';
+        $client = $client !== '' ? $client : 'unknown';
+
+        return [
+            'content' => "UL.GG TW auth blocked: game version mismatch\n"
+                . "server_versions={$server}\n"
+                . "client_version={$client}\n"
+                . "action=update ULR_CLIENT_VERSION\n"
                 . "time={$time}",
         ];
     }
@@ -379,7 +405,8 @@ try {
         (bool)$auth['ok'],
         $now,
         ULGG_TW_ALERT_THRESHOLD_SECONDS,
-        (string)$auth['reason']
+        (string)$auth['reason'],
+        (string)($auth['error_code'] ?? '')
     );
 
     foreach ($actions as $action) {
@@ -394,6 +421,12 @@ try {
 
         if ($delivered && ($action['type'] ?? '') === 'degraded') {
             $state['alert_sent'] = true;
+            $state['last_alert_at'] = $now;
+        }
+
+        if ($delivered && ($action['type'] ?? '') === 'version_mismatch') {
+            $state['alert_sent'] = true;
+            $state['version_mismatch_alert_sent'] = true;
             $state['last_alert_at'] = $now;
         }
 

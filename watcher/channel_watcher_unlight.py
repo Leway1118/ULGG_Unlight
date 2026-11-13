@@ -118,6 +118,22 @@ class WatcherConfigError(Exception):
     """設定缺了／動態 auth 與 fallback 都不可用 —— 重試也沒用。"""
 
 
+class ClientVersionMismatchError(WatcherConfigError):
+    """Server handshake rejects this client version; retrying auth cannot fix it."""
+
+    def __init__(self, accepted_versions, client_version: str):
+        self.accepted_versions = [
+            str(value) for value in accepted_versions
+            if isinstance(value, (str, int, float))
+        ][:8]
+        self.client_version = str(client_version)
+        super().__init__(
+            f"遊戲又改版了：伺服器只收 {self.accepted_versions}，"
+            f"我們送 {self.client_version}。把 ULR_CLIENT_VERSION（或 CLIENT_VERSION）"
+            f"改成新版本號，並確認事件名稱有沒有跟著換。"
+        )
+
+
 class RegisterRejected(Exception):
     """register 回非 0；可能是 session UUID 過期，可先刷新 auth 再重試。"""
 
@@ -284,11 +300,7 @@ class BaseWatcher(ABC):
                 accepted = args[0] if args and isinstance(args[0], list) else []
                 mine = ".".join(CLIENT_VERSION.split(".")[:2])
                 if accepted and mine not in accepted:
-                    raise WatcherConfigError(
-                        f"[{self.task_id}] 遊戲又改版了：伺服器只收 {accepted}，"
-                        f"我們送 {CLIENT_VERSION}。把 ULR_CLIENT_VERSION（或 CLIENT_VERSION）"
-                        f"改成新版本號，並確認事件名稱有沒有跟著換。"
-                    )
+                    raise ClientVersionMismatchError(accepted, CLIENT_VERSION)
                 await self.emit_event("__handshake_c", [CLIENT_VERSION, None])
             case "__connected":
                 pass
