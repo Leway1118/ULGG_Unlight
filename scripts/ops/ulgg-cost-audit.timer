@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily UL.GG Character Cost Audit
+
+[Timer]
+OnCalendar=*-*-* 05:40:00
+Persistent=true
+AccuracySec=2min
+Unit=ulgg-cost-audit.service
+
+[Install]
+WantedBy=timers.target
