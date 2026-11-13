@@ -1522,22 +1522,7 @@ function ul_format_phase(?int $phase): ?string
 {
   return UL_PHASE_LABEL[$phase] ?? null;
 }
-$stages = [
-  -1    => '全部',
-  0    => '雷城',
-  1    => '誘森',
-  2    => '垃圾',
-  3    => '冰封',
-  4    => '人魂',
-  5    => '盡村',
-  6    => '風暴',
-  7    => '峰亥盧',
-  8    => '魔都',
-  9    => '狂山',
-  10   => '魔女山谷',
-  11   => '隨機',
-  12   => '烏波斯黑湖',
-];
+$stages = require __DIR__ . '/stage_map.php';
 
 /**
  * 計算隊伍 COST 懲罰

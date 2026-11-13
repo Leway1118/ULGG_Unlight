@@ -91,24 +91,7 @@ function rowVal(array $row, array $keys, $default = '-')
   return $default;
 }
 
-$stages = [
-  -1 => '全部',
-  0  => '雷城',
-  1  => '誘森',
-  2  => '垃圾',
-  3  => '冰封',
-  4  => '人魂',
-  5  => '盡村',
-  6  => '風暴',
-  7  => '峰亥盧',
-  8  => '魔都',
-  9  => '狂山',
-  10 => '魔女山谷',
-  11 => '隨機',
-  12 => '烏波斯黑湖',
-  13 => '白魔的圓環石陣',
-  14 => '聖域的凱旋門',
-];
+$stages = require __DIR__ . '/../lib/stage_map.php';
 
 function stageName($stage, array $stages): string
 {
