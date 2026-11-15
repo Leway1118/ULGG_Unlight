@@ -1319,7 +1319,7 @@ $srch_player = ($player_search !== '') ? 1 : 0;
                             draw_p1 AS tie,
                             update_time, cost
                         FROM arena_unlight
-                        WHERE ack1 = 1 AND ack2 = 1
+                        WHERE ack1 = 1 AND ack2 = 1 AND name_p1 LIKE :search_p1
 
                         UNION ALL
 
@@ -1333,7 +1333,7 @@ $srch_player = ($player_search !== '') ? 1 : 0;
                             tie AS tie,
                             update_time, cost
                         FROM arena_unlight
-                        WHERE ack1 = 1 AND ack2 = 1
+                        WHERE ack1 = 1 AND ack2 = 1 AND name_p2 LIKE :search_p2
                     ),
                     latest AS (
                         SELECT *
@@ -1361,8 +1361,6 @@ $srch_player = ($player_search !== '') ? 1 : 0;
                         latest.enemy_bp
                     FROM latest
                     JOIN summary ON latest.player_name = summary.player_name
-                    WHERE 
-                        latest.player_name LIKE :search
                         
                     ";
                     //print "search_player";
@@ -1553,8 +1551,10 @@ $srch_player = ($player_search !== '') ? 1 : 0;
                   if (strpos($sql, ':cost_max')     !== false) {
                     $stmt->bindValue(':cost_max',   (int)$cost_max,   PDO::PARAM_INT);
                   }
-                  if (strpos($sql, ':search')       !== false) {
-                    $stmt->bindValue(':search',     '%' . ($player_search ?? '') . '%', PDO::PARAM_STR);
+                  if ($sql_condition === 1) {
+                    $searchPattern = '%' . ($player_search ?? '') . '%';
+                    $stmt->bindValue(':search_p1', $searchPattern, PDO::PARAM_STR);
+                    $stmt->bindValue(':search_p2', $searchPattern, PDO::PARAM_STR);
                   }
 
                   if (strpos($sql, ':limit')        !== false) {
