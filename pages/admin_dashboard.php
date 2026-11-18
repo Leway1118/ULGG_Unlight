@@ -200,6 +200,19 @@ $todayTraffic = adminFetchOne(
     "
 );
 
+// PERF_V2_20261118: read-only short-window metrics with shared 45s cache.
+$perfV2 = null;
+try {
+  require_once __DIR__ . '/../lib/cache.php';
+  require_once __DIR__ . '/../lib/admin_perf_v2.php';
+  $perfV2 = ulggCacheRemember(
+    'ulgg_admin_perf_v2_20261118_v1',
+    45,
+    static fn() => ulggPerfV2Fetch($pdo)
+  );
+} catch (Throwable $e) {
+  error_log('[admin_perf_v2] ' . $e->getMessage());
+}
 $totalPv = (int)($todayTraffic['human_pv'] ?? 0) + (int)($todayTraffic['bot_pv'] ?? 0);
 $botPercent = $totalPv > 0
   ? ((int)($todayTraffic['bot_pv'] ?? 0) / $totalPv) * 100
@@ -422,19 +435,30 @@ if ($watcherWarning > 0) {
   ];
 }
 
-if ((float)($todayTraffic['avg_response_ms'] ?? 0) >= 1000) {
+// PERF_V2_20261118: current alarms use fresh 15-minute observations.
+// Keep daily cumulative statistics visible above, but do not let old crawler
+// requests leave warnings active all day after the WAF has worked.
+$recentPerf = is_array($perfV2) ? ($perfV2['windows']['15'] ?? null) : null;
+if (is_array($recentPerf) && (int)$recentPerf['measured'] >= 20) {
+  if (($recentPerf['avg_ms'] ?? 0) >= 1000) {
+    $alerts[] = [
+      'level' => 'warning',
+      'title' => '最近 15 分鐘回應偏慢',
+      'text' => '非 Bot 候選請求平均回應時間超過 1 秒，請查看即時效能表。',
+    ];
+  }
+  if (($recentPerf['slow_3000'] ?? 0) >= 5) {
+    $alerts[] = [
+      'level' => 'warning',
+      'title' => '最近 15 分鐘有超慢請求',
+      'text' => '最近 15 分鐘有 ' . adminNumber($recentPerf['slow_3000']) . ' 次請求達 3 秒以上。',
+    ];
+  }
+} elseif (!is_array($recentPerf)) {
   $alerts[] = [
     'level' => 'warning',
-    'title' => '網站回應偏慢',
-    'text' => '今日真人請求平均回應時間已超過 1 秒。',
-  ];
-}
-
-if ((int)($todayTraffic['slow_3000_count'] ?? 0) > 0) {
-  $alerts[] = [
-    'level' => 'warning',
-    'title' => '偵測到超慢請求',
-    'text' => '今日已有 ' . adminNumber($todayTraffic['slow_3000_count']) . ' 次請求超過 3 秒。',
+    'title' => '即時效能資料不可用',
+    'text' => '請檢查 Performance V2 資料來源；原本的今日累計統計仍保留。',
   ];
 }
 
@@ -1013,6 +1037,30 @@ ob_start();
       height: 235px;
     }
   }
+/* PERF_V2_20261118: one dense, mobile-scrollable admin grid. */
+  .admin-perf-v2 { margin-bottom: 14px; }
+  .admin-perf-v2 .admin-panel-body { padding: 13px 15px 16px; }
+  .admin-perf-v2-scroll {
+    max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--ad-border); border-radius: 9px;
+  }
+  .admin-perf-v2-scroll .admin-table { width: 100%; min-width: 1100px; margin-bottom: 0; }
+  .admin-perf-v2-scroll .admin-table th,
+  .admin-perf-v2-scroll .admin-table td { white-space: nowrap; }
+  .admin-perf-v2-scroll .admin-table td:first-child,
+  .admin-perf-v2-scroll .admin-table th:first-child {
+    position: sticky; left: 0; z-index: 1; background: #202336;
+  }
+  .admin-perf-v2-subhead {
+    color: var(--ad-text); font-size: 14px; font-weight: 750; margin: 16px 0 8px;
+  }
+  .admin-perf-v2-note { color: var(--ad-text-soft); font-size: 12px; line-height: 1.65; margin: 10px 0 0; }
+  .admin-perf-v2-alert { color: var(--ad-yellow); font-weight: 700; }
+  @media (max-width: 767px) {
+    .admin-perf-v2 .admin-panel-body { padding: 10px; }
+    .admin-perf-v2 .admin-panel-head { flex-wrap: wrap; }
+  }
 </style>
 
 <div class="content-wrapper">
@@ -1077,6 +1125,100 @@ ob_start();
         </div>
       </div>
 
+<!-- PERF_V2_20261118: rolling windows, same admin dashboard. -->
+      <section class="admin-panel admin-perf-v2" aria-label="即時效能 V2">
+        <div class="admin-panel-head">
+          <h2 class="admin-panel-title">即時效能 V2｜15／30 分鐘</h2>
+          <span class="admin-panel-note">
+            <?= $perfV2 ? '計算於 ' . adminH($perfV2['created_at'] ?? '') . ' · 最多 45 秒快取' : '暫無資料' ?>
+          </span>
+        </div>
+        <div class="admin-panel-body">
+          <?php if (!is_array($perfV2)): ?>
+            <p class="admin-perf-v2-note admin-perf-v2-alert">即時效能資料不可用；其他監控仍可查看。請檢查 PHP 錯誤紀錄。</p>
+          <?php else: ?>
+            <?php if (!empty($perfV2['truncated'])): ?>
+              <p class="admin-perf-v2-note admin-perf-v2-alert">高流量警示：最近 30 分鐘超過 <?= adminNumber($perfV2['limit']) ?> 筆；以下僅為最新樣本，非完整統計。</p>
+            <?php endif; ?>
+            <div class="admin-perf-v2-scroll" role="region" tabindex="0" aria-label="最近15、30分鐘與今日統計">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>期間</th><th class="is-num">總請求</th><th class="is-num">非 Bot 候選</th>
+                    <th class="is-num">辨識 Bot</th><th class="is-num">疑似自動化</th>
+                    <th class="is-num">Googlebot UA</th><th class="is-num">平均</th>
+                    <th class="is-num">P95</th><th class="is-num">最慢</th>
+                    <th class="is-num">&ge;1 秒</th><th class="is-num">&ge;3 秒</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach (['15' => '最近 15 分鐘', '30' => '最近 30 分鐘'] as $windowKey => $windowLabel): ?>
+                    <?php $metric = $perfV2['windows'][$windowKey]; ?>
+                    <tr>
+                      <td><?= adminH($windowLabel) ?></td>
+                      <td class="is-num"><?= adminNumber($metric['requests']) ?></td>
+                      <td class="is-num"><?= adminNumber($metric['human_candidates']) ?></td>
+                      <td class="is-num"><?= adminNumber($metric['ua_bots']) ?></td>
+                      <td class="is-num"><?= adminNumber($metric['suspicious']) ?></td>
+                      <td class="is-num"><?= adminNumber($metric['googlebot_ua']) ?></td>
+                      <td class="is-num"><?= adminH(adminMs($metric['avg_ms'])) ?></td>
+                      <td class="is-num"><?= adminH(adminMs($metric['p95_ms'])) ?></td>
+                      <td class="is-num"><?= adminH(adminMs($metric['max_ms'])) ?></td>
+                      <td class="is-num"><?= adminNumber($metric['slow_1000']) ?> (<?= adminH(ulggPerfV2Rate($metric, 'slow_1000_rate')) ?>)</td>
+                      <td class="is-num"><?= adminNumber($metric['slow_3000']) ?> (<?= adminH(ulggPerfV2Rate($metric, 'slow_3000_rate')) ?>)</td>
+                    </tr>
+                  <?php endforeach; ?>
+                  <tr>
+                    <td>今天累計（原統計）</td>
+                    <td class="is-num"><?= adminNumber(((int)($todayTraffic['human_pv'] ?? 0)) + ((int)($todayTraffic['bot_pv'] ?? 0))) ?></td>
+                    <td class="is-num"><?= adminNumber($todayTraffic['human_pv'] ?? 0) ?></td>
+                    <td class="is-num"><?= adminNumber($todayTraffic['bot_pv'] ?? 0) ?></td>
+                    <td class="is-num">—</td><td class="is-num">—</td>
+                    <td class="is-num"><?= adminH(adminMs($todayTraffic['avg_response_ms'] ?? null)) ?></td>
+                    <td class="is-num">—</td><td class="is-num">—</td>
+                    <td class="is-num"><?= adminNumber($todayTraffic['slow_1000_count'] ?? 0) ?>（累計）</td>
+                    <td class="is-num"><?= adminNumber($todayTraffic['slow_3000_count'] ?? 0) ?>（累計）</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h3 class="admin-perf-v2-subhead">最近 30 分鐘｜逐頁效能（依總請求排序）</h3>
+            <div class="admin-perf-v2-scroll" role="region" tabindex="0" aria-label="逐頁效能明細">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>頁面</th><th class="is-num">全部</th><th class="is-num">非 Bot 候選</th>
+                    <th class="is-num">辨識 Bot</th><th class="is-num">疑似自動化</th>
+                    <th class="is-num">平均</th><th class="is-num">P95</th>
+                    <th class="is-num">最慢</th><th class="is-num">&ge;1 秒</th><th class="is-num">&ge;3 秒</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php if (empty($perfV2['pages_30m'])): ?>
+                    <tr><td colspan="10">最近 30 分鐘沒有符合條件的頁面請求。</td></tr>
+                  <?php else: ?>
+                    <?php foreach ($perfV2['pages_30m'] as $metric): ?>
+                      <tr>
+                        <td><?= adminH($metric['page']) ?></td>
+                        <td class="is-num"><?= adminNumber($metric['requests']) ?></td>
+                        <td class="is-num"><?= adminNumber($metric['human_candidates']) ?></td>
+                        <td class="is-num"><?= adminNumber($metric['ua_bots']) ?></td>
+                        <td class="is-num"><?= adminNumber($metric['suspicious']) ?></td>
+                        <td class="is-num"><?= adminH(adminMs($metric['avg_ms'])) ?></td>
+                        <td class="is-num"><?= adminH(adminMs($metric['p95_ms'])) ?></td>
+                        <td class="is-num"><?= adminH(adminMs($metric['max_ms'])) ?></td>
+                        <td class="is-num"><?= adminNumber($metric['slow_1000']) ?> (<?= adminH(ulggPerfV2Rate($metric, 'slow_1000_rate')) ?>)</td>
+                        <td class="is-num"><?= adminNumber($metric['slow_3000']) ?> (<?= adminH(ulggPerfV2Rate($metric, 'slow_3000_rate')) ?>)</td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </tbody>
+              </table>
+            </div>
+            <p class="admin-perf-v2-note">「非 Bot 候選」不等於已驗證真人；平均、P95、最慢與慢請求率僅計入此類且有有效耗時的請求。「辨識 Bot」來自網站 UA 規則，Googlebot UA 不等於官方認證。「疑似自動化」目前標記 Chrome 124 的隊伍分析請求。逐頁最多 16 列；Cloudflare 已阻擋的流量及 API 不包含在此資料。</p>
+          <?php endif; ?>
+        </div>
+      </section>
       <div class="admin-layout-2">
         <div class="admin-panel">
           <div class="admin-panel-head">
