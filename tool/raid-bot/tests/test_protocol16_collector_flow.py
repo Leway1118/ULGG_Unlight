@@ -151,10 +151,14 @@ class Protocol16CollectorFlowTests(unittest.IsolatedAsyncioTestCase):
     async def test_rank_parser_rejects_missing_and_bad_values(self):
         self.assertIsNone(_parse_rank(None))
         self.assertIsNone(_parse_rank({}))
-        self.assertEqual(_parse_rank([]), [])
-        self.assertEqual(_parse_rank([{"player_name": " "}, {"player_name": "C", "point": "4"}]), [
-            {"rank": 2, "level": None, "name": "C", "point": 4},
-        ])
+        self.assertIsNone(_parse_rank([]))
+        self.assertIsNone(
+            _parse_rank([{"player_name": " "}, {"player_name": "C", "point": "4"}])
+        )
+        self.assertEqual(
+            _parse_rank([{"player_name": "C", "point": "4"}]),
+            [{"rank": 1, "level": None, "name": "C", "point": 4}],
+        )
 
 
 if __name__ == "__main__":

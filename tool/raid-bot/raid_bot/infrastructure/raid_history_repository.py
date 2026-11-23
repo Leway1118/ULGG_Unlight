@@ -548,9 +548,23 @@ class RaidHistoryRepository:
                 )
             )
 
-            point = self._nonnegative_int(
-                item.get("point")
-            )
+            raw_point = item.get("point")
+            point = self._optional_nonnegative_int(raw_point)
+            if (
+                point is None
+                or (
+                    isinstance(raw_point, float)
+                    and not raw_point.is_integer()
+                )
+            ):
+                # Reject the entire snapshot. A missing POINT is UNKNOWN,
+                # never zero, and must not partially rewrite old rankings.
+                return {
+                    "updated": False,
+                    "reason": "point_invalid",
+                    "players": 0,
+                    "rowcount": 0,
+                }
 
             values.append(
                 (
