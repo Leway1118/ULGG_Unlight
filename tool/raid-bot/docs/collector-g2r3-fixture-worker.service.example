@@ -1,0 +1,38 @@
+# OFFLINE STAGING REFERENCE — never install on the production UL.GG VPS.
+# Must not be given write permissions to /var/lib/ulgg-g2-ledger.
+[Unit]
+Description=ULGG offline synthetic worker (one attempt only)
+ConditionPathExists=/opt/ulgg-g2-offline/tool/raid-bot/run_gatekeeper_worker_fixture.py
+After=collector-g2r3-gatekeeper.service
+
+[Service]
+Type=oneshot
+User=ulgg-g2-worker
+Group=ulgg-g2-worker
+UMask=0077
+WorkingDirectory=/opt/ulgg-g2-offline/tool/raid-bot
+ExecStart=/usr/bin/python3 /opt/ulgg-g2-offline/tool/raid-bot/run_gatekeeper_worker_fixture.py --socket-path /run/ulgg-g2-socket/gate.sock --scenario success
+Restart=no
+NoNewPrivileges=yes
+PrivateNetwork=yes
+IPAddressDeny=any
+RestrictAddressFamilies=AF_UNIX
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+RestrictSUIDSGID=yes
+RestrictNamespaces=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+SystemCallArchitectures=native
+
+# Deliberately no [Install]/WantedBy: never auto-enable.

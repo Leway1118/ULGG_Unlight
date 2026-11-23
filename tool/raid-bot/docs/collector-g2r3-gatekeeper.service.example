@@ -1,0 +1,44 @@
+# OFFLINE STAGING REFERENCE — never install on the production UL.GG VPS.
+# Administrator creates /run/ulgg-g2-socket first, owner gatekeeper,
+# group ulgg-g2-worker, mode 0750. Worker cannot create/delete sockets.
+# Replace example UID/GID with actual staging identities after checking.
+[Unit]
+Description=ULGG offline synthetic gatekeeper (no game network)
+ConditionPathIsDirectory=/run/ulgg-g2-socket
+ConditionPathExists=/opt/ulgg-g2-offline/tool/raid-bot/run_gatekeeper_fixture.py
+
+[Service]
+Type=simple
+User=ulgg-g2-gatekeeper
+Group=ulgg-g2-gatekeeper
+SupplementaryGroups=ulgg-g2-worker
+StateDirectory=ulgg-g2-ledger
+StateDirectoryMode=0700
+ReadWritePaths=/run/ulgg-g2-socket
+UMask=0077
+WorkingDirectory=/opt/ulgg-g2-offline/tool/raid-bot
+ExecStart=/usr/bin/python3 /opt/ulgg-g2-offline/tool/raid-bot/run_gatekeeper_fixture.py --state-root /var/lib/ulgg-g2-ledger --socket-path /run/ulgg-g2-socket/gate.sock serve --worker-uid 12002 --worker-gid 12002
+Restart=no
+NoNewPrivileges=yes
+PrivateNetwork=yes
+IPAddressDeny=any
+RestrictAddressFamilies=AF_UNIX
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+RestrictSUIDSGID=yes
+RestrictNamespaces=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+SystemCallArchitectures=native
+
+# Deliberately no [Install]/WantedBy: never auto-enable.
