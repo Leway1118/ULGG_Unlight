@@ -47,12 +47,12 @@ $python = 'D:\ULGG\Checkpoint2026\protocol16-offline\tool\raid-bot\.venv\Scripts
 $script = '.\run_collector_oneshot_offline.py'
 New-Item -ItemType Directory -Force 'D:\ULGG\Checkpoint2026\gate2' | Out-Null
 
-& $python $script --journal 'D:\ULGG\Checkpoint2026\gate2\my-fixture-run.json' --scenario success
-& $python $script --journal 'D:\ULGG\Checkpoint2026\gate2\my-fixture-run.json' --scenario success
+& $python $script --state-root 'D:\ULGG\Checkpoint2026\gate2' --scenario success
+& $python $script --state-root 'D:\ULGG\Checkpoint2026\gate2' --scenario success
 # 第一次 exit 0，第二次必須 exit 2（拒絕重複執行）
 ```
 
-需使用新的檔名；無論成功或失敗，**不要手動刪除既有 Journal 來重試**。
+G2-R2: the one-shot offline CLI derives a canonical account journal from Steam ID and state root. Never delete or rename a journal to retry. --state-root is an offline fixture option ONLY; a future live adapter must use a pinned OS-protected root.
 `--scenario` 另有 `cleanup-failed`、`verification-failed`、`timeout`、`join-rejected`、`exception`、`unknown-rank`。
 這些案例只用固定合成 SteamID／Raid Code／角色名稱。**沒有使用你先前提供的真實 UUID**。
 

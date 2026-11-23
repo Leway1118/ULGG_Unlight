@@ -1,8 +1,11 @@
 """One-shot Raid Collector OFFLINE fixture CLI: cannot connect to game.
 
-Usage (dedicated temporary journal; do not reuse without manual clearance):
-  python run_collector_oneshot_offline.py --journal /tmp/raid-test/journal.json
-  python run_collector_oneshot_offline.py --journal /tmp/raid-test/journal2.json --scenario timeout
+Usage (pre-created isolated state directory; SAME account always uses ONE journal):
+  python run_collector_oneshot_offline.py --state-root /tmp/raid-test-state
+  python run_collector_oneshot_offline.py --state-root /tmp/raid-test-state --scenario timeout
+
+The --state-root option is only for OFFLINE fixtures; a future live adapter
+must pin its state root in a protected machine configuration.
 """
 from __future__ import annotations
 
@@ -15,9 +18,8 @@ from pathlib import Path
 from raid_bot.infrastructure.public_raid_enrichment_client import (
     PublicRaidEnrichmentResult,
 )
-from raid_bot.safety.cleanup_journal import (
-    GateBlocked, PersistentCleanupJournal,
-)
+from raid_bot.safety.cleanup_journal import GateBlocked
+from raid_bot.safety.account_guard import OfflineAccountGuard
 from raid_bot.safety.offline_oneshot import (
     OfflineIdentityProof, OfflineOneShotPlan, OfflineOneShotRunner,
 )
@@ -77,7 +79,7 @@ class FixtureFreshVerifier:
         return self.scenario != "verification-failed"
 
 
-async def simulate(journal: Path, scenario: str) -> dict:
+async def simulate(state_root: Path, scenario: str) -> dict:
     plan = OfflineOneShotPlan(
         account_alias="ULGG-RAID-TEST-01",
         steam_id=FIXTURE_STEAM_ID,
@@ -87,7 +89,10 @@ async def simulate(journal: Path, scenario: str) -> dict:
     )
     runner = OfflineOneShotRunner(
         plan,
-        PersistentCleanupJournal(journal),
+        OfflineAccountGuard(
+            state_root,
+            repository_root=Path(__file__).resolve().parent.parent.parent,
+        ).journal_for(FIXTURE_STEAM_ID),
         identity=OfflineIdentityProof(plan.account_alias, plan.steam_id),
         enricher=FixtureEnricher(scenario),
         fresh_verifier=FixtureFreshVerifier(scenario),
@@ -97,7 +102,10 @@ async def simulate(journal: Path, scenario: str) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--journal", type=Path, required=True)
+    parser.add_argument(
+        "--state-root", type=Path, required=True,
+        help="PRE-CREATED local offline fixture directory (not a journal filename)",
+    )
     parser.add_argument(
         "--scenario",
         choices=(
@@ -108,14 +116,10 @@ def main() -> int:
         default="success",
     )
     args = parser.parse_args()
-    if not args.journal.is_absolute():
-        parser.error("--journal must be an absolute path")
-    if args.journal.resolve(strict=False).is_relative_to(
-        Path(__file__).resolve().parent
-    ):
-        parser.error("Journal cannot be stored inside code repository")
+    if not args.state_root.is_absolute():
+        parser.error("--state-root must be an absolute path")
     try:
-        result = asyncio.run(simulate(args.journal, args.scenario))
+        result = asyncio.run(simulate(args.state_root, args.scenario))
         print(json.dumps(result, ensure_ascii=False, sort_keys=True))
         return 0 if result["cleanup_verified"] else 2
     except (GateBlocked, TimeoutError, RuntimeError, ValueError) as exc:

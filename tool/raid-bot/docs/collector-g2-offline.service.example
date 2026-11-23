@@ -1,0 +1,40 @@
+# DESIGN TEMPLATE ONLY — DO NOT INSTALL ON PRODUCTION VPS.
+# Copy and adapt only into a dedicated Linux staging machine.
+# This example runs SYNTHETIC OFFLINE fixtures; it has no live game adapter.
+[Unit]
+Description=ULGG Raid G2 offline one-shot fixture (NO LIVE NETWORK)
+Documentation=https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
+ConditionPathExists=/opt/ulgg-g2-offline/tool/raid-bot/run_collector_oneshot_offline.py
+
+[Service]
+Type=oneshot
+Restart=no
+DynamicUser=yes
+WorkingDirectory=/opt/ulgg-g2-offline/tool/raid-bot
+StateDirectory=ulgg-raid-g2-offline
+StateDirectoryMode=0700
+UMask=0077
+Environment=PYTHON_DOTENV_DISABLED=1
+ExecStart=/usr/bin/python3 /opt/ulgg-g2-offline/tool/raid-bot/run_collector_oneshot_offline.py --state-root /var/lib/ulgg-raid-g2-offline --scenario success
+NoNewPrivileges=yes
+PrivateNetwork=yes
+IPAddressDeny=any
+RestrictAddressFamilies=AF_UNIX
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+LockPersonality=yes
+RestrictSUIDSGID=yes
+RestrictNamespaces=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+MemoryDenyWriteExecute=yes
+ProtectHostname=yes
+
+[Install]
+# Deliberately NO WantedBy target: never enable this synthetic unit.
