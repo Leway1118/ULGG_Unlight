@@ -54,7 +54,10 @@ all legacy offline tests must remain green.
 - [ ] Credential vault permissions and rotation/revocation confirmed.
 - [ ] Explicit user go/no-go approval immediately before any game interaction.
 
-### G2 — Isolated execution and side-effect limits (**BLOCKED**)
+### G2 ? Isolated execution and side-effect limits (**PARTIAL: offline-only fixture; live blocked**)
+- [x] Offline One-shot fixture with a single allowlisted Raid, at most one simulated join, and persisted PENDING journal; see COLLECTOR_G2_OFFLINE_ONESHOT.md.
+- [x] Crash/restart/cancel/concurrent and fresh-fixture-verification tests; no real game login or client adapter.
+- [ ] Production-grade account-scoped canonical journal directory, non-root OS sandbox and operator-only clearance after abnormal exit.
 - [ ] Separate non-root local/VM execution; no production service, no production DB writes.
 - [ ] No systemd `Restart=always`; test runner is **one-shot** / no daemon loop.
 - [ ] Only one allowlisted test Raid code; max **one** join attempt per approved run.
