@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import asyncio
 import tempfile
 import unittest
@@ -88,7 +89,7 @@ class RaidEnrichmentBackfillTests(unittest.IsolatedAsyncioTestCase):
             client = ImmediateClient({"new": "mc1012_02"})
             enricher = TreasureLevelEnricher(client, cache)
             notifier = FakeNotifier()
-            old = raid("old", founder="Owlic")
+            old = replace(raid("old", founder="Owlic"), raw={"stage_fragment": "🟣"})
             new = raid(
                 "new",
                 founder="咕嚕．挖2朵",
@@ -142,7 +143,8 @@ class RaidEnrichmentBackfillTests(unittest.IsolatedAsyncioTestCase):
             await service.dispatcher.flush_pending()
 
             self.assertEqual(len(notifier.messages), 1)
-            self.assertIn("Owlic 🐢 靈龜", notifier.messages[0])
+            # Unverified old Raid remains withheld until its stage is verified.
+            self.assertNotIn("Owlic", notifier.messages[0])
             self.assertIn("🆕 咕嚕．挖2朵 紫魚", notifier.messages[0])
 
             client.release_blocked.set()
@@ -179,6 +181,16 @@ class RaidEnrichmentBackfillTests(unittest.IsolatedAsyncioTestCase):
             await service.update_once()
             await service.dispatcher.flush_pending()
             await asyncio.wait_for(enricher._queue.join(), timeout=0.2)
+            # Trust requires a separate verified stage observation.
+            service.active_state_cache._stage_metadata_path = (
+                Path(directory) / "stage-observations.json"
+            )
+            self.assertTrue(
+                service.active_state_cache.remember_stage_metadata(
+                    "old", stage_id=1, rarity=1,
+                    fragment="🟣", source="fixture_verified_stage"
+                )
+            )
             service.diff.last_full_summary_at = 0
             await service.update_once()
             await service.dispatcher.flush_pending()

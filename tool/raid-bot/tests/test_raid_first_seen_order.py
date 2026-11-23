@@ -36,7 +36,7 @@ class RaidFirstSeenOrderTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(
                 notifier.messages,
                 [
-                    "🆕 Founder 🐟 龍鯰 2759/6000",
+                    "🆕 Founder ❓魚🐟 2759/6000",
                 ],
             )
 
@@ -92,7 +92,7 @@ class RaidFirstSeenOrderTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(
                 restarted_notifier.messages,
                 [
-                    "🆕 Founder 🐶 黑死獸 2759/6000",
+                    "🆕 Founder ❓狗🐶 2759/6000",
                 ],
             )
 

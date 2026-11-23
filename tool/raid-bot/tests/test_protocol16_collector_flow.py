@@ -120,7 +120,7 @@ class Protocol16CollectorFlowTests(unittest.IsolatedAsyncioTestCase):
             evt("db_raid", [[{"profound_id": "x"}, {"profound_id": "y"}]]),
             evt("db_raid", [[{"profound_id": "x"}, {"profound_id": "y"}]]),
         ])
-        result = await collector(sock, timeout=0.015).enrich("public-code")
+        result = await collector(sock, timeout=0.25).enrich("public-code")
         self.assertFalse(result.ok)
         self.assertFalse(result.cleanup_confirmed)
         self.assertNotIn("raid_delete", [x["event"] for x in sock.sent])
@@ -133,7 +133,7 @@ class Protocol16CollectorFlowTests(unittest.IsolatedAsyncioTestCase):
             evt("raid_delete", [True]),
             evt("db_raid", [[joined_row()]]),
         ])
-        result = await collector(sock, timeout=0.01).enrich("public-code")
+        result = await collector(sock, timeout=0.25).enrich("public-code")
         self.assertFalse(result.ok)
         self.assertEqual(result.status, "cleanup_failed")
         self.assertTrue(result.cleanup_attempted)
@@ -141,7 +141,7 @@ class Protocol16CollectorFlowTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_before_join_db_raid_timeout_never_joins(self):
         sock = FakeSocket(baseline()[:-1])
-        result = await collector(sock, timeout=0.01).enrich("public-code")
+        result = await collector(sock, timeout=0.25).enrich("public-code")
         self.assertFalse(result.ok)
         sent = [x["event"] for x in sock.sent]
         self.assertIn("db_raid", sent)

@@ -1,0 +1,3 @@
+# Offline unittest-only dependencies. Do not install into production service environments.
+-r requirements-raid-bot.txt
+httpx2==2.16.2

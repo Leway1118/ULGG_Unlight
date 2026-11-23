@@ -20,9 +20,13 @@ class FakeRaidSource:
 
 
 class FakeNotifier:
+    """Offline test double matching the current Discord message-ID API."""
+
     def __init__(self) -> None:
         self.messages: list[str] = []
         self.raid4_mentions: list[bool] = []
+        self._indices: dict[str, int] = {}
+        self.edits: list[tuple[str, str]] = []
 
     def notify_text(
         self,
@@ -32,6 +36,26 @@ class FakeNotifier:
     ) -> bool:
         self.messages.append(text)
         self.raid4_mentions.append(mention_raid4)
+        return True
+
+    def notify_text_with_id(
+        self,
+        text: str,
+        *,
+        mention_raid4: bool = False,
+    ) -> str | None:
+        if not self.notify_text(text, mention_raid4=mention_raid4):
+            return None
+        message_id = f"fixture-message-{len(self.messages)}"
+        self._indices[message_id] = len(self.messages) - 1
+        return message_id
+
+    def edit_text(self, message_id: str, text: str) -> bool:
+        index = self._indices.get(str(message_id))
+        if index is None:
+            return False
+        self.messages[index] = text
+        self.edits.append((message_id, text))
         return True
 
 

@@ -50,8 +50,8 @@ class NewRaidNotificationTests(unittest.IsolatedAsyncioTestCase):
             notifier = FakeNotifier()
             source = FakeRaidSource([
                 snapshot(raid("raid-a")),
-                snapshot(raid("raid-a"), raid("raid-b", boss_name="龍魚")),
-                snapshot(raid("raid-a"), raid("raid-b", boss_name="龍魚")),
+                snapshot(raid("raid-a"), raid("raid-b", boss_name="龍魚", monster_code="mc1012_02")),
+                snapshot(raid("raid-a"), raid("raid-b", boss_name="龍魚", monster_code="mc1012_02")),
             ])
             service = RaidService(
                 source,
@@ -68,7 +68,7 @@ class NewRaidNotificationTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(len(notifier.messages), 1)
             self.assertEqual(
                 notifier.messages[0],
-                "🆕 Founder 🐢 龍魚 2759/6000",
+                "🆕 Founder ❓魚🐟 2759/6000",
             )
 
     async def test_db_raid_metadata_reaches_combined_discord_message(self) -> None:
@@ -213,7 +213,9 @@ class NewRaidNotificationTests(unittest.IsolatedAsyncioTestCase):
             ["new-public-code", "existing"],
         )
         self.assertIn(
-            "🆕 xup6 紫龜🟣🐢 5364/6000｜狂",
+            # Initial Discord message intentionally omits an unverified live-state
+            # status from the static enrichment cache.
+            "🆕 xup6 紫龜🟣🐢 5364/6000",
             notifier.messages[0],
         )
 
@@ -252,7 +254,7 @@ class NewRaidNotificationTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(len(notifier.messages), 1)
         self.assertIn(
-            "🆕 xup6 🐢 靈龜 5364/6000",
+            "🆕 xup6 ❓龜🐢 5364/6000",
             notifier.messages[0],
         )
 
