@@ -40,6 +40,8 @@ with sync_playwright() as p:
         step(7);expect(page.locator('#cup-games')).to_have_text('3')
         step(8);ck(page.locator('#unlock-count').inner_text()=='探索 4 / 4','all_unlocked')
         page.locator('#catalog-select').select_option('cc022');ck('薩爾卡多' in page.locator('#catalog-result').inner_text() and 'UNKNOWN' in page.locator('#catalog-result').inner_text(),'catalog_not_mapping')
+        ck(page.evaluate("getComputedStyle(document.querySelector('.story-nav')).position==='static'"),'navigation_not_overlay')
+        ck(page.evaluate("document.querySelector('.story-nav').getBoundingClientRect().top >= document.querySelector('#slide-8').getBoundingClientRect().bottom-1"),'nav_after_content')
         page.screenshot(path=str(out/f'archive-{width}.png'),full_page=True)
         step(9);page.locator('#share-roles').click();ck('已隱藏' in page.locator('#share-data').inner_text(),'share_privacy')
         page.locator('#square').click()

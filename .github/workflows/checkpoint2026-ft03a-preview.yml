@@ -28,7 +28,11 @@ jobs:
           php -l pages/admin/checkpoint2026_preview.php
           php tests/checkpoint2026/ft03a/guard_test.php
       - name: Install browser test library
-        run: python3 -m pip install --break-system-packages playwright==1.56.0
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
+          fc-match 'Noto Sans CJK TC' | grep -q NotoSansCJK
+          python3 -m pip install --break-system-packages playwright==1.56.0
       - name: Chromium synthetic preview
         run: |
           mkdir -p "$RUNNER_TEMP/ft03a"
