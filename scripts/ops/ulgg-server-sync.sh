@@ -39,7 +39,7 @@ if git diff --cached --quiet; then
 fi
 
 # Path-level safety guard.
-BAD_PATHS="$(git diff --cached --name-only |     grep -E '(^|/)\.env($|\.)|(^|/)(id_rsa|id_ed25519)|\.(pem|ppk|key)$|^assets/(pay|uploads)/|^cache/|^venv311/|^vendor/|^tool/raid-bot/data/' |     grep -v -E '(^|/)\.env\.example$' || true)"
+BAD_PATHS="$(git diff --cached --name-only |     grep -E '(^|/)\.env($|\.)|(^|/)(id_rsa|id_ed25519)|\.(pem|ppk|key)$|^assets/(pay|uploads)/|^cache/|^venv311/|^vendor/|^tool/raid-bot/data/|^steam/data/' |     grep -v -E '(^|/)\.env\.example$' || true)"
 
 if [[ -n "$BAD_PATHS" ]]; then
     echo "[ABORT] protected path would be committed:"

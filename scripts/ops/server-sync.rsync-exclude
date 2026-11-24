@@ -46,6 +46,10 @@
 .DS_Store
 Thumbs.db
 
+# Steam legacy room/runtime source is never exported by VPS -> GitHub sync.
+# Tracked historical blobs require separately approved Git cleanup.
+/steam/data/
+
 # Watcher runtime state and snapshots
 /watcher/*_backup/
 /watcher/*_history_backup/
