@@ -33,3 +33,12 @@
 - 個人 CUP／Raid 必須 UNKNOWN；不得以缺值 0 代替。
 - 發布前必須 M3-B 獨立 DB 唯讀身份及合成 staging 實證、性能測試、安全審查與另案上線核准。
 - 不得合併任何 PR，不得修改正式 DB、Watcher、Collector、排程或 master，不得登入／操作遊戲。
+
+
+## GitHub Linux 首輪失敗處理（不代表已通過）
+
+- Draft PR #17 首輪 GitHub Actions：Run 45324859691。
+- PHP 8.3：50/50 PASS。
+- PHP 8.0：M1 28/28 PASS；M2 19/22 PASS。3 項 Reader Case 在 Linux PHP 8.0 的 PDO SQLite 把數值型 match_id 取回成字串，例如 "1"，而 PHP 8.3 回傳整數 1。此差異觸發了嚴格型別 TDD，非勝敗計算或 Steam 身份保護失敗。
+- 修正範圍只在 PvPFactReader.php：將正確且可驗證的正整數 ID 標準化為 int，異常/不可解析值不強制轉型、留給下游拒絕。M2 測試仍維持嚴格型別預期。
+- 這項跨版本修正需在下一次 GitHub PHP 8.0/8.3 和 Chromium Linux 實際 CI 重新驗證；絕不以本機 PHP 8.3 成功宣稱 Linux PHP 8.0 Gate 通過。

@@ -84,6 +84,19 @@ SQL;
         ];
         $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // PDO SQLite/MySQL numeric fetch types differ between PHP 8.0 and
+        // PHP 8.3 builds. Normalize only proven positive integer IDs at
+        // the data boundary; leave anomalous IDs unmodified so the
+        // downstream aggregator rejects them instead of coercing garbage.
+        foreach ($rows as &$row) {
+            $id = $row['match_id'] ?? null;
+            if (is_string($id) && ctype_digit($id)
+                && filter_var($id, FILTER_VALIDATE_INT) !== false
+                && (int)$id > 0) {
+                $row['match_id'] = (int)$id;
+            }
+        }
+        unset($row);
         return [
             'identity' => $identity,
             'rows' => $rows,
