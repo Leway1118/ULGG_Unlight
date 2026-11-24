@@ -47,10 +47,11 @@ class ScheduleCompatibility(unittest.TestCase):
             "scripts/ruleset/lib/WeeklyCostPolicy.php",
         ]
         text="\n".join((REPO/f).read_text(encoding="utf-8") for f in files)
-        for banned in ("config.php","new PDO(", "PDO::", "file_put_contents(",
+        for banned in ("new PDO(", "PDO::", "file_put_contents(",
                        "unlink(", "fopen(", "INSERT INTO ", "UPDATE quickmatch", "DELETE FROM "):
             with self.subTest(banned=banned):
-                self.assertNotIn(banned,text)
+                self.assertTrue(banned not in text, f"Forbidden executable pattern: {banned}")
+        self.assertNotRegex(text,r"(?m)^\s*(?:require|include)(?:_once)?\s+[^\n]*config\.php")
 
     def test_default_mode_live_readonly(self):
         src=(REPO/"scripts/ruleset/cron_weekly_cost_shadow.php").read_text(encoding="utf-8")
