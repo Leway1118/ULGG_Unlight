@@ -72,8 +72,13 @@ jobs:
           test "${RUNNER_ENVIRONMENT:-}" = 'github-hosted'
           test "${GITHUB_ACTIONS:-}" = 'true'
           test "$(cat /proc/1/comm)" = 'systemd'
-          systemctl is-system-running --quiet || \
-            systemctl is-system-running | grep -Eq 'running|degraded'
+          # GitHub hosted runners can be degraded due to unrelated units.
+          # With pipefail, piping a degraded systemctl (rc=1) is not safe.
+          state="$(systemctl is-system-running || true)"
+          if [[ "$state" != 'running' && "$state" != 'degraded' ]]; then
+            echo "BLOCKED_UNEXPECTED_SYSTEMD_STATE=$state"
+            exit 1
+          fi
           echo G2R4_GITHUB_HOSTED_SYSTEMD_PID1_VERIFIED
       - name: Run synthetic actual systemd services; always rollback in finally
         env:
