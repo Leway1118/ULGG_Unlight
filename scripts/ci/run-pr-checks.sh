@@ -50,4 +50,10 @@ fi
 
 echo "=== P0: COST importer offline regression (D5-I) ==="
 php tests/cost/weekly_cost_policy_test.php
+
+echo "=== P0: D5-J shadow cron read-only unit tests ==="
+php tests/cost/weekly_cost_shadow_test.php
+
+echo "=== P0: D5-J legacy schedule byte-compatibility and stage safety ==="
+python3 tests/cost/test_d5j_schedule_compat.py "$BASE_SHA"
 echo "[PASS] P0 PR checks complete; not an E2E or production deployment test"
