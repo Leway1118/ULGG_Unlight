@@ -1,0 +1,572 @@
+{
+  "source": "2026-11-24 read-only unlight catalog and VPS image bytes; no player rows",
+  "origin": "https://ulgg.online",
+  "cards": [
+    {
+      "id": 11,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "L1",
+      "card": {
+        "path": "phpNrCwhj.png",
+        "mime": "image/jpeg",
+        "sha256": "560de015f1cda6cb940fa36eeb1d584d95e00c5842d056e2769a51122bc716e5",
+        "bytes": 41760
+      },
+      "stand": {
+        "path": "phpgRxHGA.png",
+        "mime": "image/png",
+        "sha256": "c797d27cfc87e8a4bf61e945d6d0ec49d6adc01ec70d4b6882ffc0952b28ae83",
+        "bytes": 27652
+      }
+    },
+    {
+      "id": 12,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "L2",
+      "card": {
+        "path": "phpwU5qk6.png",
+        "mime": "image/jpeg",
+        "sha256": "0fdb6c60f445d015fc11d613d9469c90ca1f213d72fe07e23b42f63411496c9f",
+        "bytes": 41633
+      },
+      "stand": null
+    },
+    {
+      "id": 13,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "L3",
+      "card": {
+        "path": "phpnyDvga.png",
+        "mime": "image/jpeg",
+        "sha256": "82d590959b261e6af9dde136e1cbadde7b5fb71e91894272da55125fb407cb43",
+        "bytes": 43675
+      },
+      "stand": null
+    },
+    {
+      "id": 14,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "L4",
+      "card": {
+        "path": "phpSzRfHC.png",
+        "mime": "image/jpeg",
+        "sha256": "62b8d9c73f7cf7ccb711dedf5005f6477020264ff89123357e67951627b10533",
+        "bytes": 42543
+      },
+      "stand": null
+    },
+    {
+      "id": 15,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "L5",
+      "card": {
+        "path": "official/15_L5.png",
+        "mime": "image/png",
+        "sha256": "838ab7cd8432b2579b56f84c8fad16b37e887128a8e8bc19f2e030eb06355a33",
+        "bytes": 129772
+      },
+      "stand": null
+    },
+    {
+      "id": 16,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "R1",
+      "card": {
+        "path": "official/16_R1.png",
+        "mime": "image/png",
+        "sha256": "388ae31fcacd667e07efebfbb241f32e4729ed8c30128ed95238188603dc4635",
+        "bytes": 126373
+      },
+      "stand": null
+    },
+    {
+      "id": 17,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "R2",
+      "card": {
+        "path": "official/17_R2.png",
+        "mime": "image/png",
+        "sha256": "38f0880243e3204918ad75ec1d3b3cf067817f63fe7873b089ee3507ca9128c9",
+        "bytes": 108759
+      },
+      "stand": null
+    },
+    {
+      "id": 18,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "R3",
+      "card": {
+        "path": "official/18_R3.png",
+        "mime": "image/png",
+        "sha256": "b116f50477111ef40dfdcff711cb23184cff9c20150ada94feaef818fc51d611",
+        "bytes": 117133
+      },
+      "stand": null
+    },
+    {
+      "id": 19,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "R4",
+      "card": {
+        "path": "official/19_R4.png",
+        "mime": "image/png",
+        "sha256": "b2cbfec669a62e23dcd972aa60721e3029737dfbcb8fd0d536ce4d5f662fa715",
+        "bytes": 114748
+      },
+      "stand": null
+    },
+    {
+      "id": 20,
+      "code": "cc002",
+      "name": "艾依查庫",
+      "level": "R5",
+      "card": {
+        "path": "official/20_R5.png",
+        "mime": "image/png",
+        "sha256": "ce74a8b4c47fcd687f218b5f8f22fa9527c01a0246ff91533fd6e2d3e39ad416",
+        "bytes": 115605
+      },
+      "stand": null
+    },
+    {
+      "id": 21,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "L1",
+      "card": {
+        "path": "phpdrME2E.png",
+        "mime": "image/png",
+        "sha256": "57306262b0abaa2118b8be141ee5e61ce6c0d3e51c2bf92ed21c8d91a279235e",
+        "bytes": 63838
+      },
+      "stand": {
+        "path": "phpyIamxv.png",
+        "mime": "image/png",
+        "sha256": "9d22d65dd45dc03bb5a3383d697dcd98f535a5a9b67f7a5bbf4e8a34c8b33f2e",
+        "bytes": 35216
+      }
+    },
+    {
+      "id": 22,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "L2",
+      "card": {
+        "path": "phpK0SkHw.png",
+        "mime": "image/png",
+        "sha256": "0874e5a1d171482283aec4e1d23ea5fcea5ecd1596fb765aa7a09c516d19e1e6",
+        "bytes": 62053
+      },
+      "stand": null
+    },
+    {
+      "id": 23,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "L3",
+      "card": {
+        "path": "phpSGmFYJ.png",
+        "mime": "image/png",
+        "sha256": "085f2693cc15e301e1d8d4e70d96fa994c8a0b4a9f859d9e81bafaa9bc13e18a",
+        "bytes": 68563
+      },
+      "stand": null
+    },
+    {
+      "id": 24,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "L4",
+      "card": {
+        "path": "phpKfG1bY.png",
+        "mime": "image/png",
+        "sha256": "17c82b403580428c6d1fc12c2b6c199c2295880afe4f0d86fbe1e9ef5f690a65",
+        "bytes": 64982
+      },
+      "stand": null
+    },
+    {
+      "id": 25,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "L5",
+      "card": {
+        "path": "official/25_L5.png",
+        "mime": "image/png",
+        "sha256": "19a7b912b5235c1906e814c49972cac4b070195e869bf7d726d56d5240efe36f",
+        "bytes": 128012
+      },
+      "stand": null
+    },
+    {
+      "id": 26,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "R1",
+      "card": {
+        "path": "official/26_R1.png",
+        "mime": "image/png",
+        "sha256": "81c44f49c7e3534320d7a0610e1a29001b63db86f7fa6fcd5c0f1fbfa79955eb",
+        "bytes": 121048
+      },
+      "stand": null
+    },
+    {
+      "id": 27,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "R2",
+      "card": {
+        "path": "official/27_R2.png",
+        "mime": "image/png",
+        "sha256": "e28d48284c72de6fced960204a36e97b42d3ca79b492d6d819c70ef395ecf4a5",
+        "bytes": 116498
+      },
+      "stand": null
+    },
+    {
+      "id": 28,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "R3",
+      "card": {
+        "path": "official/28_R3.png",
+        "mime": "image/png",
+        "sha256": "c001eedf14798b7296da6f781a8892831ca6fce00427fb405b7af0652cc13c77",
+        "bytes": 112706
+      },
+      "stand": null
+    },
+    {
+      "id": 29,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "R4",
+      "card": {
+        "path": "official/29_R4.png",
+        "mime": "image/png",
+        "sha256": "88fb5f34da57a022267a5da331c73950489a80ec12a2c6059330b51ecae8c1e6",
+        "bytes": 129317
+      },
+      "stand": null
+    },
+    {
+      "id": 30,
+      "code": "cc003",
+      "name": "古魯瓦爾多",
+      "level": "R5",
+      "card": {
+        "path": "official/30_R5.png",
+        "mime": "image/png",
+        "sha256": "935193212ca343bf24bcbaaac9ec7492eaf5846bd3b64d38c85f03cfb2991b29",
+        "bytes": 110987
+      },
+      "stand": null
+    },
+    {
+      "id": 31,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "L1",
+      "card": {
+        "path": "phpMwpDDD.png",
+        "mime": "image/jpeg",
+        "sha256": "5c545789947066b1a951c6f26891f7059766207955a77af6152a34d3d76df567",
+        "bytes": 45345
+      },
+      "stand": {
+        "path": "phpKYIA4H.png",
+        "mime": "image/png",
+        "sha256": "d3bec12d709c1d1e25bba214400e02d87e1510a8098fd69caf54542e35b44ffd",
+        "bytes": 45827
+      }
+    },
+    {
+      "id": 32,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "L2",
+      "card": {
+        "path": "phpGsnf30.png",
+        "mime": "image/jpeg",
+        "sha256": "62a99eeb6b12df9ee2ad0f0169e4f73ac151f9ca3cfe0f418fe3e8e37fade41b",
+        "bytes": 43692
+      },
+      "stand": null
+    },
+    {
+      "id": 33,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "L3",
+      "card": {
+        "path": "phpCLDyWQ.png",
+        "mime": "image/jpeg",
+        "sha256": "51b8d036995025bf96aa5e6111dd9ad4162f1a47456803157e1f0eac0afec88f",
+        "bytes": 44749
+      },
+      "stand": null
+    },
+    {
+      "id": 34,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "L4",
+      "card": {
+        "path": "phpfWqpGI.png",
+        "mime": "image/jpeg",
+        "sha256": "1d587651bd0ffe0f4a67918ade2fe908e2c1d0583e7903d7dfbe6207d74d3c0e",
+        "bytes": 46496
+      },
+      "stand": null
+    },
+    {
+      "id": 35,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "L5",
+      "card": {
+        "path": "phpsddmW6.png",
+        "mime": "image/jpeg",
+        "sha256": "f86fde6f623d8f20cb256e652ab30841d6d3ac8386a06837801f365a06f70a62",
+        "bytes": 51667
+      },
+      "stand": null
+    },
+    {
+      "id": 36,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "R1",
+      "card": {
+        "path": "phpfn8zjT.png",
+        "mime": "image/jpeg",
+        "sha256": "42857d41e76bc20572f40482b846437fcdc43358575b39e383f82b85d008f639",
+        "bytes": 52113
+      },
+      "stand": null
+    },
+    {
+      "id": 37,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "R2",
+      "card": {
+        "path": "php86TveH.png",
+        "mime": "image/jpeg",
+        "sha256": "9f9356ff69b2e45a392bd3f7ce34421f9ca72b8decf3d64d53129363316ccf9a",
+        "bytes": 53540
+      },
+      "stand": null
+    },
+    {
+      "id": 38,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "R3",
+      "card": {
+        "path": "phpS6BKr3.png",
+        "mime": "image/jpeg",
+        "sha256": "cb05c6e2d81d0eeea8e37f6fa2510bbbb5bb20717fe87b0d2b0bc5f822248be9",
+        "bytes": 50070
+      },
+      "stand": null
+    },
+    {
+      "id": 39,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "R4",
+      "card": {
+        "path": "phprTuzmK.png",
+        "mime": "image/jpeg",
+        "sha256": "7de37df09d4f932c3de1d788dd3a21465367ede83ed3bd75076f052de827a1f3",
+        "bytes": 61889
+      },
+      "stand": null
+    },
+    {
+      "id": 40,
+      "code": "cc004",
+      "name": "阿貝爾",
+      "level": "R5",
+      "card": {
+        "path": "php1v7kmL.png",
+        "mime": "image/jpeg",
+        "sha256": "e8faac3af1d81f0b5e81bfd14f7cda753b7d6f82d14659f085b03d4c4945ef8f",
+        "bytes": 58316
+      },
+      "stand": null
+    },
+    {
+      "id": 41,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "L1",
+      "card": {
+        "path": "phpvDXsko.png",
+        "mime": "image/jpeg",
+        "sha256": "9055e80b4425a6f55f6b92af8296127f80c2ffc19cb6dc3d8aa090ad618bf8d2",
+        "bytes": 41399
+      },
+      "stand": {
+        "path": "phpCQRXNw.png",
+        "mime": "image/png",
+        "sha256": "81b0e6ca6f5a177364e024181c147e879ca3546d1369982f4a21523230bfc003",
+        "bytes": 31888
+      }
+    },
+    {
+      "id": 42,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "L2",
+      "card": {
+        "path": "phpaQz5yZ.png",
+        "mime": "image/jpeg",
+        "sha256": "62b095cd292c7a8be777a29244c2f128ea2121b006d4b79c159bcb480b09d3ea",
+        "bytes": 41511
+      },
+      "stand": null
+    },
+    {
+      "id": 43,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "L3",
+      "card": {
+        "path": "phpSf8O6S.png",
+        "mime": "image/jpeg",
+        "sha256": "74a393e3549ea90666f7b43550331c066ed1eddc8dc620941fbc9f94c79c73dd",
+        "bytes": 43398
+      },
+      "stand": null
+    },
+    {
+      "id": 44,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "L4",
+      "card": {
+        "path": "phpdVWQlU.png",
+        "mime": "image/jpeg",
+        "sha256": "00eebbbc82bcfbcf6bb6349fec5306e6bfaa4912d158ecd023844a46c83ebe60",
+        "bytes": 44345
+      },
+      "stand": null
+    },
+    {
+      "id": 45,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "L5",
+      "card": {
+        "path": "php2Oor7o.png",
+        "mime": "image/jpeg",
+        "sha256": "5c1756759615d33bb2c653e381df27dc9d7750897ce9f59455c44a305db7e0ac",
+        "bytes": 45006
+      },
+      "stand": null
+    },
+    {
+      "id": 46,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "R1",
+      "card": {
+        "path": "php8c9IZy.png",
+        "mime": "image/jpeg",
+        "sha256": "573e2bd439c29b45b59b632ac4da81bbf61407d34ded4d082d9fdbe4da650d5a",
+        "bytes": 42357
+      },
+      "stand": null
+    },
+    {
+      "id": 47,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "R2",
+      "card": {
+        "path": "phpQtlXIw.png",
+        "mime": "image/jpeg",
+        "sha256": "7b1aa397ad3b9fbd063f5b1f5c758809fd0f7aa8f735caf7c17f6fd7df99aaea",
+        "bytes": 47551
+      },
+      "stand": null
+    },
+    {
+      "id": 48,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "R3",
+      "card": {
+        "path": "phppRRS7v.png",
+        "mime": "image/jpeg",
+        "sha256": "4506b2b93effaad195df03a78bde10435d52bc789ea1f0e3658523bc0f304ee7",
+        "bytes": 44774
+      },
+      "stand": null
+    },
+    {
+      "id": 49,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "R4",
+      "card": {
+        "path": "phpgKThCe.png",
+        "mime": "image/jpeg",
+        "sha256": "05c6ada2b95ce7918653bd0c70c249c5e9ffca011f65aba424d71aac0d92d528",
+        "bytes": 43875
+      },
+      "stand": null
+    },
+    {
+      "id": 50,
+      "code": "cc005",
+      "name": "利恩",
+      "level": "R5",
+      "card": {
+        "path": "phpm4MTgU.png",
+        "mime": "image/jpeg",
+        "sha256": "dee13355d8cc872a9ef03b9a64430c9a37469f415bfd3157eeaeb00ed902c066",
+        "bytes": 48832
+      },
+      "stand": null
+    },
+    {
+      "id": 55,
+      "code": "cc006",
+      "name": "庫勒尼西",
+      "level": "L5",
+      "card": {
+        "path": "phpzoQzQD.png",
+        "mime": "image/jpeg",
+        "sha256": "ba951cb15c74baba1c6d3c09a08c33711d9b5c1d742419c7acf239e2351e322c",
+        "bytes": 49992
+      },
+      "stand": null
+    },
+    {
+      "id": 66,
+      "code": "cc007",
+      "name": "傑多",
+      "level": "R1",
+      "card": {
+        "path": "phpDeoYsm.png",
+        "mime": "image/jpeg",
+        "sha256": "150d840ccf056d8b5e0c2778e4743c30835d74d1986d5d2a634e773d70ebd8c3",
+        "bytes": 47229
+      },
+      "stand": null
+    }
+  ]
+}
