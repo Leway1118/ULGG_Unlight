@@ -1,0 +1,47 @@
+name: Checkpoint 2026 FT03A synthetic preview
+on:
+  pull_request:
+    branches: [review/checkpoint2026-m3c-r1-integrated-staging]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  preview:
+    if: github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/checkpoint2026-ft03a-preview-v02'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify exact base and scope
+        run: |
+          set -euo pipefail
+          base=8ae48e8f7f0a57167a2e01dcb376cddf4ee1291a
+          git merge-base --is-ancestor "$base" HEAD
+          test "$(git diff --name-only "$base" HEAD | wc -l)" -eq 6
+          git diff --name-only "$base" HEAD | while read -r p; do
+            case "$p" in tests/checkpoint2026/ft03a/preview.html|tests/checkpoint2026/ft03a/guard_test.php|tests/checkpoint2026/ft03a/browser.py|pages/admin/checkpoint2026_preview.php|docs/checkpoint2026/FT03A_PREVIEW_RELEASE.md|.github/workflows/checkpoint2026-ft03a-preview.yml) ;; *) exit 3;; esac
+          done
+          php -l pages/admin/checkpoint2026_preview.php
+          php tests/checkpoint2026/ft03a/guard_test.php
+      - name: Install browser test library
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
+          fc-match 'Noto Sans CJK TC' | grep -q NotoSansCJK
+          python3 -m pip install --break-system-packages playwright==1.56.0
+      - name: Chromium synthetic preview
+        run: |
+          mkdir -p "$RUNNER_TEMP/ft03a"
+          python3 tests/checkpoint2026/ft03a/browser.py tests/checkpoint2026/ft03a/preview.html "$RUNNER_TEMP/ft03a"
+          cp tests/checkpoint2026/ft03a/preview.html "$RUNNER_TEMP/ft03a/ULGG_2026_Checkpoint_V0.2.html"
+          sha256sum "$RUNNER_TEMP/ft03a/ULGG_2026_Checkpoint_V0.2.html" > "$RUNNER_TEMP/ft03a/sha256.txt"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: checkpoint26-ft03a-preview-v02
+          path: ${{ runner.temp }}/ft03a/
+          retention-days: 14
