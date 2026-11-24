@@ -1,0 +1,184 @@
+name: Checkpoint 2026 M3-B-R1 Synthetic Linux CI
+
+on:
+  pull_request:
+    branches: [review/checkpoint2026-m3a-linux-ci]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '.github/workflows/checkpoint2026-m3b-r1-linux-ci.yml'
+      - 'lib/checkpoint2026/**'
+      - 'tests/checkpoint2026/**'
+      - 'docs/checkpoint2026/**'
+      - 'api/checkpoint2026/**'
+      - 'pages/checkpoint2026/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkpoint26-m3br1-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  php-matrix:
+    name: PHP ${{ matrix.php }} signed sources and immutable ledger
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/checkpoint2026-m3b-r1-linux-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.0', '8.3']
+    steps:
+      - name: Checkout synthetic-only PR without saving credentials
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Install pinned PHP and SQLite
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+        with:
+          php-version: '${{ matrix.php }}'
+          extensions: pdo_sqlite,sqlite3
+          coverage: none
+          tools: none
+      - name: Install Python 3.12 for isolated test orchestration
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Verify no production configuration and lint all Checkpoint PHP
+        env:
+          DB_HOST: ''
+          DB_NAME: ''
+          DB_USER: ''
+          DB_PASSWORD: ''
+          MYSQL_HOST: ''
+          MYSQL_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          STEAM_API_KEY: ''
+          STEAM_SECRET: ''
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          test -z "$DB_HOST" && test -z "$DB_PASSWORD" && test -z "$TW_AUTH_TOKEN"
+          test -z "$MYSQL_HOST" && test -z "$MYSQL_PASSWORD" && test -z "$STEAM_API_KEY"
+          php -r 'if (!extension_loaded("pdo_sqlite")) exit(2); echo "M3BR1_SQLITE_AVAILABLE\n";'
+          php -r 'if (PHP_MAJOR_VERSION !== 8) exit(3); echo "M3BR1_PHP_RUNTIME=".PHP_VERSION."\n";'
+          find lib/checkpoint2026 api/checkpoint2026 pages/checkpoint2026 tests/checkpoint2026 \
+            -name '*.php' -type f -print0 | xargs -0 -n 1 php -l
+          python -m py_compile tests/checkpoint2026/m3b_ci.py
+          echo M3BR1_SYNTAX_PASS
+      - name: Execute M1 M2 M3-B TDD plus cross-process sealed Ledger and 140k synthetic performance
+        env:
+          DB_HOST: ''
+          DB_NAME: ''
+          DB_USER: ''
+          DB_PASSWORD: ''
+          MYSQL_HOST: ''
+          MYSQL_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          STEAM_API_KEY: ''
+          STEAM_SECRET: ''
+          PYTHONUNBUFFERED: '1'
+        run: |
+          set -euo pipefail
+          python tests/checkpoint2026/m3b_ci.py \
+            --php "$(command -v php)" \
+            --report-dir "$RUNNER_TEMP" \
+            --rounds 2
+          python - "$RUNNER_TEMP/m3b-r1-synthetic-ci.json" <<'PY'
+          import json,pathlib,sys
+          r=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert r['status']=='PASS',r
+          assert r['rounds']==2 and r['unit_pass_total']==162,r
+          assert r['cross_process']==['write','verify','deny-write','verify'],r
+          assert r['cross_process_temp_removed'] is True,r
+          assert r['performance']['arena_matches']==70000,r
+          assert r['performance']['player_result_rows']==140000,r
+          assert r['performance']['same_rows'] is True,r
+          assert r['performance']['production_indexes_changed'] is False,r
+          print('M3BR1_LINUX_PHP_8X_FULL_GATE_PASS')
+          PY
+      - name: Upload synthetic PHP source-integrity and performance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3br1-php-${{ matrix.php }}-synthetic
+          path: |
+            ${{ runner.temp }}/m3b-r1-synthetic-ci.json
+            ${{ runner.temp }}/m3b-r1-140k-synthetic-performance.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  mobile-chromium:
+    name: Linux PHP 8.3 localhost IDOR and Chromium mobile desktop E2E
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/checkpoint2026-m3b-r1-linux-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout only synthetic PR without credential persistence
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Setup PHP 8.3 SQLite for synthetic localhost server
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite,sqlite3
+          coverage: none
+          tools: none
+      - name: Setup Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Install pinned Playwright and use pre-installed runner Chromium
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/m3br1-browser-venv"
+          "$RUNNER_TEMP/m3br1-browser-venv/bin/python" -m pip install \
+            --disable-pip-version-check 'playwright==1.56.0'
+          browser="$(command -v chromium || command -v chromium-browser || command -v google-chrome || command -v google-chrome-stable || true)"
+          test -n "$browser"
+          echo "M3BR1_SYNTH_BROWSER=$browser"
+          "$browser" --version
+      - name: Real Chromium synthetic Steam A B, IDOR, CUP and 360px mobile tests
+        env:
+          DB_HOST: ''
+          DB_NAME: ''
+          DB_USER: ''
+          DB_PASSWORD: ''
+          MYSQL_HOST: ''
+          MYSQL_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          STEAM_API_KEY: ''
+          STEAM_SECRET: ''
+          PYTHONUNBUFFERED: '1'
+        run: |
+          set -euo pipefail
+          test -z "$DB_HOST" && test -z "$DB_PASSWORD" && test -z "$TW_AUTH_TOKEN"
+          "$RUNNER_TEMP/m3br1-browser-venv/bin/python" \
+            tests/checkpoint2026/http_e2e.py \
+            --report "$RUNNER_TEMP/m3br1-http-browser.json" \
+            --php "$(command -v php)"
+          python - "$RUNNER_TEMP/m3br1-http-browser.json" <<'PY'
+          import json,pathlib,sys
+          r=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert r['status']=='PASS',r
+          assert r['server_stopped'] is True,r
+          assert len(r['cases'])==11,r['cases']
+          assert not r['errors'],r
+          assert len(r['screenshots'])==3,r
+          assert all(pathlib.Path(s).is_file() for s in r['screenshots']),r
+          print('M3BR1_LINUX_CHROMIUM_11_PASS_AND_CLEANUP')
+          PY
+      - name: Upload only synthetic screenshots and API E2E evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3br1-chromium-synthetic
+          path: |
+            ${{ runner.temp }}/m3br1-http-browser.json
+            ${{ runner.temp }}/M2_Story_360_20261124.png
+            ${{ runner.temp }}/M2_Story_360_Summary_20261124.png
+            ${{ runner.temp }}/M2_Story_1280_20261124.png
+          if-no-files-found: warn
+          retention-days: 14

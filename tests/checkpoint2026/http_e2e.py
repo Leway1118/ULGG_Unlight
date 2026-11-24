@@ -169,7 +169,13 @@ def browser_cases(base, results, evidence_dir):
 
     edge = Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
     chrome = Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
-    launch_kwargs = {"headless": True, "timeout": 10000}
+    # GitHub-hosted Ubuntu Chromium can need more time to start under
+    # transient shared-runner load. This timeout applies ONLY to launch;
+    # all API, privacy, IDOR, responsive layout and cleanup assertions remain.
+    launch_kwargs = {
+        "headless": True,
+        "timeout": 60000 if sys.platform.startswith("linux") else 15000,
+    }
     if edge.is_file():
         launch_kwargs["executable_path"] = str(edge)
     elif chrome.is_file():
