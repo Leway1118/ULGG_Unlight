@@ -13,6 +13,7 @@ cleanup(){
   set +e
   docker rm -fv m3c-app m3c-db m3c-client m3c-writer m3c-bootstrap >/dev/null 2>&1
   docker network rm "$net" >/dev/null 2>&1
+  if test -d "$stage"; then find "$stage" -maxdepth 1 -type f -name "*.json" -exec cp {} "$evidence/" \; ; fi
   rm -rf "$stage"
   failed=0
   if docker ps -a --format '{{.Names}}' | grep -Eq '^m3c-(app|db|client|writer|bootstrap)$'; then failed=1; fi
@@ -42,6 +43,7 @@ for i in $(seq 1 90); do
   sleep 1
 done
 test "$ready" = 1
+test -z "$(docker port m3c-db)"
 # Mount only the checkpoint subset; never mount .git, environment, repository config or other files.
 mounts=(--mount "type=bind,src=$GITHUB_WORKSPACE/lib/checkpoint2026,dst=/repo/lib/checkpoint2026,readonly" --mount "type=bind,src=$GITHUB_WORKSPACE/tests/checkpoint2026/FixtureData.php,dst=/repo/tests/checkpoint2026/FixtureData.php,readonly")
 for f in common.php bootstrap.php build.php router.php; do
@@ -68,7 +70,7 @@ app(){
     --mount "type=bind,src=$GITHUB_WORKSPACE/tests/checkpoint2026/m3c/router.php,dst=/repo/tests/checkpoint2026/m3c/router.php,readonly" \
     --mount "type=bind,src=$GITHUB_WORKSPACE/pages/checkpoint2026,dst=/repo/pages/checkpoint2026,readonly" \
     --mount "type=bind,src=$stage,dst=/stage,readonly" m3c-php php -d session.save_path=/tmp -d display_errors=0 -S 0.0.0.0:8080 -t /tmp /repo/tests/checkpoint2026/m3c/router.php
-  test "$(docker inspect m3c-app --format '{{json .HostConfig.PortBindings}}')" = '{}'
+  test -z "$(docker port m3c-app)"
   test "$(docker inspect m3c-app --format '{{.HostConfig.ReadonlyRootfs}}')" = true
   docker exec m3c-app php -r 'if(is_writable("/stage"))exit(2);'
 }

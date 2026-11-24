@@ -51,7 +51,6 @@ function scope(bool $b=false):string {
     return IdentityScopeResolver::fromSession(reader(),
         $b?FixtureData::sessionB():FixtureData::sessionA(),keyFor('scope'))['opaque_scope'];
 }
-function identity():array{return IdentityReader::resolve(FixtureData::pdo(),FixtureData::sessionA());}
 function event(string $id,string $at,array $payload,string $ingest=ASOF):array{
     return ['id'=>$id,'event_at'=>$at,'ingested_at'=>$ingest,'payload'=>$payload];
 }

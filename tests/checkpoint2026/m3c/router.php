@@ -69,6 +69,9 @@ if($path==='/pages/checkpoint2026/story.js'){
     $from='state.textContent = "私人 PvP 已通過合成資料驗證；個人 CUP／Raid 仍為 UNKNOWN。";';
     $to='state.textContent = pvp.status === "UNKNOWN" ? "資料來源尚未驗證；個人 PvP／CUP／Raid 為 UNKNOWN。" : "私人 PvP 已通過合成資料驗證；個人 CUP／Raid 仍為 UNKNOWN。";';
     if(substr_count($js,$from)!==1)outputJson(['error'=>'ui_contract_changed'],503);
-    echo str_replace($from,$to,$js);exit;
+        $js=str_replace($from,$to,$js);
+    $from='Array.isArray(pvp.top_characters) ? pvp.top_characters.length : null';
+    if(substr_count($js,$from)!==1)outputJson(['error'=>'ui_contract_changed'],503);
+    echo str_replace($from,'pvp.status !== "UNKNOWN" && Array.isArray(pvp.top_characters) ? pvp.top_characters.length : null',$js);exit;
 }
 outputJson(['error'=>'not_found'],404);
