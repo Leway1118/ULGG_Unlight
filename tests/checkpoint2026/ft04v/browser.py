@@ -77,6 +77,16 @@ with sync_playwright() as p:
             page.wait_for_timeout(250)
             page.screenshot(path=str(out/f'{name}-{w}.png'),full_page=True)
         page.goto(entry,wait_until='networkidle')
+        # Verify actual rendered glyphs, not merely the CSS font-family declaration.
+        page.evaluate('document.fonts.ready')
+        cdp=ctx.new_cdp_session(page)
+        cdp.send('DOM.enable');cdp.send('CSS.enable')
+        root_node=cdp.send('DOM.getDocument')['root']['nodeId']
+        node=cdp.send('DOM.querySelector',{'nodeId':root_node,'selector':'h1'})['nodeId']
+        fonts=cdp.send('CSS.getPlatformFontsForNode',{'nodeId':node})['fonts']
+        print('FT04V_RENDERED_FONTS',w,json.dumps(fonts,ensure_ascii=False),flush=True)
+        ck(any(('Noto Sans CJK' in f['familyName'] or 'Noto Sans TC' in f['familyName']) and f['glyphCount']>0 for f in fonts),'actual_cjk_glyph_rendering')
+        cdp.detach()
         ck(page.locator('.slide').count()==13,'13_chapters')
         ck(page.locator('#progress button').evaluate_all("(a)=>a.map(x=>+x.dataset.slide)")==[0,1,2,3,11,12,4,5,6,7,9,8,10],'story_order')
         ck('UNLIGHT' in page.locator('h1').inner_text(),'unlight_cover')

@@ -29,6 +29,14 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/ft04v"
           python3 tests/checkpoint2026/ft04v/release.py "$RUNNER_TEMP/ft04v/release" "${{ github.event.pull_request.head.sha }}"
+      - name: Install and verify Traditional Chinese rendering fonts
+        run: |
+          set -euo pipefail
+          if ! fc-list :lang=zh-tw family | grep -q 'Noto Sans CJK TC'; then
+            sudo apt-get -o Acquire::Retries=2 install -y --no-install-recommends fonts-noto-cjk || { sudo apt-get -o Acquire::Retries=2 update -qq && sudo apt-get -o Acquire::Retries=2 install -y --no-install-recommends fonts-noto-cjk; }
+          fi
+          fc-match -f '%{family}\n' 'Noto Sans CJK TC:lang=zh-tw'
+          fc-list :lang=zh-tw family | grep -F 'Noto Sans CJK TC'
       - name: Install browser dependency
         run: python3 -m pip install --break-system-packages playwright==1.56.0
       - name: Actual public asset bytes and Chromium synthetic E2E
