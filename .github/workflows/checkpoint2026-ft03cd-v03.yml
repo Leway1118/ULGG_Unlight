@@ -1,0 +1,42 @@
+name: Checkpoint 2026 FT03CD V03 synthetic fallback
+on:
+  pull_request:
+    branches: [review/checkpoint2026-ft03a-preview-v02]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  synthetic-preview:
+    if: github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/checkpoint2026-ft03cd-preview-v03'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Exact baseline and scope
+        run: |
+          set -euo pipefail
+          base=31dbebb5fc2b67224efda0c3e5fb3c5b93e1316e
+          git merge-base --is-ancestor "$base" HEAD
+          test "$(git diff --name-only "$base" HEAD | wc -l)" -eq 4
+          git diff --name-only "$base" HEAD | while read -r p; do
+            case "$p" in tests/checkpoint2026/ft03cd/preview.html|tests/checkpoint2026/ft03cd/browser.py|docs/checkpoint2026/FT03CD_V03.md|.github/workflows/checkpoint2026-ft03cd-v03.yml) ;; *) exit 3;; esac
+          done
+      - name: Install test dependency
+        run: python3 -m pip install --break-system-packages playwright==1.56.0
+      - name: Real Chromium E2E
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/ft03cd"
+          cp tests/checkpoint2026/ft03cd/preview.html "$RUNNER_TEMP/ft03cd/ULGG_2026_Checkpoint_V0.3.html"
+          sha256sum "$RUNNER_TEMP/ft03cd/ULGG_2026_Checkpoint_V0.3.html" > "$RUNNER_TEMP/ft03cd/sha256.txt"
+          python3 tests/checkpoint2026/ft03cd/browser.py tests/checkpoint2026/ft03cd/preview.html "$RUNNER_TEMP/ft03cd"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: checkpoint26-ft03cd-v03
+          path: ${{ runner.temp }}/ft03cd/
+          retention-days: 14
