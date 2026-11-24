@@ -55,14 +55,14 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/raid-collector-g2r4-systemd-stage'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    env:
-      RUNNER_ENVIRONMENT: ${{ runner.environment }}
     steps:
       - name: Checkout (never save credentials)
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - name: Verify ephemeral GitHub-hosted systemd PID1
+        env:
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
         run: |
           set -euo pipefail
           echo "G2R4_RUNNER_ENVIRONMENT=${RUNNER_ENVIRONMENT:-unset}"
@@ -78,6 +78,7 @@ jobs:
       - name: Run synthetic actual systemd services; always rollback in finally
         env:
           G2R4_EPHEMERAL_STAGING: synthetic-only
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
         run: |
           set -euo pipefail
           sudo env -i \
