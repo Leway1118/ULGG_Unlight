@@ -1,0 +1,41 @@
+name: Checkpoint 2026 FT04V V04 visual regression
+on:
+  pull_request:
+    branches: [review/checkpoint2026-ft03br2-profile-access]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  visual:
+    if: github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/checkpoint2026-ft04v-v04'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Scope and candidate integrity
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor bb6f1cb58520741ac09adfe5054dafe180e9abff HEAD
+          test "$(git diff --name-only bb6f1cb58520741ac09adfe5054dafe180e9abff HEAD | wc -l)" -eq 6
+          git diff --name-only bb6f1cb58520741ac09adfe5054dafe180e9abff HEAD | while read -r path; do
+            case "$path" in tests/checkpoint2026/ft04v/preview.html|tests/checkpoint2026/ft04v/assets.json|tests/checkpoint2026/ft04v/browser.py|tests/checkpoint2026/ft04v/release.py|docs/checkpoint2026/FT04V_V04.md|.github/workflows/checkpoint2026-ft04v-v04.yml) ;; *) exit 3;; esac
+          done
+          echo "7fd90bb12814ca6d8e56d545bdd6005fc6b9d30c6dfe902787bcb6fb59b02bd1  tests/checkpoint2026/ft03cd/preview.html" | sha256sum -c -
+      - name: Prepare hash-pinned release candidate without deployment
+        run: |
+          mkdir -p "$RUNNER_TEMP/ft04v"
+          python3 tests/checkpoint2026/ft04v/release.py "$RUNNER_TEMP/ft04v/release" "${{ github.event.pull_request.head.sha }}"
+      - name: Install browser dependency
+        run: python3 -m pip install --break-system-packages playwright==1.56.0
+      - name: Actual public asset bytes and Chromium synthetic E2E
+        run: python3 tests/checkpoint2026/ft04v/browser.py "$RUNNER_TEMP/ft04v/qa"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: checkpoint26-ft04v-v04
+          path: ${{ runner.temp }}/ft04v/
+          retention-days: 14
