@@ -2,6 +2,7 @@
 """PR-only basic safety guard; never accesses production services or secrets."""
 from __future__ import annotations
 
+import json
 import pathlib
 import re
 import subprocess
@@ -21,14 +22,20 @@ SECRET_PATTERNS = (
 
 
 def forbidden_path(name: str) -> bool:
-    parts = pathlib.PurePosixPath(name).parts
-    if not parts or name.startswith("/") or ".." in parts:
+    normalized = name.replace("\\", "/")
+    parts = pathlib.PurePosixPath(normalized).parts
+    if not parts or normalized.startswith("/") or ".." in parts:
         return True
     if any(part in BLOCKED_DIRS for part in parts):
         return True
     if name.startswith(("assets/pay/", "tool/raid-bot/data/", "database/Dump")):
         return True
     filename = parts[-1]
+    # Preserve historical HEAD as-is, but reject new or changed live source JSON.
+    if (len(parts) >= 3 and parts[0].casefold() == "steam"
+            and parts[1].casefold() == "data"
+            and filename.casefold().endswith((".json", ".jsonl"))):
+        return True
     if (filename == ".env" or filename.startswith(".env.")) and filename != ".env.example":
         return True
     if filename.startswith(("id_rsa", "id_ed25519")):
@@ -36,6 +43,33 @@ def forbidden_path(name: str) -> bool:
     if filename.endswith(BLOCKED_SUFFIXES) or ".before_" in filename or ".backup_" in filename:
         return True
     return False
+
+
+def contains_room_record(raw: bytes | str) -> bool:
+    """Detect a raw Unlight room object regardless of its changed JSON path.
+
+    Never include player/deck values in CI output. Existing tracked files not
+    changed by the PR remain historical-review items, not automatic deletions.
+    """
+    try:
+        data = json.loads(raw)
+    except (ValueError, UnicodeError):
+        return False
+
+    def check(value: object, depth: int) -> bool:
+        if depth > 5:
+            return False
+        if isinstance(value, dict):
+            keys = {str(key).casefold() for key in value}
+            if {"playera", "playerb", "decka", "deckb"}.issubset(keys):
+                return True
+            return any(check(child, depth + 1) for child in value.values())
+        if isinstance(value, list):
+            return any(check(child, depth + 1) for child in value)
+        return False
+
+    return check(data, 0)
+
 
 
 def added_lines_with_secrets(patch: str) -> list[str]:
@@ -67,8 +101,11 @@ def main(base: str) -> int:
             path = pathlib.Path(name)
             if path.is_symlink():
                 problems.append(f"symlink needs manual review: {name}")
-            elif path.is_file() and path.stat().st_size > MAX_CHANGED_FILE_BYTES:
-                problems.append(f"source file over 5 MiB: {name}")
+            elif path.is_file():
+                if path.stat().st_size > MAX_CHANGED_FILE_BYTES:
+                    problems.append(f"source file over 5 MiB: {name}")
+                elif name.casefold().endswith(".json") and contains_room_record(path.read_bytes()):
+                    problems.append(f"raw room JSON payload prohibited (values hidden): {name}")
 
         patch = git_output("diff", "--no-ext-diff", "--no-color", "--unified=0", base, "HEAD", "--").decode(
             "utf-8", "replace"
