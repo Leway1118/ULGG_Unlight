@@ -35,3 +35,11 @@
 - 後續正式來源仍需可信 ingestion watermarks、DB 欄位級 SELECT-only principal、權威 Steam 歷史會員映射、CUP 個人對應、Object Lock／KMS、真正獨立 Linux Staging。
 - PR #13/#14/#15/#17 Draft 不動；master／server-sync 不變；無正式 DB/Watcher/Collector/排程修改、無真正 Steam/Unlight 登入或遊戲操作。
 - 回滾是將獨立審查分支撤回或以 Patch 回到 M3-B Commit 34c60c5（M3-B-R1 改動）；不更動先前 M3-A/M3-B 檔案、正式環境或 Snapshot。
+
+
+## 首輪 Linux CI 實際失敗、修正及重新驗收規則
+
+- PR #18 首輪 Run 45331130732：PHP 8.0.30 與 PHP 8.3.37 各自 162/162 PASS；跨程序 annual snapshot、deny-write 和 140k synthetic performance 均通過。
+- Chromium 157 在 Runner 預裝；但 Playwright BrowserType.launch 超過原本的 10000 ms 啟動時限，首輪 Browser Job FAIL。尚未進入 API／頁面斷言，因此不能宣稱瀏覽器 E2E 通過。
+- 限縮修正：tests/checkpoint2026/http_e2e.py 的 Linux launch timeout 改成 60000 ms，Windows 改 15000 ms；所有 IDOR、Steam A/B、CUP、畫面、cleanup 斷言仍完整保留。
+- 必須在後續 GitHub-hosted Ubuntu 實際取得 Chromium 完整 11/11 PASS，才能將 R6 判為全綠；不接受本機 Windows 結果替代。
