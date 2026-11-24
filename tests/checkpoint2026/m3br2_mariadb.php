@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 require_once __DIR__.'/../../lib/checkpoint2026/IdentityGate.php';
 require_once __DIR__.'/../../lib/checkpoint2026/IdentityReader.php';
+require_once __DIR__.'/../../lib/checkpoint2026/SourceProvenance.php';
 require_once __DIR__.'/../../lib/checkpoint2026/IdentityScopeResolver.php';
 require_once __DIR__.'/../../lib/checkpoint2026/PvPFactReader.php';
 require_once __DIR__.'/../../lib/checkpoint2026/CupPublicReader.php';
