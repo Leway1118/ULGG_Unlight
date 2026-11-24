@@ -72,19 +72,31 @@ jobs:
           cache-dependency-path: tool/raid-bot/requirements-test.txt
       - name: Install isolated offline test requirements
         run: python -m pip install --disable-pip-version-check -r tool/raid-bot/requirements-test.txt
-      - name: Run Linux manager ledger tests as synthetic non-root UID
-        working-directory: tool/raid-bot
-        env:
-          PYTHON_DOTENV_DISABLED: '1'
+      - name: Stage only synthetic Gatekeeper sources in /tmp for isolated UIDs
         run: |
-          sudo env -i PATH="$PATH" PYTHONPATH="$PWD" PYTHON_DOTENV_DISABLED=1 \
+          set -euo pipefail
+          stage="$(mktemp -d /tmp/ulgg-g2r3-ci-XXXXXX)"
+          mkdir -p "$stage/raid_bot/safety" "$stage/tests"
+          cp tool/raid-bot/raid_bot/safety/*.py "$stage/raid_bot/safety/"
+          cp tool/raid-bot/run_gatekeeper_fixture.py "$stage/"
+          cp tool/raid-bot/run_gatekeeper_worker_fixture.py "$stage/"
+          cp tool/raid-bot/tests/linux_gatekeeper_owner_tests.py "$stage/tests/"
+          cp tool/raid-bot/tests/linux_gatekeeper_ci_smoke.py "$stage/tests/"
+          chmod -R a+rX "$stage"
+          echo "G2R3_STAGE=$stage" >> "$GITHUB_ENV"
+      - name: Run Linux manager ledger tests as synthetic non-root UID
+        run: |
+          set -euo pipefail
+          cd "$G2R3_STAGE"
+          sudo env -i PATH="$PATH" PYTHONPATH="$PWD" PYTHONDONTWRITEBYTECODE=1 PYTHON_DOTENV_DISABLED=1 \
             /usr/bin/setpriv --reuid=12001 --regid=12001 --clear-groups \
             "$(command -v python)" -m unittest discover -s tests \
             -p 'linux_gatekeeper_owner_tests.py' -v
       - name: Run isolated manager/worker UID split and Unix socket smoke
-        working-directory: tool/raid-bot
         run: |
-          sudo env -i PATH="$PATH" PYTHONPATH="$PWD" PYTHON_DOTENV_DISABLED=1 \
+          set -euo pipefail
+          cd "$G2R3_STAGE"
+          sudo env -i PATH="$PATH" PYTHONPATH="$PWD" PYTHONDONTWRITEBYTECODE=1 PYTHON_DOTENV_DISABLED=1 \
             "$(command -v python)" tests/linux_gatekeeper_ci_smoke.py
       - name: Verify Linux systemd syntax only (never start services)
         run: |
