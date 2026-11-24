@@ -12,7 +12,9 @@ import argparse
 import json
 import os
 from pathlib import Path
+import signal
 import sys
+import threading
 
 from raid_bot.safety.cleanup_journal import GateBlocked
 from raid_bot.safety.gatekeeper_ledger import GatekeeperLedger
@@ -66,6 +68,16 @@ def main() -> int:
                 args.socket_path, ledger=ledger,
                 worker_uid=args.worker_uid, worker_gid=args.worker_gid,
             ) as server:
+                # A real systemd stop/restart sends SIGTERM. Exit through
+                # server_close(), which removes the Unix socket path; the
+                # manager-owned journal and audit ledger remain untouched.
+                def graceful_stop(_sig, _frame):
+                    threading.Thread(
+                        target=server.shutdown, daemon=True
+                    ).start()
+
+                signal.signal(signal.SIGTERM, graceful_stop)
+                signal.signal(signal.SIGINT, graceful_stop)
                 print("OFFLINE_GATEKEEPER_READY", flush=True)
                 server.serve_forever(poll_interval=0.1)
             return 0
