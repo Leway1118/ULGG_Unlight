@@ -1,0 +1,85 @@
+name: COST RC PHP Compatibility (D5-K)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - ".github/workflows/cost-d5k-php-matrix.yml"
+      - "scripts/ruleset/**"
+      - "scripts/ci/run-pr-checks.sh"
+      - "tests/cost/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cost-d5k-php-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  cost-php:
+    name: COST RC PHP ${{ matrix.php }} / no DB
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.0", "8.3"]
+    steps:
+      - name: Checkout PR merge (read-only)
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Select isolated PHP runtime
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2 (2026-10-08)
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pdo_mysql, sodium
+          coverage: none
+          tools: none
+      - name: Confirm PHP version and syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -v
+          php -r 'if (!str_starts_with(PHP_VERSION, "${{ matrix.php }}.")) { exit(17); }'
+          php -m | grep -i '^PDO$'
+          php -m | grep -i '^pdo_mysql$'
+          for path in \
+            scripts/ruleset/import_weekly_cost_v2.php \
+            scripts/ruleset/cron_weekly_cost_shadow.php \
+            scripts/ruleset/lib/WeeklyCostPolicy.php \
+            scripts/ruleset/lib/WeeklyCostSource.php \
+            scripts/ruleset/lib/WeeklyCostStaging.php \
+            scripts/ruleset/lib/WeeklyCostShadow.php \
+            tests/cost/weekly_cost_policy_test.php \
+            tests/cost/weekly_cost_shadow_test.php \
+            tests/cost/weekly_cost_staging_e2e.php; do
+            php -l "$path"
+          done
+      - name: Legacy cron unchanged and staging-only policy
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          python3 tests/cost/test_d5j_schedule_compat.py "$BASE_SHA"
+      - name: Synthetic COST parser regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          php tests/cost/weekly_cost_policy_test.php
+      - name: Shadow cron read-only behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          php tests/cost/weekly_cost_shadow_test.php
+      - name: Verify CI has no database / deployment step
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "${ULGG_COST_STAGING_DSN:-}"
+          test -z "${ULGG_COST_STAGING_PASSWORD:-}"
+          test -z "${ULGG_COST_OFFICIAL_FIXTURE:-}"
+          echo "D5-K CI: offline-only; no DB credentials, VPS, watcher, deployment or COST approval."
