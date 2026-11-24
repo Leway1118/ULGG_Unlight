@@ -378,7 +378,7 @@ jobs:
           test "$RUNNER_OS" = Linux
           mkdir "$RUNNER_TEMP/m3br3-evidence"
           docker pull php:${{ matrix.php }}-cli
-          docker image inspect php:${{ matrix.php }}-cli --format '{{.Id}} {{join .RepoDigests " "}}' > "$RUNNER_TEMP/m3br3-evidence/image.txt"
+          docker image inspect php:${{ matrix.php }}-cli --format '{{.Id}} {{json .RepoDigests}}' > "$RUNNER_TEMP/m3br3-evidence/image.txt"
           echo M3BR3_TEST_IMAGE_RESOLVED
       - name: Execute independent upstream and receipt, real fixture changes and cross-container replay
         run: |
