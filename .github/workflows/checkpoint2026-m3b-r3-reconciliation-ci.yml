@@ -1,0 +1,445 @@
+name: Checkpoint 2026 M3-B-R3 Independent Reconciliation + Revision CI
+
+on:
+  pull_request:
+    branches: [review/checkpoint2026-m3b-r2-mariadb-ci]
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/checkpoint2026-m3b-r3-reconciliation-ci.yml'
+      - 'lib/checkpoint2026/**'
+      - 'tests/checkpoint2026/**'
+      - 'docs/checkpoint2026/**'
+      - 'api/checkpoint2026/**'
+      - 'pages/checkpoint2026/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkpoint26-m3br3-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  php-matrix:
+    name: PHP ${{ matrix.php }} signed sources and immutable ledger
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == true && github.head_ref == 'review/checkpoint2026-m3b-r3-reconciliation-ci' && github.base_ref == 'review/checkpoint2026-m3b-r2-mariadb-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.0', '8.3']
+    steps:
+      - name: Checkout synthetic-only PR without saving credentials
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install pinned PHP and SQLite
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+        with:
+          php-version: '${{ matrix.php }}'
+          extensions: pdo_sqlite,sqlite3
+          coverage: none
+          tools: none
+      - name: Install Python 3.12 for isolated test orchestration
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Verify no production configuration and lint all Checkpoint PHP
+        env:
+          DB_HOST: ''
+          DB_NAME: ''
+          DB_USER: ''
+          DB_PASSWORD: ''
+          MYSQL_HOST: ''
+          MYSQL_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          STEAM_API_KEY: ''
+          STEAM_SECRET: ''
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          test -z "$DB_HOST" && test -z "$DB_PASSWORD" && test -z "$TW_AUTH_TOKEN"
+          test -z "$MYSQL_HOST" && test -z "$MYSQL_PASSWORD" && test -z "$STEAM_API_KEY"
+          php -r 'if (!extension_loaded("pdo_sqlite")) exit(2); echo "M3BR1_SQLITE_AVAILABLE\n";'
+          php -r 'if (PHP_MAJOR_VERSION !== 8) exit(3); echo "M3BR1_PHP_RUNTIME=".PHP_VERSION."\n";'
+          find lib/checkpoint2026 api/checkpoint2026 pages/checkpoint2026 tests/checkpoint2026 \
+            -name '*.php' -type f -print0 | xargs -0 -n 1 php -l
+          python -m py_compile tests/checkpoint2026/m3b_ci.py
+          echo M3BR1_SYNTAX_PASS
+      - name: Execute M1 M2 M3-B TDD plus cross-process sealed Ledger and 140k synthetic performance
+        env:
+          DB_HOST: ''
+          DB_NAME: ''
+          DB_USER: ''
+          DB_PASSWORD: ''
+          MYSQL_HOST: ''
+          MYSQL_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          STEAM_API_KEY: ''
+          STEAM_SECRET: ''
+          PYTHONUNBUFFERED: '1'
+        run: |
+          set -euo pipefail
+          python tests/checkpoint2026/m3b_ci.py \
+            --php "$(command -v php)" \
+            --report-dir "$RUNNER_TEMP" \
+            --rounds 2
+          python - "$RUNNER_TEMP/m3b-r1-synthetic-ci.json" <<'PY'
+          import json,pathlib,sys
+          r=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert r['status']=='PASS',r
+          assert r['rounds']==2 and r['unit_pass_total']==162,r
+          assert r['cross_process']==['write','verify','deny-write','verify'],r
+          assert r['cross_process_temp_removed'] is True,r
+          assert r['performance']['arena_matches']==70000,r
+          assert r['performance']['player_result_rows']==140000,r
+          assert r['performance']['same_rows'] is True,r
+          assert r['performance']['production_indexes_changed'] is False,r
+          print('M3BR1_LINUX_PHP_8X_FULL_GATE_PASS')
+          PY
+      - name: Upload synthetic PHP source-integrity and performance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3br3-baseline-php-${{ matrix.php }}-synthetic
+          path: |
+            ${{ runner.temp }}/m3b-r1-synthetic-ci.json
+            ${{ runner.temp }}/m3b-r1-140k-synthetic-performance.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  mobile-chromium:
+    name: Linux PHP 8.3 localhost IDOR and Chromium mobile desktop E2E
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == true && github.head_ref == 'review/checkpoint2026-m3b-r3-reconciliation-ci' && github.base_ref == 'review/checkpoint2026-m3b-r2-mariadb-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout only synthetic PR without credential persistence
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Setup PHP 8.3 SQLite for synthetic localhost server
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite,sqlite3
+          coverage: none
+          tools: none
+      - name: Setup Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Install pinned Playwright and use pre-installed runner Chromium
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/m3br1-browser-venv"
+          "$RUNNER_TEMP/m3br1-browser-venv/bin/python" -m pip install \
+            --disable-pip-version-check 'playwright==1.56.0'
+          browser="$(command -v chromium || command -v chromium-browser || command -v google-chrome || command -v google-chrome-stable || true)"
+          test -n "$browser"
+          echo "M3BR1_SYNTH_BROWSER=$browser"
+          "$browser" --version
+      - name: Real Chromium synthetic Steam A B, IDOR, CUP and 360px mobile tests
+        env:
+          DB_HOST: ''
+          DB_NAME: ''
+          DB_USER: ''
+          DB_PASSWORD: ''
+          MYSQL_HOST: ''
+          MYSQL_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          STEAM_API_KEY: ''
+          STEAM_SECRET: ''
+          PYTHONUNBUFFERED: '1'
+        run: |
+          set -euo pipefail
+          test -z "$DB_HOST" && test -z "$DB_PASSWORD" && test -z "$TW_AUTH_TOKEN"
+          "$RUNNER_TEMP/m3br1-browser-venv/bin/python" \
+            tests/checkpoint2026/http_e2e.py \
+            --report "$RUNNER_TEMP/m3br1-http-browser.json" \
+            --php "$(command -v php)"
+          python - "$RUNNER_TEMP/m3br1-http-browser.json" <<'PY'
+          import json,pathlib,sys
+          r=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert r['status']=='PASS',r
+          assert r['server_stopped'] is True,r
+          assert len(r['cases'])==11,r['cases']
+          assert not r['errors'],r
+          assert len(r['screenshots'])==3,r
+          assert all(pathlib.Path(s).is_file() for s in r['screenshots']),r
+          print('M3BR1_LINUX_CHROMIUM_11_PASS_AND_CLEANUP')
+          PY
+      - name: Upload only synthetic screenshots and API E2E evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3br3-chromium-synthetic
+          path: |
+            ${{ runner.temp }}/m3br1-http-browser.json
+            ${{ runner.temp }}/M2_Story_360_20261124.png
+            ${{ runner.temp }}/M2_Story_360_Summary_20261124.png
+            ${{ runner.temp }}/M2_Story_1280_20261124.png
+          if-no-files-found: warn
+          retention-days: 14
+
+  mariadb-column-privileges:
+    name: MariaDB 11.4 PHP ${{ matrix.php }} column-SELECT only identity and readers
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == true && github.head_ref == 'review/checkpoint2026-m3b-r3-reconciliation-ci' && github.base_ref == 'review/checkpoint2026-m3b-r2-mariadb-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.0', '8.3']
+    steps:
+      - name: Checkout review head without saved Git credentials
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install only test PHP and PDO MariaDB SQLite drivers
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+        with:
+          php-version: '${{ matrix.php }}'
+          extensions: pdo_mysql,pdo_sqlite,sqlite3
+          coverage: none
+          tools: none
+      - name: PHP lint and no-production-environment guard
+        env:
+          DB_HOST: ''
+          DB_NAME: ''
+          DB_USER: ''
+          DB_PASSWORD: ''
+          MYSQL_HOST: ''
+          MYSQL_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          STEAM_API_KEY: ''
+          STEAM_SECRET: ''
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          test -z "$DB_HOST" && test -z "$DB_NAME" && test -z "$DB_USER" && test -z "$DB_PASSWORD"
+          test -z "$MYSQL_HOST" && test -z "$MYSQL_PASSWORD" && test -z "$TW_AUTH_TOKEN"
+          test -z "$STEAM_API_KEY" && test -z "$STEAM_SECRET"
+          php -r 'if (!extension_loaded("pdo_mysql") || !extension_loaded("pdo_sqlite")) exit(2);'
+          php -l tests/checkpoint2026/m3br2_mariadb.php
+          echo M3BR2_NO_PRODUCTION_ENV_LINT_PASS
+      - name: Start one synthetic-only MariaDB Docker container bound to localhost
+        run: |
+          set -euo pipefail
+          docker run --detach --rm \
+            --name ulgg-m3br2-synthetic-db \
+            --publish 127.0.0.1:43306:3306 \
+            --env MARIADB_DATABASE=ulgg_m3br2_synthetic \
+            --env MARIADB_ROOT_PASSWORD=synthetic-m3br2-test-password-only \
+            mariadb:11.4
+          docker inspect ulgg-m3br2-synthetic-db --format 'M3BR2_IMAGE={{.Image}}'
+          echo M3BR2_EPHEMERAL_CONTAINER_STARTED
+      - name: Wait for container local database readiness
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 60); do
+            if php -r '
+              try {
+                new PDO("mysql:host=127.0.0.1;port=43306;dbname=ulgg_m3br2_synthetic;charset=utf8mb4",
+                  "root","synthetic-m3br2-test-password-only",
+                  [PDO::ATTR_TIMEOUT=>2,PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+                exit(0);
+              } catch (Throwable $e) { exit(1); }'; then
+              echo M3BR2_MARIADB_READY
+              exit 0
+            fi
+            sleep 2
+          done
+          echo M3BR2_MARIADB_READY_FAIL
+          exit 1
+      - name: Run 11 MariaDB gates with actual SELECT-only principal and real Readers
+        env:
+          CI: 'true'
+          M3BR2_ISOLATION_GUARD: SYNTHETIC_ONLY
+          DB_HOST: ''
+          DB_NAME: ''
+          DB_USER: ''
+          DB_PASSWORD: ''
+          MYSQL_HOST: ''
+          MYSQL_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          STEAM_API_KEY: ''
+          STEAM_SECRET: ''
+        run: |
+          set -euo pipefail
+          php tests/checkpoint2026/m3br2_mariadb.php "$RUNNER_TEMP/m3br2-mariadb-${{ matrix.php }}.json"
+          python3 - "$RUNNER_TEMP/m3br2-mariadb-${{ matrix.php }}.json" <<'PY'
+          import json,sys,pathlib
+          d=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert d['status']=='PASS' and len(d['gates'])==11,d
+          assert all(g['result']=='PASS' for g in d['gates']),d
+          assert d['evidence']['C02_ALLOWLIST_COLUMNS_SELECT']['allowed_table_count']==7,d
+          perf=d['evidence']['C11_MARIADB_70K_140K_READER_PERF']
+          assert perf['synthetic_matches']==70000 and perf['synthetic_player_rows']==140000,d
+          assert perf['baseline']['result_sha256']==perf['candidate']['result_sha256'],d
+          assert perf['production_indexes_changed'] is False,d
+          assert d['production_touched'] is False and d['real_steam_used'] is False,d
+          print('M3BR2_MARIADB_11_SYNTHETIC_GATES_PASS')
+          PY
+      - name: Destroy disposable database container and verify no surviving DB
+        if: always()
+        run: |
+          set -euo pipefail
+          docker rm -f ulgg-m3br2-synthetic-db >/dev/null 2>&1 || true
+          if docker ps -a --format '{{.Names}}' | grep -Fxq ulgg-m3br2-synthetic-db; then
+            echo M3BR2_CONTAINER_DESTRUCTION_FAIL
+            exit 2
+          fi
+          printf '{"task":"M3BR2","container":"ulgg-m3br2-synthetic-db","destroyed":true,"ephemeral_data_removed":true}\n' > "$RUNNER_TEMP/m3br2-cleanup.json"
+          echo M3BR2_CONTAINER_DESTROYED_PASS
+      - name: Upload isolated MariaDB SQL plans and denial proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3br3-mariadb-php-${{ matrix.php }}-synthetic
+          path: |
+            ${{ runner.temp }}/m3br2-mariadb-${{ matrix.php }}.json
+            ${{ runner.temp }}/m3br2-cleanup.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  rollback-and-scope:
+    name: R2 exact ancestor file allowlist forward and reverse patch proof
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == true && github.head_ref == 'review/checkpoint2026-m3b-r3-reconciliation-ci' && github.base_ref == 'review/checkpoint2026-m3b-r2-mariadb-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout review commit and full lineage without credentials
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Verify R2 base, paths and reversible diff without modifying master
+        run: |
+          set -euo pipefail
+          BASE=c3b52c89eadbc3cc929d835e4258ab31e991a6f8
+          test "$BASE" = "${{ github.event.pull_request.base.sha }}"
+          HEAD="$(git rev-parse HEAD)"
+          test "$HEAD" = "${{ github.event.pull_request.head.sha }}"
+          git merge-base --is-ancestor "$BASE" "$HEAD"
+          test -z "$(git status --porcelain)"
+          git diff --name-only "$BASE" "$HEAD" > "$RUNNER_TEMP/m3br3-paths.txt"
+          test "$(wc -l < "$RUNNER_TEMP/m3br3-paths.txt")" -eq 4
+          while IFS= read -r path; do
+            case "$path" in
+              .github/workflows/checkpoint2026-m3b-r3-reconciliation-ci.yml|lib/checkpoint2026/R3Reconciliation.php|tests/checkpoint2026/m3br3.php|docs/checkpoint2026/M3BR3_RECONCILIATION_GATE_20261124.md) ;;
+              *) echo "UNAUTHORIZED_PATH=$path"; exit 4 ;;
+            esac
+          done < "$RUNNER_TEMP/m3br3-paths.txt"
+          git diff --binary "$BASE" "$HEAD" > "$RUNNER_TEMP/m3br3-reverse.patch"
+          git apply --reverse --check "$RUNNER_TEMP/m3br3-reverse.patch"
+          git worktree add --detach "$RUNNER_TEMP/m3br3-base" "$BASE"
+          (cd "$RUNNER_TEMP/m3br3-base" && git apply --check "$RUNNER_TEMP/m3br3-reverse.patch")
+          git worktree remove --force "$RUNNER_TEMP/m3br3-base"
+          sha256sum "$RUNNER_TEMP/m3br3-reverse.patch" > "$RUNNER_TEMP/m3br3-patch.sha256"
+          printf 'R2_BASE=%s\nR3_HEAD=%s\nFORWARD=PASS\nREVERSE=PASS\nWORKTREE_REMOVED=YES\nMASTER_CHANGED=NO\n' "$BASE" "$HEAD" \
+             > "$RUNNER_TEMP/m3br3-rollback.txt"
+          echo M3BR3_SCOPE_ROLLBACK_PASS
+      - name: Upload synthetic scope rollback evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3br3-rollback-proof
+          path: |
+            ${{ runner.temp }}/m3br3-paths.txt
+            ${{ runner.temp }}/m3br3-patch.sha256
+            ${{ runner.temp }}/m3br3-rollback.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+  independent-reconciliation:
+    name: R3 PHP ${{ matrix.php }} network-none manifest, identity and revision replay
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == true && github.head_ref == 'review/checkpoint2026-m3b-r3-reconciliation-ci' && github.base_ref == 'review/checkpoint2026-m3b-r2-mariadb-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.0', '8.3']
+    steps:
+      - name: Checkout isolated review commit with no persisted credentials
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Pull PHP CLI image and create isolated synthetic output directory
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          mkdir "$RUNNER_TEMP/m3br3-evidence"
+          docker pull php:${{ matrix.php }}-cli
+          docker image inspect php:${{ matrix.php }}-cli --format '{{.Id}} {{json .RepoDigests}}' > "$RUNNER_TEMP/m3br3-evidence/image.txt"
+          echo M3BR3_TEST_IMAGE_RESOLVED
+      - name: Execute independent upstream and receipt, real fixture changes and cross-container replay
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/m3br3-evidence"
+          image="$(docker image inspect php:${{ matrix.php }}-cli --format '{{.Id}}')"
+          for phase in unit write revise verify rollback deny-write; do
+            docker run --rm --name "ulgg-m3br3-$phase" --network none --read-only \
+              --cap-drop ALL --security-opt no-new-privileges \
+              --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,nosuid,nodev,size=128m \
+              --mount "type=bind,source=$GITHUB_WORKSPACE/lib/checkpoint2026,target=/repo/lib/checkpoint2026,readonly" \
+              --mount "type=bind,source=$GITHUB_WORKSPACE/tests/checkpoint2026,target=/repo/tests/checkpoint2026,readonly" \
+              --mount "type=bind,source=$evidence,target=/evidence" \
+              --env M3BR3_ISOLATION=SYNTHETIC_NETWORK_NONE \
+              "$image" php /repo/tests/checkpoint2026/m3br3.php "$phase" /evidence
+          done
+          python3 - "$evidence" <<'PY'
+          import json,sys,pathlib
+          root=pathlib.Path(sys.argv[1])
+          phases=['unit','write','revise','verify','rollback','deny-write']
+          docs={p:json.loads((root/(p+'.json')).read_text()) for p in phases}
+          for p,d in docs.items():
+              assert d['status']=='PASS' and d['synthetic_only'],(p,d)
+          assert docs['unit']['count']==39,docs['unit']
+          v1,v2=docs['verify']['versions']
+          assert (v1['pvp'],v2['pvp'],v1['cup'],v2['cup'])==(3,4,2,3)
+          assert v1['record_hash']==docs['write']['record']['record_hash']
+          assert v2['record_hash']==docs['revise']['record']['record_hash']
+          assert v2['previous_hash']==v1['record_hash']
+          assert docs['rollback']['versions']==docs['verify']['versions']==docs['deny-write']['versions']
+          assert docs['rollback']['read_selection']=={'before':2,'after':1,'v2_preserved':True,'mutation':False}
+          assert docs['deny-write']['denied_write_count']==2 and docs['deny-write']['row_count']==2
+          print('M3BR3_REAL_REVISION_3_TO_4_PVP_2_TO_3_CUP_REPLAY_PASS')
+          PY
+      - name: Always remove every R3 container and synthetic ledger file
+        if: always()
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/m3br3-evidence"
+          mkdir -p "$evidence"
+          for phase in unit write revise verify rollback deny-write; do
+            name="ulgg-m3br3-$phase"
+            if docker ps -a --format '{{.Names}}' | grep -Fxq "$name"; then
+              docker rm -fv "$name"
+            fi
+          done
+          if docker ps -a --format '{{.Names}}' | grep -q '^ulgg-m3br3-'; then
+            echo M3BR3_CONTAINER_CLEANUP_FAILED
+            exit 3
+          fi
+          rm -f "$evidence/ledger.sqlite" "$evidence/ledger.sqlite-wal" "$evidence/ledger.sqlite-shm" "$evidence/ledger.sqlite-journal"
+          test -z "$(find "$evidence" -maxdepth 1 -name '*.sqlite*' -print)"
+          printf '{"containers_removed":true,"synthetic_ledger_removed":true,"network_mode":"none","production_connected":false}\n' > "$evidence/cleanup.json"
+          echo M3BR3_ALL_CONTAINERS_AND_LEDGER_DESTROYED_PASS
+      - name: Upload only reconciliation test and replay evidence (never the ledger)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3br3-reconciliation-php-${{ matrix.php }}-synthetic
+          path: |
+            ${{ runner.temp }}/m3br3-evidence/*.json
+            ${{ runner.temp }}/m3br3-evidence/image.txt
+          if-no-files-found: warn
+          retention-days: 14
