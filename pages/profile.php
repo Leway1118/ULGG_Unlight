@@ -1363,6 +1363,25 @@ if ($isBind && $topPeriodStart) {
                 </span>
               </div>
             </div>
+            <!-- CP2026_ADMIN_ENTRY_BEGIN -->
+            <?php
+            $cp2026AccessFile = __DIR__ . '/../lib/checkpoint2026/PreviewAccess.php';
+            if (is_file($cp2026AccessFile)) {
+              require_once $cp2026AccessFile;
+            }
+            if (class_exists(\ULGG\Checkpoint2026\PreviewAccess::class, false)
+                && \ULGG\Checkpoint2026\PreviewAccess::profileEntryVisible(
+                  $_SESSION ?? [], (bool)$isOwner, (bool)$isAdminView, (bool)$isBannedUser
+                )): ?>
+              <div class="px-3 pb-3">
+                <a id="checkpoint2026-admin-entry" href="/pages/admin/checkpoint2026_preview.php" class="btn btn-outline-warning w-100 text-wrap" style="white-space:normal;overflow-wrap:anywhere;">
+                  ✦ 2026 年度回顧 Checkpoint
+                  <span class="badge bg-secondary ms-1">管理員預覽</span>
+                </a>
+                <div class="text-muted small mt-1">V0.6 真實紀錄・僅管理員可開啟</div>
+              </div>
+            <?php endif; ?>
+            <!-- CP2026_ADMIN_ENTRY_END -->
           </div>
           <!-- /.ul-card mb-4 -->
           <?php if ($canViewPrivate): ?>
