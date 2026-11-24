@@ -402,7 +402,7 @@ jobs:
           docs={p:json.loads((root/(p+'.json')).read_text()) for p in phases}
           for p,d in docs.items():
               assert d['status']=='PASS' and d['synthetic_only'],(p,d)
-          assert docs['unit']['count']==35,docs['unit']
+          assert docs['unit']['count']==37,docs['unit']
           v1,v2=docs['verify']['versions']
           assert (v1['pvp'],v2['pvp'],v1['cup'],v2['cup'])==(3,4,2,3)
           assert v1['record_hash']==docs['write']['record']['record_hash']

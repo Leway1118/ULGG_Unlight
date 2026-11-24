@@ -143,17 +143,20 @@ final class R3Reconciliation
 final class R3SnapshotWriter
 {
     public static function append(ImmutableSnapshotLedger $ledger,string $scope,int $revision,
-        string $asOf,string $cutoff,array $identity,array $pvp,array $cup,
-        array $keys,array $history):array {
-        if(($identity['status']??null)!=='VERIFIED' ||
+        string $asOf,string $cutoff,PDO $identityDb,array $trustedSession,string $scopeKey,
+        array $pvp,array $cup,array $keys,array $history):array {
+        $identity=IdentityReader::resolve($identityDb,$trustedSession);
+        $resolved=IdentityScopeResolver::fromSession($identityDb,$trustedSession,$scopeKey);
+        if(($identity['status']??null)!=='VERIFIED' || ($resolved['status']??null)!=='VERIFIED' ||
            !is_string($identity['subject']['username']??null) ||
            !in_array($identity['subject']['region']??null,['TW','JP'],true))
             throw new RuntimeException('R3_IDENTITY_NOT_VERIFIED');
+        if(!hash_equals($scope,$resolved['opaque_scope']))throw new RuntimeException('R3_SCOPE_MISMATCH');
         $required=['pvp_upstream','pvp_receipt','cup_upstream','cup_receipt','history','ledger_source'];
         foreach($required as $k){
             if(!is_string($keys[$k]??null)||strlen($keys[$k])<32)throw new RuntimeException('R3_KEYS_REQUIRED');
         }
-        if(count(array_unique(array_map(fn($k)=>$keys[$k],$required)))!==count($required))
+        if(count(array_unique(array_merge([$scopeKey],array_map(fn($k)=>$keys[$k],$required))))!==count($required)+1)
             throw new RuntimeException('R3_TRUST_DOMAINS_NOT_DISTINCT');
         $p=R3Reconciliation::reconcile('PVP_MATCH_FACT',$scope,$asOf,$cutoff,$revision,
             $pvp['upstream'],$pvp['receipt'],$pvp['events'],$keys['pvp_upstream'],$keys['pvp_receipt']);
@@ -166,6 +169,8 @@ final class R3SnapshotWriter
             $fact=$payload['fact']??null;
             if(!is_array($fact) || !in_array($fact['side']??null,['P1','P2'],true) ||
                ($fact['update_time']??null)!==$e['event_at'] ||
+               !is_int($fact['match_id']??null) || $fact['match_id']<=0 ||
+               $e['id']!=='PVP:'.$fact['match_id'].':'.$fact['side'] ||
                ($fact['region']??null)!==$identity['subject']['region'])
                 throw new RuntimeException('R3_FACT_CONTEXT_MISMATCH');
             $owner=R3Reconciliation::historicalOwner([
@@ -187,11 +192,22 @@ final class R3SnapshotWriter
         foreach($cup['events'] as $e){
             $data=$e['payload'];
             if(($data['kind']??null)==='report'){
-                if(!is_array($data['report']??null))throw new RuntimeException('R3_INVALID_CUP_REPORT');
+                if(!is_array($data['report']??null) || !is_int($data['report']['report_id']??null) ||
+                   $e['id']!=='CUP:REPORT:'.$data['report']['report_id'] ||
+                   ($data['report']['published_at']??null)!==$e['event_at'])
+                    throw new RuntimeException('R3_INVALID_CUP_REPORT');
                 $reports[]=$data['report'];
             }elseif(($data['kind']??null)==='game'){
                 $tid=$data['tournament_id']??null;
-                if(!is_int($tid)||$tid<=0)throw new RuntimeException('R3_INVALID_CUP_GAME');
+                if(!is_int($tid)||$tid<=0 || !is_int($data['game_id']??null) ||
+                   $e['id']!=='CUP:GAME:'.$data['game_id'] ||
+                   ($data['result_status']??null)!=='verified' ||
+                   ($data['created_at']??null)!==$e['event_at'] ||
+                   !R3Reconciliation::time($data['updated_at']??null) || $data['updated_at']>$asOf ||
+                   !is_int($data['player1_id']??null) || !is_int($data['player2_id']??null) ||
+                   $data['player1_id']===$data['player2_id'] ||
+                   !in_array($data['winner_player_id']??null,[$data['player1_id'],$data['player2_id']],true))
+                    throw new RuntimeException('R3_INVALID_CUP_GAME');
                 $games[$tid]=($games[$tid]??0)+1;
             }else throw new RuntimeException('R3_UNKNOWN_CUP_EVENT');
         }

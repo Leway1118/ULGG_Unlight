@@ -90,7 +90,10 @@ function expectedCup(int $rev):array{
     $out=[event('CUP:REPORT:1',$report['published_at'],['kind'=>'report','report'=>$report])];
     foreach($rev===1?[10,14]:[10,11,14] as $id){
         $out[]=event('CUP:GAME:'.$id,'2026-07-20 08:00:00',
-            ['kind'=>'game','tournament_id'=>1],$rev===2 && $id===11?LATE:ASOF);
+            ['kind'=>'game','game_id'=>$id,'tournament_id'=>1,'match_id'=>$id===14?3:1,
+             'result_status'=>'verified','player1_id'=>101,'player2_id'=>102,
+             'winner_player_id'=>$id===10?101:102,'created_at'=>'2026-07-20 08:00:00',
+             'updated_at'=>'2026-07-20 08:00:00'],$rev===2 && $id===11?LATE:ASOF);
     }
     return $out;
 }
@@ -136,7 +139,7 @@ function fixtures(int $rev):array {
     $cup=[];
     foreach($public['reports'] as $r)
         $cup[]=event('CUP:REPORT:'.$r['report_id'],$r['published_at'],['kind'=>'report','report'=>$r]);
-    $stmt=$db->query("SELECT g.id,g.tournament_id,g.created_at FROM tournament_match_games g
+    $stmt=$db->query("SELECT g.id,g.tournament_id,g.match_id,g.result_status,g.player1_id,g.player2_id,g.winner_player_id,g.created_at,g.updated_at FROM tournament_match_games g
         JOIN tournament_matches m ON m.id=g.match_id AND m.tournament_id=g.tournament_id
         WHERE g.tournament_id=1 AND g.result_status='verified'
         AND m.status IN ('confirmed','finished') AND m.winner_player_id IN(m.player1_id,m.player2_id)
@@ -144,7 +147,10 @@ function fixtures(int $rev):array {
         AND g.player1_id<>g.player2_id AND g.player1_id IN(m.player1_id,m.player2_id)
         AND g.player2_id IN(m.player1_id,m.player2_id) ORDER BY g.id");
     foreach($stmt->fetchAll(PDO::FETCH_ASSOC) as $row)
-        $cup[]=event('CUP:GAME:'.$row['id'],$row['created_at'],['kind'=>'game','tournament_id'=>(int)$row['tournament_id']],
+        $cup[]=event('CUP:GAME:'.$row['id'],$row['created_at'],['kind'=>'game','game_id'=>(int)$row['id'],'tournament_id'=>(int)$row['tournament_id'],
+             'match_id'=>(int)$row['match_id'],'result_status'=>$row['result_status'],
+             'player1_id'=>(int)$row['player1_id'],'player2_id'=>(int)$row['player2_id'],
+             'winner_player_id'=>(int)$row['winner_player_id'],'created_at'=>$row['created_at'],'updated_at'=>$row['updated_at']],
             $rev===2 && (int)$row['id']===11?LATE:ASOF);
     eq(count($cup)-count($public['reports']),$public['verified_games'],'CUP_REAL_READER_PARITY');
     return [manifest('PVP_MATCH_FACT',scope(),$rev,expectedPvp($rev),$pvp),
@@ -152,7 +158,7 @@ function fixtures(int $rev):array {
 }
 function writeRevision(ImmutableSnapshotLedger $ledger,int $rev,?array $p=null,?array $c=null,?array $h=null):array{
     [$p0,$c0]=fixtures($rev);
-    return W::append($ledger,scope(),$rev,ASOF,$rev===1?ASOF:CUTOFF2,identity(),
+    return W::append($ledger,scope(),$rev,ASOF,$rev===1?ASOF:CUTOFF2,FixtureData::pdo(),FixtureData::sessionA(),keyFor('scope'),
         $p??$p0,$c??$c0,keys(),$h??history());
 }
 function memoryLedger():array{
@@ -203,13 +209,17 @@ function unitTests():array{
         'G05_wrong_alias_date'=>fn()=>eq(owner(['alias'=>'SYNTH_OLD'])['status'],'UNKNOWN'),
         'G06_same_name_other_region'=>fn()=>eq(owner(['actor_id'=>'SYNTH_ACTOR_B','region'=>'JP'])['scope'],scope(true)),
         'G06_missing_actor_no_name_fallback'=>fn()=>eq(owner(['actor_id'=>null])['status'],'UNKNOWN'),
+        'G06_own_session_with_other_actor_rejected'=>function()use($expected,$c){
+            [$db,$l]=memoryLedger();$rows=$expected;$rows[0]['payload']['actor_id']='SYNTH_ACTOR_B';
+            $m=manifest('PVP_MATCH_FACT',scope(),1,$rows,$rows);
+            denies(fn()=>writeRevision($l,1,$m,$c),'R3_HISTORICAL_OWNERSHIP_UNKNOWN');},
         'G06_cup_no_identity_mapping'=>fn()=>eq(owner(['dataset'=>'CUP_PUBLIC'])['status'],'UNKNOWN'),
         'G06_unverified_identity_writer_denied'=>function()use($p,$c){
-            [$db,$l]=memoryLedger();denies(fn()=>W::append($l,scope(),1,ASOF,ASOF,['status'=>'UNKNOWN'],$p,$c,keys(),history()),'R3_IDENTITY_NOT_VERIFIED');},
+            [$db,$l]=memoryLedger();denies(fn()=>W::append($l,scope(),1,ASOF,ASOF,FixtureData::pdo(),FixtureData::sessionA(['steam_id'=>FixtureData::sessionB()['steam_id']]),keyFor('scope'),$p,$c,keys(),history()),'R3_IDENTITY_NOT_VERIFIED');},
         'G06_cross_scope_writer_denied'=>function()use($expected,$c){
             [$db,$l]=memoryLedger();
             $bad=manifest('PVP_MATCH_FACT',scope(true),1,$expected,$expected);
-            denies(fn()=>W::append($l,scope(true),1,ASOF,ASOF,identity(),$bad,$c,keys(),history()),'R3_HISTORICAL_OWNERSHIP_UNKNOWN');},
+            denies(fn()=>W::append($l,scope(true),1,ASOF,ASOF,FixtureData::pdo(),FixtureData::sessionA(),keyFor('scope'),$bad,$c,keys(),history()),'R3_SCOPE_MISMATCH');},
         'G07_incomplete_cup_blocks_snapshot'=>function()use($p,$c){
             [$db,$l]=memoryLedger();$bad=$c;array_pop($bad['events']);
             denies(fn()=>writeRevision($l,1,$p,$bad),'R3_INDEPENDENT_RECONCILIATION_REQUIRED');
@@ -244,6 +254,10 @@ function unitTests():array{
                 keys()['pvp_upstream'],keys()['pvp_upstream'])['reason'],'ISSUERS_NOT_INDEPENDENT');},
         'G09_observed_tamper_without_resign'=>function()use($p){$m=$p;$m['events'][0]['payload']['fact']['cost']=99;
             eq(reconcile($m)['reason'],'RECEIPT_OR_COUNT_MISMATCH');},
+        'G09_cup_game_same_id_changed_winner'=>function(){
+            $expected=expectedCup(1);$rows=$expected;$rows[1]['payload']['winner_player_id']=102;
+            $m=manifest('CUP_PUBLIC',AnnualSourceBundleGate::CUP_SCOPE,1,$expected,$rows);
+            eq(reconcile($m,'CUP_PUBLIC')['reason'],'EVENT_CONTENT_OR_TIME_MISMATCH');},
         'G09_history_signature_tamper'=>function(){$h=history();$h['claims']['bindings'][1]['scope']=scope(true);
             eq(owner([],$h)['status'],'UNKNOWN');},
         'G09_sealed_reconciliation_root_tamper'=>function(){
@@ -290,6 +304,13 @@ try {
             eq($s['r3_reconciliation']['cup_late_arrivals'],$n-1);
             ok(strlen($s['r3_reconciliation']['pvp_evidence_sha256'])===64);
             ok(strlen($s['r3_reconciliation']['cup_evidence_sha256'])===64);
+            [$p,$c]=fixtures($n);
+            $pProof=reconcile($p,'PVP_MATCH_FACT',$n);
+            $cProof=reconcile($c,'CUP_PUBLIC',$n);
+            eq($pProof['status'],'VERIFIED');eq($cProof['status'],'VERIFIED');
+            eq($s['r3_reconciliation']['pvp_evidence_sha256'],$pProof['evidence_sha256']);
+            eq($s['r3_reconciliation']['cup_evidence_sha256'],$cProof['evidence_sha256']);
+            eq($s['r3_reconciliation']['history_sha256'],R::digest(history()));
             ok(!str_contains(json_encode($s,JSON_THROW_ON_ERROR),'7656119'));
             $r['versions'][]=['revision'=>$n,'pvp'=>$payload['pvp']['verified_matches'],
                 'cup'=>$payload['cup']['verified_games'],'record_hash'=>$v['record_hash'],
