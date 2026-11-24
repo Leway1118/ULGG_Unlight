@@ -21,6 +21,23 @@ final class R3Reconciliation
         return hash('sha256',SourceProvenance::canonical($x));
     }
 
+    /** Strict fixture-reader wire adapter: old PDO can return SQLite INTs as
+     * strings. Normalize only canonical, lossless integer representations
+     * before the observation issuer signs; never repair bad source facts. */
+    public static function normalizePvpFact(array $fact): array {
+        foreach(['match_id','ack1','ack2','win','lose','tie','leader_id','back1_id','back2_id','cost','is_win'] as $field){
+            if(!array_key_exists($field,$fact))throw new InvalidArgumentException('R3_MISSING_INTEGER_FIELD:'.$field);
+            $value=$fact[$field];
+            if($field==='is_win' && $value===null)continue;
+            if(is_int($value))continue;
+            if(!is_string($value) || !preg_match('/^-?(0|[1-9][0-9]*)$/D',$value) ||
+               filter_var($value,FILTER_VALIDATE_INT)===false || (string)(int)$value!==$value)
+                throw new InvalidArgumentException('R3_NONCANONICAL_INTEGER:'.$field);
+            $fact[$field]=(int)$value;
+        }
+        return $fact;
+    }
+
     /** Fixture issuers sign independently. The verifier never signs missing evidence. */
     public static function sign(string $role,array $claims,string $key): array {
         if(strlen($key)<32 || !in_array($role,['upstream','receipt','history'],true)){

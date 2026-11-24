@@ -13,3 +13,7 @@ DRAFT / synthetic only. Exact R2 head `c3b52c89eadbc3cc929d835e4258ab31e991a6f8`
 
 ## No authorized side effects
 No changes to existing PRs, master, production DB users/schema/indexes/data, Collector/Watcher/scheduling, real game/login, deployment or merge. Only four new files on independent review branch. Roll back by abandoning this Draft; forward/reverse patch checks against exact R2 base. No production snapshot overwrite or delete. Report actual CI statuses, not planned gates.
+
+## Hosted CI compatibility corrections
+- Docker image provenance uses JSON RepoDigests rather than a runner-version-dependent join template.
+- The synthetic observation adapter converts only canonical, lossless PDO integer strings before signing; null is retained for nullable `is_win`. Noncanonical strings, overflow, floats, booleans, missing fields and forbidden nulls are refused. The upstream oracle remains independently typed; exact event and digest verification are unchanged.

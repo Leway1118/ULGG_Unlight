@@ -131,6 +131,7 @@ function fixtures(int $rev):array {
     $actorMeta=[1=>'SYNTH_ACTOR_A',2=>'SYNTH_ACTOR_A',3=>'SYNTH_ACTOR_A',6=>'SYNTH_ACTOR_A'];
     $pvp=[];
     foreach($facts as $f){
+        $f=R::normalizePvpFact($f);
         ok(isset($actorMeta[$f['match_id']]),'MISSING_FIXTURE_ACTOR');
         $pvp[]=event('PVP:'.$f['match_id'].':'.$f['side'],$f['update_time'],
             ['actor_id'=>$actorMeta[$f['match_id']],'fact'=>$f],$rev===2 && $f['match_id']===6?LATE:ASOF);
@@ -171,8 +172,21 @@ function unitTests():array{
     [$p,$c]=fixtures(1);
     $expected=expectedPvp(1);
     $tests=[
-        'G01_independent_pvp_manifest'=>fn()=>eq(reconcile($p)['count'],4),
-        'G01_independent_cup_manifest'=>fn()=>eq(reconcile($c,'CUP_PUBLIC')['count'],3),
+        'G01_independent_pvp_manifest'=>function()use($p){$v=reconcile($p);eq($v['status'],'VERIFIED','PVP_RECONCILIATION:'.($v['reason']??''));eq($v['count'],4);},
+        'G01_pdo_integer_wire_type_equivalence'=>function()use($expected){
+            $fact=$expected[2]['payload']['fact'];$wire=$fact;
+            foreach(['match_id','ack1','ack2','win','lose','tie','leader_id','back1_id','back2_id','cost'] as $field)
+                $wire[$field]=(string)$wire[$field];
+            eq(R::normalizePvpFact($wire),$fact);
+        },
+        'G01_pdo_invalid_integer_rejected'=>function()use($expected){
+            $fact=$expected[0]['payload']['fact'];
+            foreach(['20.0','020','20x','9223372036854775808',20.0,true,null] as $bad){
+                $f=$fact;$f['cost']=$bad;
+                denies(fn()=>R::normalizePvpFact($f),'R3_NONCANONICAL_INTEGER:cost');
+            }
+        },
+        'G01_independent_cup_manifest'=>function()use($c){$v=reconcile($c,'CUP_PUBLIC');eq($v['status'],'VERIFIED','CUP_RECONCILIATION:'.($v['reason']??''));eq($v['count'],3);},
         'G01_dataset_cross_replay'=>fn()=>eq(reconcile($p,'CUP_PUBLIC')['status'],'UNKNOWN'),
         'G01_subject_scope_replay'=>fn()=>eq(reconcile($p,'PVP_MATCH_FACT',1,null,scope(true))['status'],'UNKNOWN'),
         'G02_stale_upstream'=>function()use($p){$m=$p;$u=$m['upstream']['claims'];$u['watermark']='2026-11-23 00:00:00';
