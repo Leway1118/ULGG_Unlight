@@ -141,14 +141,30 @@ with sync_playwright() as p:
         page.locator('#share-rival').click();ck('可敬對手' not in txt('share-data'),'share_rival_optout')
         page.locator('#share-fortune').click();ck('命運：' not in txt('share-data'),'share_fortune_optout')
         page.locator('#share-rival').click();page.locator('#share-fortune').click()
+        # Collect actual canvas text/image bounds for exported PNGs; no app test hook or production mutation.
+        page.evaluate("""() => {
+          window.__qaCanvas=[];
+          const p=CanvasRenderingContext2D.prototype, draw=p.drawImage, text=p.fillText;
+          p.drawImage=function(img,x,y,w,h){if(arguments.length===5)window.__qaCanvas.push({kind:'image',top:y,bottom:y+h});return draw.apply(this,arguments)};
+          p.fillText=function(s,x,y,max){const m=this.measureText(s);window.__qaCanvas.push({kind:'text',text:s,top:y-m.actualBoundingBoxAscent,bottom:y+m.actualBoundingBoxDescent});return text.apply(this,arguments)};
+        }""")
+        def check_canvas_layout(label):
+            rows=page.evaluate('window.__qaCanvas.splice(0)')
+            imgs=[r for r in rows if r['kind']=='image']
+            texts=[r for r in rows if r['kind']=='text']
+            ck(len(imgs)==3 and len(texts)>=10,label+'_canvas_items')
+            ck(all(a['bottom']+3<=b['top'] for a,b in zip(texts,texts[1:])),label+'_text_spacing')
+            ck(all(i['bottom']+8<=t['top'] or t['bottom']+8<=i['top'] for i in imgs for t in texts),label+'_image_text_separation')
         page.locator('#square').click()
         with page.expect_download() as dl:page.locator('#download').click()
         f=out/f'share-square-{w}.png';dl.value.save_as(f);raw=f.read_bytes()
         ck(int.from_bytes(raw[16:20],'big')==1080 and int.from_bytes(raw[20:24],'big')==1080,'square_png')
+        check_canvas_layout('square')
         page.locator('#portrait').click()
         with page.expect_download() as dl:page.locator('#download').click()
         f=out/f'share-portrait-{w}.png';dl.value.save_as(f);raw=f.read_bytes()
         ck(int.from_bytes(raw[16:20],'big')==1080 and int.from_bytes(raw[20:24],'big')==1440,'portrait_png')
+        check_canvas_layout('portrait')
         scene('fallback');ck(all(scope(i)=='PUBLIC' for i in [1,2,3,4,5,7,8,9,11,12]),'public_scope')
         step(11);ck('公開樣本' in txt('rivals-title') and page.locator('#rivals .result-bar').count()==0,'public_not_personal_rival')
         step(8);ck('全站公開' in txt('bond-title') and '非個人收藏' in txt('bond-caption'),'public_collection_label')
