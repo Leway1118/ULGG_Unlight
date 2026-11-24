@@ -31,10 +31,10 @@ ALIAS = "ULGG-RAID-TEST-01"
 TARGET = "FIXTURE-ONLY-NOT-A-REAL-RAID"
 
 
-def demote(uid: int, gid: int):
+def demote(uid: int, gid: int, supplementary_groups=()):
     """Executed only in single-threaded POSIX CI test subprocess."""
     def fn():
-        os.setgroups([])
+        os.setgroups(list(supplementary_groups))
         os.setgid(gid)
         os.setuid(uid)
     return fn
@@ -102,7 +102,8 @@ def main():
                 [PYTHON, *manager_cmd], cwd=ROOT, env=safe_env(),
                 stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE, text=True,
-                preexec_fn=demote(MGR_UID, MGR_GID),
+                # Same permissions as systemd SupplementaryGroups=worker.
+                preexec_fn=demote(MGR_UID, MGR_GID, (WORKER_GID,)),
                 start_new_session=True,
             )
             until = time.monotonic() + 6.0
