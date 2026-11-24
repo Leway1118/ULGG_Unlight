@@ -264,7 +264,8 @@ def _optional_int(value):
 
 
 def _parse_rank(value):
-    if not isinstance(value, list):
+    # Partial or absent rank is UNKNOWN, not a complete empty ranking.
+    if not isinstance(value, list) or not value:
         return None
 
     players = []
@@ -274,19 +275,30 @@ def _parse_rank(value):
         start=1,
     ):
         if not isinstance(item, dict):
-            continue
+            return None
 
         name = item.get(
             "player_name"
         )
 
         if not isinstance(name, str):
-            continue
+            return None
 
         name = name.strip()
 
         if not name:
-            continue
+            return None
+
+        raw_point = item.get("point")
+        point = _optional_int(raw_point)
+        if (
+            point is None or point < 0
+            or (
+                isinstance(raw_point, float)
+                and not raw_point.is_integer()
+            )
+        ):
+            return None
 
         # RAID_PLAYER_STRIP_LEVEL_PREFIX_V1
         level = _optional_int(
@@ -300,18 +312,15 @@ def _parse_rank(value):
                 name = name[
                     len(prefix):
                 ].lstrip()
+                if not name:
+                    return None
 
         players.append(
             {
                 "rank": index,
                 "level": level,
                 "name": name,
-                "point": (
-                    _optional_int(
-                        item.get("point")
-                    )
-                    or 0
-                ),
+                "point": point,
             }
         )
 

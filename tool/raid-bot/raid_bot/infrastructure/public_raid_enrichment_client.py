@@ -110,9 +110,34 @@ def find_unique_pass_match(
     return dict(matches[0]) if len(matches) == 1 else None
 
 
+def _valid_db_raid_snapshot(args: Any) -> bool:
+    """A missing/malformed reply can never prove absence or permit joining."""
+    if not isinstance(args, list) or not args:
+        return False
+    rows = (
+        args[0]
+        if len(args) == 1 and isinstance(args[0], list)
+        else args
+    )
+    if not isinstance(rows, list):
+        return False
+    # Server confirms zero owned Raids with the unambiguous nested [[]].
+    # Non-empty rows must all identify their Raid, otherwise absence is unknown.
+    if not rows:
+        return len(args) == 1 and isinstance(args[0], list)
+    return all(
+        isinstance(row, dict) and _valid_profound_id(row) is not None
+        for row in rows
+    )
+
+
 def profound_id_is_absent(args: Any, profound_id: str) -> bool:
+    if not str(profound_id or "").strip():
+        return False
+    if not _valid_db_raid_snapshot(args):
+        return False
     rows = _db_raid_rows(args)
-    return all(str(row.get("profound_id")) != profound_id for row in rows)
+    return all(str(row["profound_id"]) != profound_id for row in rows)
 
 
 # RAID_CODE_ERROR_CAPTURE_V1
@@ -369,6 +394,8 @@ class PublicRaidEnrichmentClient:
             websocket,
             frozenset({"db_raid"}),
         )
+        if not _valid_db_raid_snapshot(args):
+            raise ValueError("db_raid_malformed_snapshot")
         return args
 
     # RAID_CLEANUP_FRESH_VERIFY_V1

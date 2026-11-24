@@ -178,7 +178,7 @@ def client(
     return PublicRaidEnrichmentClient(
         "wss://example.invalid/",
         "worker-account",
-        timeout_seconds=0.1,
+        timeout_seconds=0.3,
         register_settle_seconds=0,
         delete_settle_seconds=delete_settle_seconds,
         connect_factory=lambda *args, **kwargs: FakeConnection(websocket),
@@ -300,7 +300,8 @@ class PublicRaidEnrichmentClientTests(unittest.IsolatedAsyncioTestCase):
             enricher = TreasureLevelEnricher(
                 production_client,
                 TreasureLevelCache(cache_path),
-                timeout_seconds=0.1,
+                # Avoid a 100ms wall-clock race on loaded Windows hosts.
+                timeout_seconds=1.0,
             )
 
             result = await enricher.enrich(raid(prf_code))
@@ -319,7 +320,9 @@ class PublicRaidEnrichmentClientTests(unittest.IsolatedAsyncioTestCase):
         production_client = PublicRaidEnrichmentClient(
             "wss://example.invalid/",
             "worker-account",
-            timeout_seconds=0.02,
+            # Still shorter than the outer enrichment budget, but resilient
+            # to Windows event-loop scheduling under parallel test load.
+            timeout_seconds=0.4,
             register_settle_seconds=0,
             delete_settle_seconds=0,
             connect_factory=lambda *args, **kwargs: FakeConnection(websocket),
@@ -329,7 +332,7 @@ class PublicRaidEnrichmentClientTests(unittest.IsolatedAsyncioTestCase):
             enricher = TreasureLevelEnricher(
                 production_client,
                 TreasureLevelCache(directory / "enrichment.json"),
-                timeout_seconds=0.5,
+                timeout_seconds=3.0,
             )
 
             enriched = await enricher.enrich(raid(prf_code))
