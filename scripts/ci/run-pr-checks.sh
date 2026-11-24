@@ -48,4 +48,6 @@ else
   echo "[SKIP] raising runtime tests; syntax-only validation above"
 fi
 
+echo "=== P0: COST importer offline regression (D5-I) ==="
+php tests/cost/weekly_cost_policy_test.php
 echo "[PASS] P0 PR checks complete; not an E2E or production deployment test"
