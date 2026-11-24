@@ -42,3 +42,10 @@
 - PHP 8.0：M1 28/28 PASS；M2 19/22 PASS。3 項 Reader Case 在 Linux PHP 8.0 的 PDO SQLite 把數值型 match_id 取回成字串，例如 "1"，而 PHP 8.3 回傳整數 1。此差異觸發了嚴格型別 TDD，非勝敗計算或 Steam 身份保護失敗。
 - 修正範圍只在 PvPFactReader.php：將正確且可驗證的正整數 ID 標準化為 int，異常/不可解析值不強制轉型、留給下游拒絕。M2 測試仍維持嚴格型別預期。
 - 這項跨版本修正需在下一次 GitHub PHP 8.0/8.3 和 Chromium Linux 實際 CI 重新驗證；絕不以本機 PHP 8.3 成功宣稱 Linux PHP 8.0 Gate 通過。
+
+
+## A4 Runner Browser Setup optimization
+
+- M3-A Linux PHP 8.0/8.3 Gate 已於 Run 45325174094 PASS；當次 Browser Job 的 Playwright install --with-deps 正在安裝工具鏈，尚未完成 E2E，不可視為 PASS。
+- GitHub Ubuntu 24.04 Hosted Image 自帶 Chromium／Google Chrome。為降低下載依賴，改以 Python Playwright 1.56.0 連接 Runner 現有 Chromium 引擎；若系統瀏覽器不存在就 FAIL-CLOSED，不能改成跳過 Browser Gate。
+- Linux CI 印出實際 System Browser 版本，原 Windows 本機 Edge/Chrome 測試行為保留。此變更不修改 API、資料庫或正式服務，不變更手機／桌面 11 項 E2E 斷言。

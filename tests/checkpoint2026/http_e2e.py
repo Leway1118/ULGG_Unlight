@@ -9,6 +9,7 @@ import argparse
 import http.cookiejar
 import json
 import os
+import shutil
 from pathlib import Path
 import socket
 import subprocess
@@ -173,6 +174,16 @@ def browser_cases(base, results, evidence_dir):
         launch_kwargs["executable_path"] = str(edge)
     elif chrome.is_file():
         launch_kwargs["executable_path"] = str(chrome)
+    elif sys.platform.startswith("linux"):
+        # GitHub's Ubuntu image already ships native Chromium/Chrome.
+        # Browser-install downloads are not needed for synthetic E2E.
+        for name in ("chromium", "chromium-browser", "google-chrome", "google-chrome-stable"):
+            system_browser = shutil.which(name)
+            if system_browser and Path(system_browser).is_file():
+                launch_kwargs["executable_path"] = system_browser
+                break
+        if "executable_path" not in launch_kwargs:
+            raise RuntimeError("BLOCKED_LINUX_SYSTEM_CHROMIUM_MISSING")
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(**launch_kwargs)
