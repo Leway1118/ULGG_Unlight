@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: raid-g2r4-${ github.event.pull_request.number }}
+  group: raid-g2r4-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -39,8 +39,8 @@ jobs:
           PYTHON_DOTENV_DISABLED: '1'
         run: |
           python tool/raid-bot/run_offline_regression.py \
-            --workers 2 --timeout 45 --report "${ runner.temp }}/g2r4-offline.json"
-          python - "${ runner.temp }}/g2r4-offline.json" <<'PY'
+            --workers 2 --timeout 45 --report "${{ runner.temp }}/g2r4-offline.json"
+          python - "${{ runner.temp }}/g2r4-offline.json" <<'PY'
           import json, pathlib, sys
           r=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
           c=r['counts']
@@ -55,6 +55,8 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/raid-collector-g2r4-systemd-stage'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      RUNNER_ENVIRONMENT: ${{ runner.environment }}
     steps:
       - name: Checkout (never save credentials)
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -63,6 +65,10 @@ jobs:
       - name: Verify ephemeral GitHub-hosted systemd PID1
         run: |
           set -euo pipefail
+          echo "G2R4_RUNNER_ENVIRONMENT=${RUNNER_ENVIRONMENT:-unset}"
+          echo "G2R4_GITHUB_ACTIONS=${GITHUB_ACTIONS:-unset}"
+          echo "G2R4_PID1_COMM=$(cat /proc/1/comm)"
+          echo "G2R4_SYSTEMD_STATE=$(systemctl is-system-running 2>&1 || true)"
           test "${RUNNER_ENVIRONMENT:-}" = 'github-hosted'
           test "${GITHUB_ACTIONS:-}" = 'true'
           test "$(cat /proc/1/comm)" = 'systemd'
@@ -80,8 +86,8 @@ jobs:
             RUNNER_ENVIRONMENT="$RUNNER_ENVIRONMENT" \
             G2R4_EPHEMERAL_STAGING=synthetic-only \
             /usr/bin/python3 tool/raid-bot/tests/linux_systemd_g2r4_staging.py \
-              --report "${ runner.temp }}/g2r4-systemd-evidence.json"
-          python - "${ runner.temp }}/g2r4-systemd-evidence.json" <<'PY'
+              --report "${{ runner.temp }}/g2r4-systemd-evidence.json"
+          python - "${{ runner.temp }}/g2r4-systemd-evidence.json" <<'PY'
           import json,pathlib,sys
           d=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
           assert d['status']=='PASS', d['errors']
@@ -95,6 +101,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ulgg-g2r4-systemd-synthetic-evidence
-          path: ${ runner.temp }}/g2r4-systemd-evidence.json
+          path: ${{ runner.temp }}/g2r4-systemd-evidence.json
           if-no-files-found: warn
           retention-days: 14
