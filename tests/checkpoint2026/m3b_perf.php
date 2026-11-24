@@ -138,7 +138,7 @@ if($before['count']<100)throw new RuntimeException('BAD_SYNTHETIC_DISTRIBUTION')
 $ratio=round($before['median_ms']/max(0.001,$after['median_ms']),2);
 $report=[
     'test'=>'ULGG_CHECKPOINT2026_M3B_PVP_PLAN_SYNTHETIC',
-    'environment'=>['type'=>'LOCAL_WINDOWS_PHP_SQLITE_IN_MEMORY','php_version'=>PHP_VERSION,
+    'environment'=>['type'=>'SYNTHETIC_PHP_SQLITE_IN_MEMORY','os_family'=>PHP_OS_FAMILY,'php_version'=>PHP_VERSION,
          'no_prod_db'=>true,'no_game'=>true,'no_network'=>true],
     'fixture'=>['arena_matches'=>70000,'player_result_rows'=>140000,
         'game_user_records'=>1,'tw_jp_regions'=>true,
