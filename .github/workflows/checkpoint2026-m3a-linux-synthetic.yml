@@ -1,0 +1,144 @@
+name: Checkpoint 2026 M3-A Synthetic Linux CI
+
+on:
+  pull_request:
+    branches: [server-sync]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '.github/workflows/checkpoint2026-m3a-linux-synthetic.yml'
+      - 'lib/checkpoint2026/**'
+      - 'api/checkpoint2026/**'
+      - 'pages/checkpoint2026/**'
+      - 'tests/checkpoint2026/**'
+      - 'docs/checkpoint2026/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkpoint26-m3a-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  php-runtime:
+    name: PHP ${{ matrix.php }} synthetic M1 and M2
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/checkpoint2026-m3a-linux-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.0', '8.3']
+    steps:
+      - name: Checkout without saved credentials
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Setup pinned patched PHP and SQLite
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+        with:
+          php-version: '${{ matrix.php }}'
+          extensions: pdo_sqlite,sqlite3
+          coverage: none
+          tools: none
+      - name: Verify Linux runtime and no production config
+        env:
+          DB_HOST: ''
+          DB_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = 'Linux'
+          test -z "$DB_HOST" && test -z "$DB_PASSWORD" && test -z "$TW_AUTH_TOKEN"
+          php -r 'if (!extension_loaded("pdo_sqlite")) exit(2); echo "M3A_SQLITE_OK\n";'
+          php -r 'if (PHP_MAJOR_VERSION!==8) exit(3); echo "M3A_PHP=".PHP_VERSION."\n";'
+          php -v | head -n 1
+      - name: PHP syntax for Checkpoint2026 only
+        run: |
+          set -euo pipefail
+          find lib/checkpoint2026 api/checkpoint2026 pages/checkpoint2026 tests/checkpoint2026 \
+            -type f -name '*.php' -print0 | xargs -0 -n 1 php -l
+          echo M3A_LINT_OK
+      - name: M1 and M2 SQLite synthetic regression
+        run: |
+          set -euo pipefail
+          php tests/checkpoint2026/run.php | tee "$RUNNER_TEMP/m3a-m1.txt"
+          grep -Fx 'CHECKPOINT_D1M1_RESULTS pass=28 fail=0 tests=28' "$RUNNER_TEMP/m3a-m1.txt"
+          php tests/checkpoint2026/m2.php | tee "$RUNNER_TEMP/m3a-m2.txt"
+          grep -Fx 'M2_TDD pass=22 fail=0 total=22' "$RUNNER_TEMP/m3a-m2.txt"
+          echo M3A_PHP_50_PASS
+      - name: Upload synthetic unit evidence only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3a-unit-php-${{ matrix.php }}
+          path: |
+            ${{ runner.temp }}/m3a-m1.txt
+            ${{ runner.temp }}/m3a-m2.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+  http-chromium:
+    name: PHP 8.3 Linux localhost Chromium mobile desktop E2E
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'review/checkpoint2026-m3a-linux-ci'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout synthetic files without credentials
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Setup pinned patched PHP 8.3 SQLite
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite,sqlite3
+          coverage: none
+          tools: none
+      - name: Setup Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Install Playwright Python; use GitHub-hosted system Chromium
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/m3a-venv"
+          "$RUNNER_TEMP/m3a-venv/bin/python" -m pip install --disable-pip-version-check 'playwright==1.56.0'
+          browser="$(command -v chromium || command -v chromium-browser || command -v google-chrome || command -v google-chrome-stable || true)"
+          test -n "$browser"
+          echo "M3A_SYSTEM_BROWSER_PATH=$browser"
+          "$browser" --version
+      - name: Execute real Chromium on 127.0.0.1 and assert cleanup
+        env:
+          DB_HOST: ''
+          DB_PASSWORD: ''
+          TW_AUTH_TOKEN: ''
+          PYTHONUNBUFFERED: '1'
+        run: |
+          set -euo pipefail
+          test -z "$DB_HOST" && test -z "$DB_PASSWORD" && test -z "$TW_AUTH_TOKEN"
+          "$RUNNER_TEMP/m3a-venv/bin/python" -m py_compile tests/checkpoint2026/http_e2e.py
+          "$RUNNER_TEMP/m3a-venv/bin/python" tests/checkpoint2026/http_e2e.py \
+            --report "$RUNNER_TEMP/m3a-linux-http-e2e.json" --php "$(command -v php)"
+          "$RUNNER_TEMP/m3a-venv/bin/python" - "$RUNNER_TEMP/m3a-linux-http-e2e.json" <<'PY'
+          import json,pathlib,sys
+          r=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert r['status']=='PASS',r
+          assert r['server_stopped'] is True,r
+          assert len(r['cases'])==11,r['cases']
+          assert r['errors']==[],r['errors']
+          assert len(r['screenshots'])==3,r
+          print('M3A_LINUX_CHROMIUM_11_PASS')
+          PY
+      - name: Upload browser synthetic-only evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checkpoint26-m3a-browser-evidence
+          path: |
+            ${{ runner.temp }}/m3a-linux-http-e2e.json
+            ${{ runner.temp }}/M2_Story_360_20261124.png
+            ${{ runner.temp }}/M2_Story_360_Summary_20261124.png
+            ${{ runner.temp }}/M2_Story_1280_20261124.png
+          if-no-files-found: warn
+          retention-days: 14
