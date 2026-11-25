@@ -59,7 +59,7 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
             await task
             await policy.close()
 
-        self.assertEqual(notifier.messages, ["🆕 Owlic 🐢 靈龜 6000/6000"])
+        self.assertEqual(notifier.messages, ["🆕 Owlic ❓龜🐢 6000/6000"])
 
     async def test_three_new_raids_share_one_non_resetting_batch(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -82,7 +82,7 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(len(notifier.messages), 1)
         self.assertIn("🆕 新增 3 個公開渦", notifier.messages[0])
-        self.assertEqual(notifier.messages[0].count("A 🐢 靈龜"), 2)
+        self.assertEqual(notifier.messages[0].count("A ❓龜🐢"), 2)
 
     async def test_duplicate_pending_raid_uses_latest_entry(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -104,7 +104,7 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("4321/6000", notifier.messages[0])
         self.assertNotIn("6000/6000", notifier.messages[0])
 
-    async def test_new_pending_survives_temporary_snapshot_absence(self) -> None:
+    async def test_temporary_snapshot_absence_drops_stale_new_at_publish(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             policy, notifier, _, sleeper = self.policy(directory)
             item = raid("temporary", founder="Owlic", hp=6000, hp_max=6000)
@@ -120,10 +120,10 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(policy.pending_count, 0)
             await policy.close()
 
-        self.assertEqual(len(notifier.messages), 1)
-        self.assertIn("Owlic", notifier.messages[0])
+        # No longer publicly visible at publish time: avoid stale NEW notices.
+        self.assertEqual(notifier.messages, [])
 
-    async def test_removed_event_does_not_cancel_existing_new_pending(self) -> None:
+    async def test_removed_event_drops_stale_new_at_publish(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             policy, notifier, _, sleeper = self.policy(directory)
             item = raid("removed", founder="Owlic")
@@ -141,8 +141,8 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
             await task
             await policy.close()
 
-        self.assertEqual(len(notifier.messages), 1)
-        self.assertIn("Owlic", notifier.messages[0])
+        # REMOVED during the batch window does not publish a stale NEW.
+        self.assertEqual(notifier.messages, [])
 
     async def test_updated_and_removed_only_never_send(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -177,7 +177,7 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("📡 目前支援", notifier.messages[0])
         self.assertNotIn("Old", notifier.messages[0])
 
-    async def test_due_summary_is_appended_and_persisted(self) -> None:
+    async def test_due_summary_excludes_unverified_old_and_persists(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             state_path = Path(directory) / "state.json"
             policy, notifier, state, _ = self.policy(
@@ -193,7 +193,8 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
             restarted = RaidDiff(state_path)
 
         self.assertIn("📡 目前支援", notifier.messages[0])
-        self.assertIn("Old 🐢 靈龜", notifier.messages[0])
+        # Unverified active fragments are intentionally excluded from a full summary.
+        self.assertNotIn("Old", notifier.messages[0])
         self.assertEqual(state.last_full_summary_at, 20_000)
         self.assertEqual(restarted.last_full_summary_at, 20_000)
 
@@ -250,7 +251,7 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(notifier.messages, [])
         self.assertEqual(state.last_full_summary_at, 0)
 
-    async def test_shutdown_cancels_and_drops_pending_batch(self) -> None:
+    async def test_graceful_shutdown_flushes_eligible_pending(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             policy, notifier, _, sleeper = self.policy(directory)
             item = raid("one")
@@ -261,7 +262,9 @@ class RaidNotificationPolicyTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertTrue(task.done())
         self.assertEqual(policy.pending_count, 0)
-        self.assertEqual(notifier.messages, [])
+        # Graceful shutdown flushes eligible pending events before exit.
+        self.assertEqual(len(notifier.messages), 1)
+        self.assertIn("🆕", notifier.messages[0])
 
     def test_version_two_state_without_summary_is_backward_compatible(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

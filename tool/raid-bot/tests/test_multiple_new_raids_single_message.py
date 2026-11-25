@@ -17,7 +17,7 @@ class MultipleRaidNotificationTests(unittest.IsolatedAsyncioTestCase):
                 snapshot(),
                 snapshot(
                     raid("raid-a", boss_name="靈龜"),
-                    raid("raid-b", boss_name="龍魚"),
+                    raid("raid-b", boss_name="龍魚", monster_code="mc1012_02"),
                 ),
             ])
             service = RaidService(
@@ -35,8 +35,8 @@ class MultipleRaidNotificationTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(
             notifier.messages[0],
             "🆕 新增 2 個公開渦\n"
-            "Founder 🐢 靈龜 2759/6000\n"
-            "Founder 🐢 龍魚 2759/6000",
+            "Founder ❓龜🐢 2759/6000\n"
+            "Founder ❓魚🐟 2759/6000",
         )
 
 

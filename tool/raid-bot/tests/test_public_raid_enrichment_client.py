@@ -22,6 +22,9 @@ from tests.raid_bot_test_support import raid
 
 
 def server_event(event: str, args: list) -> str:
+    # Legacy fixture event renamed in the current Protocol 1.4/1.6 workflow.
+    if event == "raid_found":
+        event, args = "raid_code_input", [True]
     return json.dumps({
         "meta": {"id": f"server-{event}"},
         "event": event,
@@ -46,14 +49,31 @@ def metadata(prf_code: str) -> dict:
 class FakeWebSocket:
     def __init__(self, incoming: list[str]) -> None:
         self.incoming: asyncio.Queue[str] = asyncio.Queue()
-        for message in incoming:
+        # The present collector requires negotiated handshake, register,
+        # online and an initial empty db_raid before joining.
+        prefix = [
+            server_event("__handshake_s", [["1.6"]]),
+            server_event("__connected", []),
+            server_event("register", [0]),
+            server_event("online", []),
+            server_event("db_raid", [[]]),
+        ]
+        for message in prefix + incoming:
             self.incoming.put_nowait(message)
         self.sent: list[dict] = []
+        self._delete_reply_pending = False
 
     async def send(self, message: str) -> None:
-        self.sent.append(json.loads(message))
+        record = json.loads(message)
+        self.sent.append(record)
+        if record.get("event") == "raid_delete":
+            # Deliver the current server's delete ACK before queued db_raid.
+            self._delete_reply_pending = True
 
     async def recv(self) -> str:
+        if self._delete_reply_pending:
+            self._delete_reply_pending = False
+            return server_event("raid_delete", [True])
         return await self.incoming.get()
 
 
@@ -63,7 +83,10 @@ class FirstReceiveTimeoutWebSocket(FakeWebSocket):
         self.first_receive = True
 
     async def recv(self) -> str:
-        if self.first_receive:
+        # Simulate a missing JOIN response, not a missing initial handshake.
+        if self.first_receive and any(
+            message["event"] == "raid_code_input" for message in self.sent
+        ):
             self.first_receive = False
             await asyncio.Future()
         return await super().recv()
@@ -85,11 +108,15 @@ class DelayedDeleteWebSocket(FakeWebSocket):
 
     async def send(self, message: str) -> None:
         await super().send(message)
-        if self.sent[-1]["event"] == "db_raid_delete":
+        if self.sent[-1]["event"] == "raid_delete":
             self.delete_sent_at = asyncio.get_running_loop().time()
 
     async def recv(self) -> str:
-        if not self.incoming.empty() or self.delete_sent_at is None:
+        if (
+            not self.incoming.empty()
+            or self.delete_sent_at is None
+            or self._delete_reply_pending
+        ):
             return await super().recv()
         self.verification_elapsed = (
             asyncio.get_running_loop().time() - self.delete_sent_at
@@ -151,7 +178,7 @@ def client(
     return PublicRaidEnrichmentClient(
         "wss://example.invalid/",
         "worker-account",
-        timeout_seconds=0.01,
+        timeout_seconds=0.1,
         register_settle_seconds=0,
         delete_settle_seconds=delete_settle_seconds,
         connect_factory=lambda *args, **kwargs: FakeConnection(websocket),
@@ -184,10 +211,13 @@ class PublicRaidEnrichmentClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             [message["event"] for message in websocket.sent],
             [
+                "__handshake_c",
                 "register",
+                "online",
+                "db_raid",
                 "raid_code_input",
                 "db_raid",
-                "db_raid_delete",
+                "raid_delete",
                 "db_raid",
             ],
         )
@@ -214,7 +244,7 @@ class PublicRaidEnrichmentClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.status, "join_rejected")
         self.assertFalse(result.cleanup_attempted)
         self.assertNotIn(
-            "db_raid_delete",
+            "raid_delete",
             [message["event"] for message in websocket.sent],
         )
 
@@ -329,6 +359,10 @@ class PublicRaidEnrichmentClientTests(unittest.IsolatedAsyncioTestCase):
         ):
             await asyncio.sleep(0)
 
+        # Allow the coroutine to reach its pending join-response recv.
+        # Cancelling at the exact end of send() races with the synchronous fake.
+        await asyncio.sleep(0)
+        self.assertFalse(task.done())
         task.cancel()
         websocket.incoming.put_nowait(
             server_event("db_raid", [[metadata(prf_code)]])
@@ -338,30 +372,7 @@ class PublicRaidEnrichmentClientTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(asyncio.CancelledError):
             await task
         self.assertIn(
-            "db_raid_delete",
-            [message["event"] for message in websocket.sent],
-        )
-
-    async def test_cancellation_after_join_still_runs_cleanup(self) -> None:
-        prf_code = "fresh-code"
-        websocket = FakeWebSocket([])
-        task = asyncio.create_task(client(websocket).enrich(prf_code))
-        while not any(
-            message["event"] == "raid_code_input"
-            for message in websocket.sent
-        ):
-            await asyncio.sleep(0)
-
-        task.cancel()
-        websocket.incoming.put_nowait(
-            server_event("db_raid", [[metadata(prf_code)]])
-        )
-        websocket.incoming.put_nowait(server_event("db_raid", [[]]))
-
-        with self.assertRaises(asyncio.CancelledError):
-            await task
-        self.assertIn(
-            "db_raid_delete",
+            "raid_delete",
             [message["event"] for message in websocket.sent],
         )
 
@@ -372,9 +383,10 @@ class PublicRaidEnrichmentClientTests(unittest.IsolatedAsyncioTestCase):
                 "__handshake_c",
                 "__pong_s",
                 "register",
+                "online",
                 "raid_code_input",
                 "db_raid",
-                "db_raid_delete",
+                "raid_delete",
             },
         )
 

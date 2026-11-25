@@ -73,12 +73,16 @@ class RaidLifecycleTrackerTests(unittest.TestCase):
         tracker.observe_snapshot(lifecycle_snapshot(item, captured_at=100))
 
         tracker.observe_snapshot(lifecycle_snapshot(captured_at=110))
-        ended = tracker.view(now=110).recent_ended[0]
+        # A missing live Raid is held for a full 60-second debounce.
+        self.assertEqual(len(tracker.view(now=110).active), 1)
+        self.assertEqual(tracker.view(now=110).recent_ended, ())
+        tracker.observe_snapshot(lifecycle_snapshot(captured_at=170))
+        ended = tracker.view(now=170).recent_ended[0]
 
         self.assertEqual(ended.status, RaidLifecycleStatus.ENDED)
         self.assertEqual(ended.raid.hp, 123)
         self.assertEqual(ended.last_seen_at, 100)
-        self.assertEqual(ended.ended_at, 110)
+        self.assertEqual(ended.ended_at, 170)
 
     def test_last_zero_hp_becomes_defeated(self) -> None:
         tracker = RaidLifecycleTracker()
@@ -86,8 +90,10 @@ class RaidLifecycleTrackerTests(unittest.TestCase):
             raid("one", hp=0),
             captured_at=100,
         ))
+        # HP=0 is authoritative and ends a Raid immediately.
+        self.assertEqual(tracker.view(now=100).active, ())
         self.assertEqual(
-            tracker.active_status(tracker.view(now=100).active[0].raid),
+            tracker.view(now=100).recent_ended[0].status,
             RaidLifecycleStatus.DEFEATED,
         )
 
@@ -117,9 +123,12 @@ class RaidLifecycleTrackerTests(unittest.TestCase):
             captured_at=10,
         ))
         tracker.observe_snapshot(lifecycle_snapshot(captured_at=20))
+        self.assertEqual(len(tracker.view(now=20).active), 1)
+        tracker.observe_snapshot(lifecycle_snapshot(captured_at=80))
 
-        self.assertEqual(len(tracker.view(now=139.999).recent_ended), 1)
-        self.assertEqual(tracker.view(now=140).recent_ended, ())
+        # The ended TTL starts from the confirmed 60-second debounce.
+        self.assertEqual(len(tracker.view(now=199.999).recent_ended), 1)
+        self.assertEqual(tracker.view(now=200).recent_ended, ())
 
     def test_reappearing_raid_removes_recent_ended_record(self) -> None:
         tracker = RaidLifecycleTracker()
@@ -190,7 +199,12 @@ class RaidLifecycleTrackerTests(unittest.TestCase):
             second,
             captured_at=20,
         ))
-        view = tracker.view(now=20)
+        self.assertEqual(len(tracker.view(now=20).active), 2)
+        tracker.observe_snapshot(lifecycle_snapshot(
+            second,
+            captured_at=80,
+        ))
+        view = tracker.view(now=80)
 
         self.assertEqual([record.raid.profound_id for record in view.active], ["second"])
         self.assertEqual(
@@ -232,7 +246,8 @@ class ObservedRaidsApiTests(unittest.TestCase):
         self.assertEqual(payload["active_count"], 1)
         self.assertEqual(payload["recent_ended_count"], 0)
         self.assertEqual(payload["updated_at"], now)
-        self.assertEqual(payload["raids"], [{
+        self.assertEqual(len(payload["raids"]), 1)
+        expected = {
             "raid_id": "one",
             "status": "active",
             "founder": "Founder",
@@ -248,9 +263,21 @@ class ObservedRaidsApiTests(unittest.TestCase):
             "ended_at": None,
             "state_raw": [],
             "state_labels": [],
-        }])
+        }
+        actual = payload["raids"][0]
+        for key, value in expected.items():
+            with self.subTest(key=key):
+                self.assertEqual(actual[key], value)
+        # The API extended its response with authoritative stage/reward fields.
+        for key in (
+            "stage_id", "rarity", "fragment", "fragment_source",
+            "treasure_level", "reward", "reward_source", "reward_items",
+            "players",
+        ):
+            self.assertIn(key, actual)
 
-    def test_observed_raids_hydrates_cached_status_without_client_call(self) -> None:
+
+    def test_observed_raids_hides_stale_enrichment_status_without_client_call(self) -> None:
         class ForbiddenClient:
             def __init__(self) -> None:
                 self.calls = 0
@@ -289,18 +316,32 @@ class ObservedRaidsApiTests(unittest.TestCase):
 
         observed = payload["raids"][0]
         self.assertEqual(client.calls, 0)
+        # Static enrichment state is deliberately not trusted as live state.
+        self.assertEqual(observed["state_raw"], [])
+        self.assertEqual(observed["state_labels"], [])
+
+    def test_observed_raids_exposes_live_verified_state(self) -> None:
+        from raid_bot.domain.status_rules import parse_raid_statuses
+
+        now = time.time()
+        service = RaidService(FakeRaidSource([]), source_name="websocket")
+        service.process_snapshot(lifecycle_snapshot(
+            raid("live"), captured_at=now,
+        ))
+        live = parse_raid_statuses([
+            {"type": "bers", "turn": int((now + 60) * 1000)},
+            {"type": "defD9", "turn": int((now + 60) * 1000)},
+        ])
+        service.active_state_cache.mark_success("live", live, ())
+
+        with TestClient(create_app(service)) as client:
+            observed = client.get("/api/observed-raids").json()["raids"][0]
+
         self.assertEqual(
-            [item["type"] for item in observed["state_raw"]],
-            ["bers", "defD9", "huin", "poison", "unknown7"],
+            [row["type"] for row in observed["state_raw"]],
+            ["bers", "defD9"],
         )
-        self.assertEqual(observed["state_raw"][1], {
-            "type": "defD9",
-            "base_type": "defD",
-            "level": 9,
-            "value": None,
-            "expires_at": now_ms + 60_000,
-        })
-        self.assertEqual(observed["state_labels"], ["封", "狂", "防-9"])
+        self.assertEqual(observed["state_labels"], ["狂", "防-9"])
 
     def test_observed_raids_cache_miss_has_empty_status_without_client_call(self) -> None:
         class ForbiddenClient:
@@ -335,7 +376,11 @@ class ObservedRaidsApiTests(unittest.TestCase):
 
     def test_observed_raids_includes_recent_ended_record(self) -> None:
         now = time.time()
-        active = raid("active")
+        # Fixture expiry must be relative to the test clock (not 2026-08).
+        active = replace(
+            raid("active"),
+            expires_at=int((now + 300) * 1000),
+        )
         ending = replace(
             raid("ending", hp=321),
             expires_at=int((now + 300) * 1000),
@@ -353,6 +398,10 @@ class ObservedRaidsApiTests(unittest.TestCase):
             active,
             captured_at=now + 1,
         ))
+        service.process_snapshot(lifecycle_snapshot(
+            active,
+            captured_at=now + 61,
+        ))
 
         with TestClient(create_app(service)) as client:
             payload = client.get("/api/observed-raids").json()
@@ -365,7 +414,7 @@ class ObservedRaidsApiTests(unittest.TestCase):
         )
         self.assertEqual(ended["status"], "ended")
         self.assertEqual(ended["last_seen_at"], now)
-        self.assertEqual(ended["ended_at"], now + 1)
+        self.assertEqual(ended["ended_at"], now + 61)
 
 
 if __name__ == "__main__":

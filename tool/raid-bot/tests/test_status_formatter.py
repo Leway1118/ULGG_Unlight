@@ -17,7 +17,7 @@ from raid_bot.services.treasure_level_enricher import apply_metadata
 from tests.raid_bot_test_support import raid
 
 
-NOW_MS = 1_000_000
+NOW_MS = 1_786_370_600_000  # Real Unix milliseconds for expiry checks.
 FUTURE_MS = NOW_MS + 60_000
 
 
@@ -38,7 +38,7 @@ class StatusFormatterTests(unittest.TestCase):
     def test_first_release_short_code_mapping(self) -> None:
         expected = {
             "poison": "毒",
-            "poison2": "猛毒",
+            "poison2": "猛",
             "atkB": "攻+",
             "atkD": "攻-",
             "defB": "防+",
@@ -46,7 +46,7 @@ class StatusFormatterTests(unittest.TestCase):
             "movB": "移+",
             "movD": "移-",
             "bind": "咒",
-            "dbuff": "弱",
+            "dbuff": "低",
             "stun": "暈",
             "immo": "不",
             "rege": "再",
@@ -95,7 +95,7 @@ class StatusFormatterTests(unittest.TestCase):
         ])
         self.assertEqual(
             format_statuses(statuses, now_ms=NOW_MS),
-            "狂 防-9 詛9 毒 弱...",
+            "狂 防-9 毒 低 詛9...",
         )
 
     def test_expired_status_is_hidden(self) -> None:
@@ -126,7 +126,7 @@ class StatusFormatterTests(unittest.TestCase):
                 now_ms=after_all_deadlines,
                 filter_expired=False,
             ),
-            "狂 攻-9 防-9 移-9 毒...",
+            "狂 防-9 攻-9 移-9 毒...",
         )
 
     def test_snapshot_mode_keeps_curse_value_and_order(self) -> None:
@@ -159,11 +159,11 @@ class StatusFormatterTests(unittest.TestCase):
 
         self.assertEqual(
             format_new_raid_batch([target]),
-            "🆕 伊迪歐特 🐢 靈龜 2290/3500｜狂 攻-9",
+            "🆕 伊迪歐特 ❓龜🐢 2290/3500｜狂 攻-9",
         )
         self.assertEqual(
             format_full_support_summary([target]),
-            "📡 目前支援\n伊迪歐特 🐢 靈龜 2290/3500｜狂 攻-9",
+            "📡 目前支援\n伊迪歐特 ❓龜🐢 2290/3500｜狂 攻-9",
         )
 
     def test_notification_without_status_is_unchanged(self) -> None:
@@ -171,7 +171,7 @@ class StatusFormatterTests(unittest.TestCase):
             format_new_raid_batch([
                 raid("raid-code", founder="伊迪歐特", hp=2290, hp_max=3500),
             ]),
-            "🆕 伊迪歐特 🐢 靈龜 2290/3500",
+            "🆕 伊迪歐特 ❓龜🐢 2290/3500",
         )
 
     def test_old_cache_without_state_is_safe(self) -> None:

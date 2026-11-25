@@ -54,6 +54,10 @@ class CaptureWebhook:
         self.calls.append((content, tuple(allowed_role_ids)))
         return True
 
+    def send_with_id(self, content: str, *, allowed_role_ids=()) -> str:
+        self.send(content, allowed_role_ids=allowed_role_ids)
+        return f"fixture-message-{len(self.calls)}"
+
 
 def new_event(item) -> RaidEvent:
     return RaidEvent(

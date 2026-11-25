@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import time
 from dataclasses import dataclass
 from typing import Any, Callable
@@ -34,7 +35,35 @@ JOIN_EVENTS = frozenset({
     "raid_code_error",
 })
 DEFAULT_DELETE_SETTLE_SECONDS = 0.25
-CLIENT_VERSION = "1.4.1"
+# Only documented/tested protocol families are permitted.
+# The exact handshake value must come from the server's advertised list.
+SUPPORTED_PROTOCOL_MINOR_VERSIONS = frozenset({(1, 4), (1, 6)})
+
+
+def choose_advertised_protocol_version(args: Any) -> str:
+    """Pick the highest supported server-offered version, or fail closed."""
+    if (
+        not isinstance(args, list)
+        or not args
+        or not isinstance(args[0], list)
+    ):
+        raise ValueError("handshake_versions_missing")
+
+    candidates: list[tuple[tuple[int, int, int], str]] = []
+    for raw in args[0]:
+        if not isinstance(raw, str):
+            continue
+        version = raw.strip()
+        if re.fullmatch(r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", version) is None:
+            continue
+        major, minor, *patch = (int(part) for part in version.split("."))
+        if (major, minor) not in SUPPORTED_PROTOCOL_MINOR_VERSIONS:
+            continue
+        candidates.append(((major, minor, patch[0] if patch else 0), version))
+
+    if not candidates:
+        raise ValueError("handshake_no_supported_version")
+    return max(candidates, key=lambda value: value[0])[1]
 
 
 @dataclass(frozen=True)
@@ -270,16 +299,17 @@ class PublicRaidEnrichmentClient:
     async def _send(self, websocket, event: str, args: list[Any]) -> None:
         await websocket.send(self._build_message(event, args))
 
-    async def _handle_control(self, websocket, event: str) -> bool:
+    async def _handle_control(self, websocket, event: str, args: Any = None) -> bool:
         if event == "__ping_s":
             await self._send(websocket, "__pong_s", [])
             return True
 
         if event == "__handshake_s":
+            negotiated_version = choose_advertised_protocol_version(args)
             await self._send(
                 websocket,
                 "__handshake_c",
-                [CLIENT_VERSION, None],
+                [negotiated_version, None],
             )
             return True
 
@@ -293,6 +323,8 @@ class PublicRaidEnrichmentClient:
     async def _wait_for(self, websocket, expected: frozenset[str]):
         loop = asyncio.get_running_loop()
         deadline = loop.time() + self.timeout_seconds
+        # Each fresh session must negotiate a supported version before __connected.
+        handshake_accepted = False
         while True:
             remaining = deadline - loop.time()
             if remaining <= 0:
@@ -307,8 +339,18 @@ class PublicRaidEnrichmentClient:
             event = payload.get("event")
             if not isinstance(event, str):
                 continue
-            if await self._handle_control(websocket, event):
+            if await self._handle_control(
+                websocket, event, payload.get("args")
+            ):
+                if event == "__handshake_s":
+                    handshake_accepted = True
                 continue
+            if (
+                event == "__connected"
+                and "__connected" in expected
+                and not handshake_accepted
+            ):
+                raise ValueError("connected_without_accepted_handshake")
             meta = payload.get("meta")
             if isinstance(meta, dict):
                 message_id = meta.get("id")
