@@ -2,12 +2,19 @@
 //I am get_steam_unlight_news.php
 require_once __DIR__ . '/summarize_local.php'; // ← 新增（本地摘要器）
 
-function getUnlightSteamNews($count = 5)
+function getUnlightSteamNews($count = 5, $maxLength = 5000)
 {
+    $maxLength = ($maxLength === 0) ? 0 : 5000;
 
-    $url = "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=3247080&count=$count&maxlength=5000";
+    $url = "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=3247080&count=$count&maxlength=$maxLength";
 
-    $json = @file_get_contents($url);
+    $context = stream_context_create([
+        'http' => [
+            'timeout' => 3.0,
+        ],
+    ]);
+
+    $json = @file_get_contents($url, false, $context);
     if (!$json) return [];
     // ⭐ 直接存原始 JSON
     file_put_contents(
