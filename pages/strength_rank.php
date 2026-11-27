@@ -19,6 +19,13 @@ $days = isset($_GET['days']) && in_array((int)$_GET['days'], [7, 14, 30], true)
   ? (int)$_GET['days']
   : 14;
 
+// Weekly filter is opt-in; legacy range ranking remains the default.
+$weeklyMode = isset($_GET['mode']) && $_GET['mode'] === 'weekly';
+$weeklyRule = null;
+if ($weeklyMode) {
+  $weeklyRule = strLoadWeeklyRule($pdo);
+}
+
 $labels = [
   '50-59' => [
     'title' => '50–59 COST',
@@ -37,6 +44,69 @@ $labels = [
     'note'  => '無限制高 COST 區間，牌組量少，需留意樣本數。',
   ],
 ];
+if ($weeklyMode) {
+  $labels = $weeklyRule === null ? [] : strWeeklyLabels($weeklyRule);
+}
+
+/**
+ * Read the active Alexandre APPROVED source as Ruleset.
+ * Never present a stale or incomplete rule as this week's rule.
+ */
+function strLoadWeeklyRule(PDO $pdo, ?DateTimeImmutable $now = null): ?array
+{
+  $tz = new DateTimeZone('Asia/Taipei');
+  $now = ($now ?? new DateTimeImmutable('now', $tz))->setTimezone($tz);
+  // Rules take effect after the announced 10:00 maintenance.
+  $asOf = $now->format('H:i') < '10:00' ? $now->modify('-1 day') : $now;
+  try {
+    $stmt = $pdo->prepare("SELECT id, effective_date, cost1, cost2, cost3, cost4, cost4_operator
+      FROM quickmatch_weekly_cost
+      WHERE ladder_zone_code = 'ALEXANDRE' AND import_status = 'APPROVED'
+        AND matchmaking_enabled = 1
+        AND effective_date <= :as_of
+      ORDER BY effective_date DESC, id DESC LIMIT 1");
+    $stmt->execute([':as_of' => $asOf->format('Y-m-d')]);
+    $rule = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$rule || $rule['effective_date'] < $asOf->modify('-6 days')->format('Y-m-d')) return null;
+    $costs = [];
+    for ($i = 1; $i <= 4; $i++) {
+      $cost = filter_var($rule['cost'.$i], FILTER_VALIDATE_INT, ['options'=>['min_range'=>1,'max_range'=>999]]);
+      if ($cost === false) return null;
+      $costs[] = $cost;
+      $rule['cost'.$i] = $cost;
+    }
+    $operator = strtoupper((string)$rule['cost4_operator']);
+    if (!in_array($operator, ['EXACT','MIN'], true) || count(array_unique($costs)) !== 4) return null;
+    if ($operator === 'MIN' && $costs[3] <= max(array_slice($costs, 0, 3))) return null;
+    $rule['cost4_operator'] = $operator;
+    return $rule;
+  } catch (Throwable $e) {
+    error_log('strength_rank: weekly COST unavailable');
+    return null;
+  }
+}
+
+function strWeeklyLabels(array $rule): array
+{
+  $labels = [];
+  for ($i = 1; $i <= 4; $i++) {
+    $min = $i === 4 && $rule['cost4_operator'] === 'MIN';
+    $labels['weekly-'.$i] = [
+      'title' => $rule['cost'.$i] . ($min ? '+' : '') . ' COST',
+      'note' => $min ? '符合本週 COST 下限的牌組。' : '符合本週精確 COST 的牌組。',
+    ];
+  }
+  return $labels;
+}
+
+function strRankHref(int $days, bool $weekly): string
+{
+  $params = ['days' => $days];
+  if ($weekly) {
+    $params['mode'] = 'weekly';
+  }
+  return '?' . http_build_query($params);
+}
 
 /**
  * 安全輸出
@@ -79,19 +149,39 @@ function strTierByMetaScore(float $score, string $confidence): array
  * - 出現熱度 15%：30 場附近滿分
  * - BP 強度 15%：1450~1700 線性加分
  */
-function strFetchMetaRankRows(PDO $pdo, int $days): array
+function strFetchMetaRankRows(PDO $pdo, int $days, ?array $weeklyRule = null): array
 {
   $days = in_array($days, [7, 14, 30], true) ? $days : 30;
 
-  $sql = "
-    WITH deck_stat AS (
-      SELECT
-        CASE
+  // Match-time cost and current card cost must both fit the category.
+  // This is a deck eligibility filter, not a claim that the matches were
+  // played in a particular ladder zone or under the current week's rules.
+  $costCase = "CASE
           WHEN a.cost BETWEEN 50 AND 59 THEN '50-59'
           WHEN a.cost BETWEEN 60 AND 69 THEN '60-69'
           WHEN a.cost BETWEEN 70 AND 80 THEN '70-80'
           WHEN a.cost >= 90 THEN '90+'
-        END AS cost_range,
+        END";
+  $costJoins = '';
+  $costMinimum = 'AND a.cost >= 50';
+  if ($weeklyRule !== null) {
+    $costCase = 'CASE';
+    for ($i = 1; $i <= 4; $i++) {
+      $cost = (int)$weeklyRule['cost'.$i];
+      $op = $i === 4 && $weeklyRule['cost4_operator'] === 'MIN' ? '>=' : '=';
+      $costCase .= " WHEN a.cost $op $cost AND (wc0.cost + wc1.cost + wc2.cost) $op $cost THEN 'weekly-$i'";
+    }
+    $costCase .= ' END';
+    $costJoins = 'JOIN unlight wc0 ON wc0.id = a.leader_id
+      JOIN unlight wc1 ON wc1.id = a.back1_id
+      JOIN unlight wc2 ON wc2.id = a.back2_id';
+    $costMinimum = '';
+  }
+
+  $sql = "
+    WITH deck_stat AS (
+      SELECT
+        {$costCase} AS cost_range,
 
         a.team_key,
         MIN(a.leader_id) AS leader_id,
@@ -115,10 +205,11 @@ function strFetchMetaRankRows(PDO $pdo, int $days): array
       JOIN arena_player_match_result o
         ON o.match_id = a.match_id
        AND o.side <> a.side
+      {$costJoins}
 
       WHERE a.update_time >= NOW() - INTERVAL {$days} DAY
         AND a.cost IS NOT NULL
-        AND a.cost >= 50
+        {$costMinimum}
         AND a.is_win IS NOT NULL
         AND o.player_bp IS NOT NULL
 
@@ -191,6 +282,10 @@ ORDER BY
     WHEN '60-69' THEN 2
     WHEN '70-80' THEN 3
     WHEN '90+' THEN 4
+    WHEN 'weekly-1' THEN 1
+    WHEN 'weekly-2' THEN 2
+    WHEN 'weekly-3' THEN 3
+    WHEN 'weekly-4' THEN 4
     ELSE 9
   END,
   meta_score DESC,
@@ -249,7 +344,7 @@ function strGetCharCards(PDO $pdo, array $ids): array
  * $rankData[cost_range]['official'][]
  * $rankData[cost_range]['watch'][]
  */
-function strBuildRankData(PDO $pdo, int $days, array $labels): array
+function strBuildRankData(PDO $pdo, int $days, array $labels, ?array $weeklyRule = null): array
 {
   $rankData = [];
   foreach ($labels as $key => $_) {
@@ -259,7 +354,8 @@ function strBuildRankData(PDO $pdo, int $days, array $labels): array
     ];
   }
 
-  $rows = strFetchMetaRankRows($pdo, $days);
+  if (!$labels) return $rankData;
+  $rows = strFetchMetaRankRows($pdo, $days, $weeklyRule);
 
   foreach ($rows as $row) {
     $costRange = (string)$row['cost_range'];
@@ -359,7 +455,7 @@ function strRenderDeckCard(array $team, int $rankNo = 0): string
 ';
 }
 
-$rankData = strBuildRankData($pdo, $days, $labels);
+$rankData = strBuildRankData($pdo, $days, $labels, $weeklyRule);
 ?>
 
 <style>
@@ -816,6 +912,15 @@ $rankData = strBuildRankData($pdo, $days, $labels);
   }
 
 
+  .str-weekly { margin: 14px 0 18px; }
+  .str-weekly .str-desc { margin: 10px 0; }
+  .str-cost-tag.active {
+    background: #2563eb;
+    border-color: #60a5fa;
+    color: #fff;
+  }
+  .str-cost-tag:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+
   .str-cost-tag:hover {
     background: rgba(59, 130, 246, .18);
     border-color: #60a5fa;
@@ -839,33 +944,41 @@ $rankData = strBuildRankData($pdo, $days, $labels);
             <div class="str-filter-bar">
 
               <div class="str-tabs">
-                <a class="str-tab <?= $days === 7 ? 'active' : '' ?>" href="?days=7">7 天</a>
-                <a class="str-tab <?= $days === 14 ? 'active' : '' ?>" href="?days=14">14 天</a>
-                <a class="str-tab <?= $days === 30 ? 'active' : '' ?>" href="?days=30">30 天</a>
+                <a class="str-tab <?= $days === 7 ? 'active' : '' ?>" href="<?= str_h(strRankHref(7, $weeklyMode)) ?>">7 天</a>
+                <a class="str-tab <?= $days === 14 ? 'active' : '' ?>" href="<?= str_h(strRankHref(14, $weeklyMode)) ?>">14 天</a>
+                <a class="str-tab <?= $days === 30 ? 'active' : '' ?>" href="<?= str_h(strRankHref(30, $weeklyMode)) ?>">30 天</a>
               </div>
 
 
               <div class="str-cost-tags">
 
-                <a class="str-cost-tag" href="#cost-50-59">
-                  COST 50-59
-                </a>
-
-                <a class="str-cost-tag" href="#cost-60-69">
-                  COST 60-69
-                </a>
-
-                <a class="str-cost-tag" href="#cost-70-80">
-                  COST 70-80
-                </a>
-
-                <a class="str-cost-tag" href="#cost-90+">
-                  COST 90+
-                </a>
+                <a class="str-cost-tag <?= $weeklyMode ? 'active' : '' ?>" href="<?= str_h(strRankHref($days, true)) ?>" <?= $weeklyMode ? 'aria-current="page"' : '' ?>>本週 COST 規則</a>
+                <?php if ($weeklyMode): ?>
+                  <a class="str-cost-tag" href="<?= str_h(strRankHref($days, false)) ?>">全部 COST 區間</a>
+                <?php else: ?>
+                  <?php foreach ($labels as $key => $label): ?>
+                    <a class="str-cost-tag" href="#cost-<?= str_h($key) ?>">COST <?= str_h($key) ?></a>
+                  <?php endforeach; ?>
+                <?php endif; ?>
 
               </div>
 
             </div>
+
+            <?php if ($weeklyMode): ?>
+              <div class="str-weekly" aria-label="本週 COST 規則">
+                <?php if ($weeklyRule): ?>
+                  <p class="str-desc">生效日 <?= str_h($weeklyRule['effective_date']) ?> · 近 <?= (int)$days ?> 天歷史牌組；依本週 COST 與現行卡片 COST 篩選，非當週或分區對戰統計。</p>
+                  <div class="str-cost-tags">
+                    <?php foreach ($labels as $key => $label): ?>
+                      <a class="str-cost-tag" href="#cost-<?= str_h($key) ?>"><?= str_h($label['title']) ?></a>
+                    <?php endforeach; ?>
+                  </div>
+                <?php else: ?>
+                  <p class="empty-card" role="status">目前無有效且已核准的本週 COST 資料，請稍後再試或查看全部 COST 區間。</p>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
 
             <div class="str-info-grid">
               <div class="str-info-card">
