@@ -121,7 +121,7 @@ function str_h($value): string
  */
 function strTierByMetaScore(float $score, string $confidence): array
 {
-  if ($confidence === '觀察中') {
+  if (in_array($confidence, ['觀察中', '低樣本', '新興組合'], true)) {
     return ['👁', 'tier-observe'];
   }
 
@@ -178,6 +178,11 @@ function strFetchMetaRankRows(PDO $pdo, int $days, ?array $weeklyRule = null): a
     $costMinimum = '';
   }
 
+  $discoveryMode = $weeklyRule !== null;
+  $sampleFilter = $discoveryMode ? 'matches >= 1' : 'matches >= 3 AND raw_win_rate >= 50';
+  $winWeight = $discoveryMode ? '0.65' : '0.50';
+  $usageWeight = $discoveryMode ? '0.00' : '0.15';
+
   $sql = "
     WITH deck_stat AS (
       SELECT
@@ -222,8 +227,7 @@ function strFetchMetaRankRows(PDO $pdo, int $days, ?array $weeklyRule = null): a
         *,
         ROUND((wins + 4) / (matches + 8) * 100, 1) AS adjusted_win_rate
       FROM deck_stat
-      WHERE matches >= 3
-        AND raw_win_rate >= 50
+      WHERE {$sampleFilter}
     ),
 
     scored AS (
@@ -263,9 +267,9 @@ function strFetchMetaRankRows(PDO $pdo, int $days, ?array $weeklyRule = null): a
   ROUND(usage_score, 1) AS usage_score,
   ROUND(bp_score, 1) AS bp_score,
   ROUND(
-    win_score * 0.50 +
+    win_score * {$winWeight} +
     sample_score * 0.20 +
-    usage_score * 0.15 +
+    usage_score * {$usageWeight} +
     bp_score * 0.15
   , 1) AS meta_score,
   CASE
@@ -356,33 +360,60 @@ function strBuildRankData(PDO $pdo, int $days, array $labels, ?array $weeklyRule
 
   if (!$labels) return $rankData;
   $rows = strFetchMetaRankRows($pdo, $days, $weeklyRule);
-
-  foreach ($rows as $row) {
-    $costRange = (string)$row['cost_range'];
-    if (!isset($rankData[$costRange])) {
-      continue;
-    }
-
-    $ids = [
-      (int)$row['leader_id'],
-      (int)$row['back1_id'],
-      (int)$row['back2_id'],
-    ];
-
-    $row['chars'] = strGetCharCards($pdo, $ids);
-    $row['ids'] = $ids;
-
-    if ((int)$row['matches'] >= 5) {
-      if (count($rankData[$costRange]['official']) < 10) {
-        $rankData[$costRange]['official'][] = $row;
+  $discoveryMode = $weeklyRule !== null;
+  $rankLimit = $discoveryMode ? 8 : 10;
+  $rankMin = $discoveryMode ? 3 : 5;
+  $rankData = strSelectRankRows($rows, $rankData, $discoveryMode, $rankLimit, $rankMin);
+  foreach ($rankData as &$group) {
+    foreach (['official', 'watch'] as $section) {
+      foreach ($group[$section] as &$row) {
+        $ids = [(int)$row['leader_id'], (int)$row['back1_id'], (int)$row['back2_id']];
+        $row['chars'] = strGetCharCards($pdo, $ids);
+        $row['ids'] = $ids;
       }
-    } else {
-      if (count($rankData[$costRange]['watch']) < 6) {
-        $rankData[$costRange]['watch'][] = $row;
-      }
+      unset($row);
     }
   }
+  unset($group);
+  return $rankData;
+}
 
+// ULGG_WEEKLY_DISCOVERY_V1: display selection is independent of database access.
+function strSelectRankRows(array $rows, array $rankData, bool $discoveryMode, int $rankLimit, int $rankMin): array
+{
+  $seen = [];
+  $candidates = [];
+  foreach ($rows as $row) {
+    $costRange = (string)$row['cost_range'];
+    if (!isset($rankData[$costRange])) continue;
+    $n = (int)$row['matches'];
+    if ($n < 1) continue;
+    $key = (string)$row['team_key'];
+    if ($discoveryMode && isset($seen[$costRange][$key])) continue;
+    $seen[$costRange][$key] = true;
+    if ($discoveryMode && $n < 5) $row['confidence_label'] = $n >= 3 ? '低樣本' : '新興組合';
+    if ($n >= $rankMin) {
+      if (count($rankData[$costRange]['official']) < $rankLimit) $rankData[$costRange]['official'][] = $row;
+    } elseif ($discoveryMode) {
+      $candidates[$costRange][] = $row;
+    } elseif (count($rankData[$costRange]['watch']) < 6) {
+      $rankData[$costRange]['watch'][] = $row;
+    }
+  }
+  if ($discoveryMode) {
+    foreach ($rankData as $key => &$group) {
+      $options = $candidates[$key] ?? [];
+      // Discovery is not a strength ranking: prioritize number of real matches,
+      // then adjusted win rate, then stable identity.
+      usort($options, static function (array $a, array $b): int {
+        return ((int)$b['matches'] <=> (int)$a['matches'])
+          ?: ((float)$b['adjusted_win_rate'] <=> (float)$a['adjusted_win_rate'])
+          ?: strcmp((string)$a['team_key'], (string)$b['team_key']);
+      });
+      $group['watch'] = array_slice($options, 0, max(0, 12 - count($group['official'])));
+    }
+    unset($group);
+  }
   return $rankData;
 }
 
@@ -421,6 +452,8 @@ function strRenderDeckCard(array $team, int $rankNo = 0): string
     $names = str_h((string)($team['team_key'] ?? '未知牌組'));
   }
 
+  $explore = $confidence === '新興組合';
+  $scoreHtml = $explore ? '實戰探索 · 暫不評級' : '綜合分 <strong>' . str_h($team['meta_score']) . '</strong>';
   $rankBadge = $rankNo > 0 ? '<span class="rank-no">#' . (int)$rankNo . '</span>' : '';
 
   return '
@@ -438,7 +471,7 @@ function strRenderDeckCard(array $team, int $rankNo = 0): string
 
     <div class="deck-score-row">
       <span>
-        綜合分 <strong>' . str_h($team['meta_score']) . '</strong>
+        ' . $scoreHtml . '
       </span>
 
       <span>
@@ -448,6 +481,7 @@ function strRenderDeckCard(array $team, int $rankNo = 0): string
 
     <div class="deck-meta">
       COST ' . str_h($team['cost_sum'] ?? $team['avg_cost']) . '
+      · ' . str_h($team['matches']) . ' 場（' . str_h($team['wins']) . '勝 ' . str_h($team['losses']) . '敗）
       · 平均 BP ' . str_h($team['avg_match_bp']) . '
     </div>
 
@@ -938,7 +972,8 @@ $rankData = strBuildRankData($pdo, $days, $labels, $weeklyRule);
             <div class="str-title">最強牌組排名｜強度排行</div>
             <div class="str-desc">
               依 <strong>COST 區間</strong> 統計近 <strong><?= (int)$days ?></strong> 天牌組表現；
-              BP 不再分區，而是納入綜合評分。正式榜至少 5 場，3～4 場歸入觀察榜。
+              BP 不再分區，而是納入綜合評分。
+              <?= $weeklyMode ? '實戰強度至少 3 場；1～2 場為組隊探索，不評級。每區最多 12 組。' : '正式榜至少 5 場，3～4 場歸入觀察榜。' ?>
             </div>
 
             <div class="str-filter-bar">
@@ -980,18 +1015,21 @@ $rankData = strBuildRankData($pdo, $days, $labels, $weeklyRule);
               </div>
             <?php endif; ?>
 
+            <?php if ($weeklyMode): ?>
+              <p class="str-desc" id="weekly-discovery-v1">綜合分：修正勝率 65% · 樣本 20% · BP 15%。低樣本僅供參考；不以人氣加分。</p>
+            <?php endif; ?>
             <div class="str-info-grid">
               <div class="str-info-card">
                 <div class="str-info-label">排序依據</div>
                 <div class="str-info-value">綜合分</div>
               </div>
               <div class="str-info-card">
-                <div class="str-info-label">正式入榜</div>
-                <div class="str-info-value">≥ 5 場</div>
+                <div class="str-info-label"><?= $weeklyMode ? '實戰強度' : '正式入榜' ?></div>
+                <div class="str-info-value"><?= $weeklyMode ? '≥ 3 場' : '≥ 5 場' ?></div>
               </div>
               <div class="str-info-card">
-                <div class="str-info-label">觀察名單</div>
-                <div class="str-info-value">3–4 場</div>
+                <div class="str-info-label"><?= $weeklyMode ? '組隊探索' : '觀察名單' ?></div>
+                <div class="str-info-value"><?= $weeklyMode ? '1–2 場' : '3–4 場' ?></div>
               </div>
             </div>
 
@@ -1008,17 +1046,17 @@ $rankData = strBuildRankData($pdo, $days, $labels, $weeklyRule);
                     <div class="cost-note"><?= str_h($info['note']) ?></div>
                   </div>
                   <div class="cost-count">
-                    正式 <?= count($officialTeams) ?> 組 · 觀察 <?= count($watchTeams) ?> 組
+                    <?= $weeklyMode ? '排行' : '正式' ?> <?= count($officialTeams) ?> 組 · <?= $weeklyMode ? '探索' : '觀察' ?> <?= count($watchTeams) ?> 組
                   </div>
                 </div>
 
                 <div class="rank-subtitle">
-                  🏆 正式強度排行
-                  <small>至少 5 場，依綜合分排序</small>
+                  🏆 <?= $weeklyMode ? '實戰強度排行' : '正式強度排行' ?>
+                  <small><?= $weeklyMode ? '至少 3 場，3–4 場標記低樣本；最多 8 組' : '至少 5 場，依綜合分排序' ?></small>
                 </div>
 
                 <?php if (empty($officialTeams)): ?>
-                  <div class="empty-card">目前此區間正式樣本不足。</div>
+                  <div class="empty-card"><?= $weeklyMode ? '目前沒有達 3 場的組合，請參考下方組隊探索。' : '目前此區間正式樣本不足。' ?></div>
                 <?php else: ?>
                   <div class="deck-grid">
                     <?php foreach ($officialTeams as $idx => $team): ?>
@@ -1028,12 +1066,12 @@ $rankData = strBuildRankData($pdo, $days, $labels, $weeklyRule);
                 <?php endif; ?>
 
                 <div class="rank-subtitle">
-                  🔎 潛力牌組觀察
-                  <small>3～4 場，僅供參考</small>
+                  🔎 <?= $weeklyMode ? '組隊探索' : '潛力牌組觀察' ?>
+                  <small><?= $weeklyMode ? '1–2 場，不給強度評級；補足至 12 組' : '3～4 場，僅供參考' ?></small>
                 </div>
 
                 <?php if (empty($watchTeams)): ?>
-                  <div class="empty-card">目前沒有符合條件的觀察牌組。</div>
+                  <div class="empty-card"><?= $weeklyMode ? '目前沒有其他 1–2 場的實戰組合。' : '目前沒有符合條件的觀察牌組。' ?></div>
                 <?php else: ?>
                   <div class="deck-grid is-watch">
                     <?php foreach ($watchTeams as $idx => $team): ?>
