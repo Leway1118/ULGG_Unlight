@@ -76,6 +76,80 @@ def secure_dirs():
         if not stat.S_ISDIR(s.st_mode) or s.st_uid!=0 or s.st_mode&0o022:raise RuntimeError('unsafe state directory')
     if PRIVATE.stat().st_mode&0o077:raise RuntimeError('private directory not private')
 
+
+def news_payload(s,receipt):
+    """Only successful, verified material generations; no raw unreleased skill data."""
+    import re
+    from datetime import datetime,timezone,timedelta
+    g=s.get('generation','')
+    if not re.fullmatch(r'[a-f0-9]{64}',g) or receipt.get('generation')!=g or receipt.get('status')!='PASS' or receipt.get('verification',{}).get('status')!='PASS' or receipt.get('cards_sha256')!=s.get('cards_sha256'):
+        raise RuntimeError('news requires verified current generation')
+    totals=receipt['summary'];updates=totals.get('updated',{})
+    cards=int(updates.get('unlight',0));cost=int(updates.get('cost_unlight',0));skills=int(updates.get('unlight_skill',0));new=int(totals.get('new_skills',0))
+    counts=[int(v) for k in ('cards','feats') for v in s.get(k,{}).values()]
+    if not any([cards,cost,skills,new,*counts]):return None
+    initial=bool(s.get('baseline_created'))
+    stamp=datetime.fromisoformat(s['last_change_at'].replace('Z','+00:00')).astimezone(timezone(timedelta(hours=8)))
+    title='官方角色／技能素材同步'+('首次建立' if initial else '更新')+'（'+stamp.strftime('%Y/%m/%d %H:%M:%S')+'）'
+    lines=['已完成官方角色卡、技能與 COST 資料同步，並通過網站資料庫驗證。']
+    lines.append('本次網站資料庫：角色卡更新 '+str(cards)+' 張、COST 更新 '+str(cost)+' 筆、既有技能更新 '+str(skills)+' 筆、新增技能 '+str(new)+' 筆。')
+    lines.append('已驗證 '+str(int(totals['released_cards']))+' 張上架角色卡。尚未上架或缺少卡圖的內容不自動公開。')
+    if initial:lines.append('此次為首次建立同步基準，不計為本週官方新增。後續每週四 18:00（台灣時間）自動檢查。')
+    else:lines.append('此公告為本次官方素材同步紀錄；未公開素材不列出詳細內容。')
+    return {'status':'ASSETS_SYNC_PASS','verified':'PASS','exit_code':0,'generation':g,'release':'CARD-ASSETS-'+g,
+            'public_news':{'type':'data','title':title,'body':'\n'.join(lines),'link':''}}
+
+
+def news_send(payload):
+    r=subprocess.run(['/usr/bin/php','-d','opcache.enable_cli=0','-d','display_errors=0','-d','zend.exception_ignore_args=1',str(SITE/'scripts/news_draft.php'),'--insert-draft'],input=json.dumps(payload,ensure_ascii=False).encode(),stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=25,check=True)
+    out=json.loads(r.stdout)
+    if out.get('status') not in ('DRAFT_CREATED','DRAFT_EXISTS') or type(out.get('id')) is not int or out['id']<1:raise RuntimeError('invalid draft receipt')
+    return out
+
+def news_after_verified(s,receipt,send=news_send):
+    # Called under existing Writer Lock, after DB verified PASS. Never change sync outcome.
+    try:
+        payload=news_payload(s,receipt)
+        folder=PRIVATE/'news-drafts';folder.mkdir(mode=0o700,exist_ok=True)
+        st=folder.lstat()
+        if not stat.S_ISDIR(st.st_mode) or (os.name=='posix' and (st.st_uid!=0 or st.st_mode&0o077)):raise RuntimeError('unsafe news outbox')
+        if payload:
+            target=folder/(payload['generation']+'.json')
+            if not target.exists():write(target,{'status':'PENDING','payload':payload},0o600)
+        # Retry only previously verified pending drafts, including on later no-op checks.
+        # Existing successful markers are never recreated even after editing or withdrawal.
+        for f in sorted(folder.glob('*.json')):
+            if f.is_symlink() or not f.is_file() or f.stat().st_size>32768:continue
+            item=read(f)
+            if item.get('status')!='PENDING':continue
+            pp=item['payload']
+            if f.stem!=pp.get('generation') or pp.get('status')!='ASSETS_SYNC_PASS' or pp.get('verified')!='PASS':raise RuntimeError('invalid pending draft')
+            try:
+                result=send(pp)
+                write(f,{'status':'DONE','generation':f.stem,'draft_id':result['id'],'result':result['status'],'at':now()},0o600)
+                print('NEWS_DRAFT_PASS '+str(result['id']),flush=True)
+            except Exception:
+                print('NEWS_DRAFT_PENDING '+f.stem,flush=True)
+    except Exception:
+        print('NEWS_DRAFT_PENDING verified sync unaffected',flush=True)
+
+def news_backfill():
+    """Backfill current already-verified generation without fetching or re-importing assets."""
+    secure_dirs()
+    with writer_lock():
+        s=read(STATE/'status.json');receipt=read(STATE/'db-current.json')
+        audit=read(STATE/'db-audit.json');attempt=read(STATE/'attempt.json')
+        last=read(PRIVATE/'latest-run.json')
+        if audit!=receipt or attempt.get('status')!='PASS' or last.get('phase')!='PASS':raise RuntimeError('no verified live sync')
+        payload=news_payload(s,receipt)
+        if not payload:return
+        g=payload['generation'];v=STATE/'versions'/g
+        if digest((v/'CharaCards.json').read_bytes())!=s['cards_sha256'] or digest((v/'Feats.json').read_bytes())!=s['feats_sha256']:raise RuntimeError('snapshot SHA mismatch')
+        news_after_verified(s,receipt)
+        r=read(PRIVATE/'news-drafts'/(g+'.json'))
+        if r.get('status')!='DONE':raise RuntimeError('draft pending; next verified check retries')
+        print('NEWS_BACKFILL_PASS '+str(r['draft_id']),flush=True)
+
 def execute_once(approved=None):
     secure_dirs()
     if approved:
@@ -114,6 +188,7 @@ def execute_once(approved=None):
         write(STATE/'db-current.json',receipt);write(STATE/'db-audit.json',receipt);write(STATE/'attempt.json',{'status':'PASS','at':now()})
         write(PRIVATE/'latest-run.json',{'work':str(work),'phase':'PASS','at':now()},0o600)
         if approved:write(PRIVATE/'first-complete.json',receipt,0o600)
+        news_after_verified(s,receipt)
         return receipt
 
 def recover_latest():
@@ -133,9 +208,11 @@ def recover_latest():
     return result
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('mode',choices=['audit','sync','rollback']);p.add_argument('--work',type=Path);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('mode',choices=['audit','sync','rollback','news-backfill']);p.add_argument('--work',type=Path);a=p.parse_args()
     if os.name!='posix' or os.geteuid()!=0:raise SystemExit('owner root on VPS only')
     os.umask(0o027)
+    if a.mode=='news-backfill':
+        news_backfill();return
     if a.mode=='audit':
         if not a.work:raise SystemExit('audit work path required')
         print(json.dumps(audit(a.work),ensure_ascii=False));return
