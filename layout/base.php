@@ -5723,6 +5723,13 @@ if (
           <span class="sidebar-text">首頁情報 <small>Bulletin</small></span>
         </a>
 
+        <!-- ULGG_NEWS_TIMELINE_V1 -->
+        <a href="/pages/news.php"
+          class="sidebar-link <?= $activeMenu === 'news' ? 'is-active' : '' ?>">
+          <span class="sidebar-icon">📰</span>
+          <span class="sidebar-text">網站公告 <small>News</small></span>
+        </a>
+
         <!-- ⭐ 新增：ULGG 杯 -->
         <a href="/pages/tournament/ulgg_cup.php"
           class="sidebar-link <?= $activeMenu === 'ulgg_cup' ? 'is-active' : '' ?>">
