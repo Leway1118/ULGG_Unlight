@@ -1,0 +1,10 @@
+[Unit]
+Description=UL.GG weekly official card sync after Thursday maintenance
+
+[Timer]
+OnCalendar=Thu *-*-* 18:00:00 Asia/Taipei
+Persistent=true
+Unit=ulgg-card-assets-refresh.service
+
+[Install]
+WantedBy=timers.target
