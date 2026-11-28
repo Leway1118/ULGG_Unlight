@@ -72,6 +72,8 @@ ob_start();
 .ul-news .news-body{white-space:pre-wrap;line-height:1.7;color:var(--text-main)}
 .ul-news .news-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .ul-news .news-panel{padding:16px 20px;margin-bottom:14px}
+.ul-news #news-publish-preview{scroll-margin-top:calc(var(--navbar-height,56px) + 20px)}
+.ul-news #news-publish-preview:target{border-color:var(--accent)}
 .ul-news .news-editor label{display:block;margin:12px 0 5px;color:var(--text-soft)}
 .ul-news .news-editor input:not([type=hidden]),.ul-news .news-editor select,.ul-news .news-editor textarea{width:100%;max-width:100%;background:var(--bg-card-mid);color:var(--text-main);border:1px solid var(--border-glow);border-radius:6px;padding:9px}
 .ul-news .news-editor textarea{min-height:140px;resize:vertical}
@@ -93,7 +95,7 @@ ob_start();
  <?php $et=$edit?ulNewsType($edit):['type'=>'update','title'=>'']; ?>
  <div class="card-dark news-editor news-panel">
   <h2 class="news-title"><?= $edit?'編輯公告':'新增公告草稿' ?></h2>
-  <form method="post" action="<?= $h($manageRoute) ?>">
+  <form method="post" action="<?= $h($manageRoute.'#news-publish-preview') ?>">
    <input type="hidden" name="csrf" value="<?= $h($csrf) ?>">
    <input type="hidden" name="action" value="preview">
    <input type="hidden" name="id" value="<?= $h($edit['id']??'') ?>">
@@ -102,12 +104,12 @@ ob_start();
    <label for="news-title">標題</label><input id="news-title" name="title" maxlength="90" required value="<?= $h($et['title']) ?>">
    <label for="news-body">公告內容</label><textarea id="news-body" name="body" maxlength="4000" required><?= $h($edit['desc']??'') ?></textarea>
    <label for="news-link">相關連結（選填）</label><input id="news-link" name="link" maxlength="255" value="<?= $h($edit['link']??'') ?>">
-   <div class="news-actions"><button class="sidebar-link news-control is-active" type="submit">預覽</button><?php if($edit):?><a class="sidebar-link news-control" href="<?= $h($manageRoute) ?>">取消編輯</a><?php endif;?></div>
+   <div class="news-actions"><button class="sidebar-link news-control is-active" type="submit">預覽並發布</button><?php if($edit):?><a class="sidebar-link news-control" href="<?= $h($manageRoute) ?>">取消編輯</a><?php endif;?></div>
   </form>
  </div>
  <?php if($preview):$pt=ulNewsType($preview['data']);?>
- <div class="card-dark news-panel">
-  <p class="news-meta">發布預覽 · <?= $h($pt['label']) ?></p>
+ <div class="card-dark news-panel" id="news-publish-preview" tabindex="-1" aria-label="發布預覽">
+  <p class="news-meta">發布預覽 · <?= $h($pt['label']) ?> · 尚未套用本次變更</p>
   <h2 class="news-title"><?= $h($pt['title']) ?></h2><div class="news-body"><?= $h($preview['data']['desc']) ?></div>
   <?php if($preview['data']['link']!==''):?><p><?= $h($preview['data']['link']) ?></p><?php endif;?>
   <form class="news-actions" method="post" action="<?= $h($manageRoute) ?>">

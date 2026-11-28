@@ -10,3 +10,7 @@ Production first installation and R3 update passed on 2026-11-28. This PR is sou
 ## Evidence
 
 Local 15 PHP SQLite cases, 8 Python asset-hook cases and 10 Chromium fixture E2E cases passed (including desktop/mobile shared-theme computed styles). Production release: first two attempts rolled back safely (HTTP content gate timing and a diagnostic regex issue); third attempt passed actual HTTP 200 for public and data-filter routes, 403 for anonymous management, verified receipt CLI preview, existing draft preservation and unchanged timer/unit hashes. No authenticated production publish action was performed. CI tests are offline and do not certify the live environment.
+
+## R4 publish UX — 2026-11-28
+
+The preview button is labeled 預覽並發布. The preview form targets the native fragment `#news-publish-preview`, with a scroll offset for the fixed navbar. The second explicit publication confirmation and CSRF/nonce protections are unchanged. Local 15 PHP + 12 browser fixture checks + 1 syntax check passed. Production Simple Deploy RELEASE_PASS, exit 0, public before/after HTTP markers and final page SHA verified. No notice writes or schedule changes. Authenticated live preview interaction has not yet been verified. No production deployment is triggered by this PR.
