@@ -484,6 +484,10 @@ if ((int)($errorSummary['error_types'] ?? 0) > 0) {
   ];
 }
 
+require_once __DIR__ . '/../includes/card_assets_status.php';
+$officialAssetWarning=ulAssetsWarning();
+if($officialAssetWarning!==null)$alerts[]=['level'=>'warning','title'=>'Official card assets','text'=>$officialAssetWarning];
+
 if (!$alerts) {
   $alerts[] = [
     'level' => 'ok',
@@ -1420,6 +1424,7 @@ ob_start();
         </div>
       </div>
 
+      <?php include __DIR__ . '/../includes/card_assets_panel.php'; ?>
       <div class="admin-layout-equal">
         <div class="admin-panel">
           <div class="admin-panel-head">
